@@ -1,0 +1,25 @@
+{
+  "name": "dao",
+  "description": "Decentralized autonomous organization with governance",
+  "modules": [
+    "governance",
+    "proposal",
+    "voting",
+    "treasury",
+    "timelock"
+  ],
+  "objects": [
+    "DAO",
+    "Proposal",
+    "Vote",
+    "Treasury"
+  ],
+  "capabilities": [
+    "AdminCap",
+    "ProposerCap",
+    "ExecutorCap"
+  ],
+  "recommended_tools": [
+    "sui-multisig"
+  ]
+}

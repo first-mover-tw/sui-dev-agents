@@ -1,0 +1,30 @@
+{
+  "name": "nft-marketplace",
+  "description": "NFT marketplace with listings, auctions, and offers",
+  "modules": [
+    "marketplace",
+    "nft",
+    "listing",
+    "auction",
+    "offer",
+    "royalty",
+    "utils"
+  ],
+  "objects": [
+    "Marketplace",
+    "NFT",
+    "Listing",
+    "Auction",
+    "Offer",
+    "RoyaltyPolicy"
+  ],
+  "capabilities": [
+    "MarketplaceAdminCap",
+    "CreatorCap"
+  ],
+  "recommended_tools": [
+    "sui-kiosk",
+    "sui-walrus",
+    "sui-suins"
+  ]
+}

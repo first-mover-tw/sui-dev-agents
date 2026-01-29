@@ -1,0 +1,28 @@
+{
+  "name": "gamefi",
+  "description": "Play-to-earn game with NFT characters and items",
+  "modules": [
+    "game",
+    "character",
+    "inventory",
+    "marketplace",
+    "rewards",
+    "quest"
+  ],
+  "objects": [
+    "Character",
+    "Item",
+    "Inventory",
+    "Quest",
+    "Battle"
+  ],
+  "capabilities": [
+    "GameMasterCap",
+    "MinterCap"
+  ],
+  "recommended_tools": [
+    "sui-walrus",
+    "sui-kiosk",
+    "sui-zklogin"
+  ]
+}
