@@ -49,13 +49,7 @@
     "./agents/subagents/sui-developer-subagent-prompt.md",
     "./agents/subagents/sui-frontend-subagent-prompt.md",
     "./agents/subagents/sui-deployer-subagent-prompt.md",
-    "./agents/subagents/sui-tester-subagent-prompt.md",
-    "./agents/tests/test-agent-invocation.md",
-    "./agents/tests/end-to-end-test.md",
-    "./agents/EXAMPLES.md",
-    "./agents/USAGE.md",
-    "./agents/GLOBAL-SETUP.md",
-    "./agents/README.md"
+    "./agents/subagents/sui-tester-subagent-prompt.md"
   ],
   "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json",

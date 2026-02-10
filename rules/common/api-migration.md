@@ -1,3 +1,7 @@
+---
+paths: "**/*.{ts,tsx,js,jsx}"
+---
+
 # API Migration Rules (SUI v1.65+)
 
 ## JSON-RPC Deprecation

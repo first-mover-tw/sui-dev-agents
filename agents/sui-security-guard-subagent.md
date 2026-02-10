@@ -2,7 +2,7 @@
 name: sui-security-guard-subagent
 description: Execute sui-security-guard skill for security scanning and vulnerability detection
 tools: Skill, Read, Bash, Grep
-model: sonnet
+model: opus
 skills:
   - sui-security-guard
 ---

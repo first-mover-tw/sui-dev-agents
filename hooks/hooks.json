@@ -1,17 +1,40 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/gas-budget-guard.sh",
+            "description": "Block abnormally large gas budget on publish"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/mainnet-guard.sh",
+            "description": "Warn when mainnet publish/upgrade/deploy is mentioned"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'f=\"$TOOL_INPUT_FILE_PATH\"; [[ \"$f\" == *.move ]] && sui move build --skip-fetch-latest-git-deps 2>&1 | tail -5 || true'",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/move-lint.sh",
             "description": "Auto-verify Move syntax after editing .move files"
           },
           {
             "type": "command",
-            "command": "bash -c 'f=\"$TOOL_INPUT_FILE_PATH\"; [[ \"$f\" == *.ts || \"$f\" == *.tsx || \"$f\" == *.js ]] && grep -n \"jsonrpc.*2.0\\|sui_get\\|suix_get\\|sui_execute\" \"$f\" 2>/dev/null && echo \"⚠️  WARNING: JSON-RPC usage detected. JSON-RPC is deprecated (removed April 2026). Use @mysten/sui SDK or gRPC instead.\" || true'",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/jsonrpc-warn.sh",
             "description": "Warn if JSON-RPC patterns detected in TypeScript/JavaScript files"
           }
         ]
@@ -33,8 +56,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'grep -rn \"#\\[test_only\\]\" sources/ 2>/dev/null | head -3 && echo \"Warning: test_only code in sources/\" || true'",
-            "description": "Warn if test_only code leaked into production sources"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/test-reminder.sh",
+            "description": "Remind to run tests if .move files were modified"
           }
         ]
       }

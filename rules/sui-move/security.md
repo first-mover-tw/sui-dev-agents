@@ -1,3 +1,7 @@
+---
+paths: "**/*.move"
+---
+
 # Sui Move Security Best Practices
 
 ## Access Control

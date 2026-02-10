@@ -1,3 +1,7 @@
+---
+paths: "**/*.move"
+---
+
 # Code Quality Standards
 
 ## Function Length

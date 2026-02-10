@@ -2,7 +2,7 @@
 name: sui-docs-query-subagent
 description: Execute sui-docs-query skill to fetch latest SUI documentation
 tools: Skill, Read, Grep, Bash
-model: sonnet
+model: haiku
 skills:
   - sui-docs-query
 ---

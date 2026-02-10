@@ -1,3 +1,7 @@
+---
+paths: "**/*.move"
+---
+
 # Sui Move Conventions
 
 ## Module Naming

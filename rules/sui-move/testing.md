@@ -1,3 +1,7 @@
+---
+paths: "**/tests/**/*.move"
+---
+
 # Sui Move Testing Conventions
 
 ## Test Coverage Requirements

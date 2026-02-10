@@ -2,7 +2,7 @@
 name: sui-architect-subagent
 description: Execute sui-architect skill to generate architecture specifications through guided Q&A process
 tools: Skill, Read, Write, AskUserQuestion
-model: sonnet
+model: opus
 skills:
   - sui-architect
 ---
