@@ -1,0 +1,9 @@
+{
+  "move": {
+    "command": "move-analyzer",
+    "args": [],
+    "extensionToLanguage": {
+      ".move": "move"
+    }
+  }
+}

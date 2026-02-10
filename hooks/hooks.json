@@ -1,0 +1,43 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'f=\"$TOOL_INPUT_FILE_PATH\"; [[ \"$f\" == *.move ]] && sui move build --skip-fetch-latest-git-deps 2>&1 | tail -5 || true'",
+            "description": "Auto-verify Move syntax after editing .move files"
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'f=\"$TOOL_INPUT_FILE_PATH\"; [[ \"$f\" == *.ts || \"$f\" == *.tsx || \"$f\" == *.js ]] && grep -n \"jsonrpc.*2.0\\|sui_get\\|suix_get\\|sui_execute\" \"$f\" 2>/dev/null && echo \"⚠️  WARNING: JSON-RPC usage detected. JSON-RPC is deprecated (removed April 2026). Use @mysten/sui SDK or gRPC instead.\" || true'",
+            "description": "Warn if JSON-RPC patterns detected in TypeScript/JavaScript files"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'command -v sui >/dev/null && sui client active-env 2>/dev/null || echo \"sui CLI not found\"'",
+            "description": "Show active SUI environment on session start"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'grep -rn \"#\\[test_only\\]\" sources/ 2>/dev/null | head -3 && echo \"Warning: test_only code in sources/\" || true'",
+            "description": "Warn if test_only code leaked into production sources"
+          }
+        ]
+      }
+    ]
+  }
+}
