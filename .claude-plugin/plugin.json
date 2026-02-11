@@ -53,7 +53,6 @@
     "./agents/sui-red-team-subagent.md",
     "./agents/subagents/sui-red-team-subagent-prompt.md"
   ],
-  "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json",
   "lspServers": "./.lsp.json"
 }
