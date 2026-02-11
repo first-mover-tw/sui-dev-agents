@@ -1,6 +1,6 @@
 {
   "name": "sui-dev-agents",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Complete SUI blockchain development toolkit with skills, agents, commands, hooks, and rules for Move smart contracts, frontend integration, testing, and deployment",
   "author": {
     "name": "Ramon Liao",
@@ -53,6 +53,6 @@
     "./agents/sui-red-team-subagent.md",
     "./agents/subagents/sui-red-team-subagent-prompt.md"
   ],
-  "mcpServers": "./.mcp.json",
-  "lspServers": "./.lsp.json"
+  "lspServers": "./.lsp.json",
+  "mcpServers": "./.mcp.json"
 }

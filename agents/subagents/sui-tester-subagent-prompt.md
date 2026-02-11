@@ -14,3 +14,10 @@ SUI v1.65.1 (Protocol 110, February 2026): Regex test filtering (`--filter "patt
 4. Collect test results and coverage
 5. Report results to parent agent
 6. If failures, coordinate with developer-subagent for fixes
+
+## MCP Verification Tools
+
+After deployment or on-chain tests, use MCP tools to verify results:
+- `sui_get_transaction` — inspect TX effects and events
+- `sui_get_object` — verify object state post-transaction
+- `sui_dry_run` — simulate transactions without execution

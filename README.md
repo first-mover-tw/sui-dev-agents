@@ -1,6 +1,6 @@
 # SUI Dev Agents
 
-**v2.1.0** - Complete toolkit for building production-ready SUI blockchain applications with skills, agents, commands, hooks, and rules. Now with **gRPC support** (JSON-RPC deprecated April 2026).
+**v2.2.0** - Complete toolkit for building production-ready SUI blockchain applications with skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Now with **gRPC support** (JSON-RPC deprecated April 2026).
 
 ## 📦 Installation
 
@@ -32,19 +32,21 @@
 /sui-dev-agents:build          # Build & verify
 /sui-dev-agents:test           # Run tests
 /sui-dev-agents:deploy         # Deploy to network
+/sui-dev-agents:audit          # Security audit
 ```
 
 ## 🔑 Key Features
 
-### 🔒 Security: Audit + Red Team
+### 🔒 Security: Audit + Red Team + Decompile
 
 ```bash
 /sui-security-guard            # Defensive scan, Git hooks, vulnerability detection
-/sui-red-team                  # Adversarial testing & exploit simulation
+/sui-red-team                  # Adversarial testing & exploit simulation (10-round default)
+/sui-decompile                 # Reverse-engineer on-chain contracts for analysis
 /sui-dev-agents:audit          # Quick security checklist
 ```
 
-Red Team simulates real attack vectors against your Move contracts — reentrancy, flash loan exploits, access control bypass, overflow attacks — and generates a security report with fixes.
+Red Team simulates real attack vectors against your Move contracts — reentrancy, flash loan exploits, access control bypass, overflow attacks, fee rounding bypass — and generates a security report with fixes. Decompile lets you study any on-chain contract via CLI or block explorer.
 
 ### ⚡ Full Development Lifecycle
 
@@ -53,12 +55,31 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 | Design | `/sui-architect` | Architecture spec generation |
 | Code | `/sui-developer` | Move contract dev + quality checks |
 | Frontend | `/sui-frontend` | React/Next.js + wallet integration |
-| Test | `/sui-tester` | Unit, integration, E2E, gas benchmarks |
+| Test | `/sui-tester` | Unit, integration, E2E, gas benchmarks, coverage analysis |
 | Deploy | `/sui-deployer` | Staged rollout: devnet → testnet → mainnet |
+| Quality | `/move-code-quality` | Move Book code quality checklist |
 
 ### 🧩 Ecosystem Integrations
 
-`/sui-kiosk` (NFT marketplace) · `/sui-zklogin` (ZK auth) · `/sui-deepbook` (DEX) · `/sui-walrus` (storage) · `/sui-passkey` (WebAuthn) · `/sui-suins` (name service) · `/sui-seal` (sealed bids) · `/sui-nautilus` (AMM)
+`/sui-kiosk` (NFT marketplace) · `/sui-zklogin` (ZK auth) · `/sui-deepbook` (DEX) · `/sui-walrus` (storage) · `/sui-passkey` (WebAuthn) · `/sui-suins` (name service) · `/sui-seal` (sealed bids) · `/sui-nautilus` (cross-chain)
+
+### 🔌 MCP Server + Agent Wallet
+
+Built-in MCP server with 14 gRPC-based tools for on-chain queries and wallet operations:
+
+```bash
+# Query tools (no approval needed)
+sui_get_balance, sui_get_object, sui_get_coins, sui_get_events,
+sui_get_transaction, sui_get_package, sui_resolve_name, ...
+
+# Wallet tools (dry-run → approve → execute)
+sui_wallet_status, sui_wallet_transfer, sui_wallet_call, sui_wallet_publish
+```
+
+```bash
+/wallet-status                 # Check agent wallet address + balance
+/mcp-status                    # Verify MCP server connection
+```
 
 ### 🤖 Agent Orchestration
 
@@ -66,14 +87,16 @@ For complex multi-step workflows, agents coordinate automatically:
 
 ```
 sui-supreme → sui-core-agent / sui-development-agent / sui-ecosystem-agent
-              └── 20 specialized subagents
+              └── 14 specialized subagents (including red-team)
 ```
 
-### 🪝 Auto Hooks
+### 🪝 Auto Hooks (8 hooks across 5 event types)
 
-- **PostToolUse** — Auto-verify Move syntax after edits
+- **PreToolUse** — Gas budget guard, red-team reminder before deploy, tx-approval guard
+- **UserPromptSubmit** — Mainnet operation warning
+- **PostToolUse** — Auto-verify Move syntax, JSON-RPC deprecation warning
 - **SessionStart** — Show active SUI network
-- **Stop** — Warn on test_only code in production
+- **Stop** — Remind to run tests if .move files were modified
 
 ## 🌐 Cross-Platform Usage
 
@@ -131,6 +154,7 @@ cp rules/sui-move/conventions.md .opencode/context/sui-conventions.md
 | Testing patterns | `rules/sui-move/testing.md` | System prompt / rules file |
 | Code quality | `rules/common/code-quality.md` | System prompt / rules file |
 | API migration | `rules/common/api-migration.md` | Reference document |
+| gRPC reference | `skills/sui-frontend/references/grpc-reference.md` | Migration guide |
 | Skill prompts | `skills/*/SKILL.md` | Task-specific system prompts |
 | Agent prompts | `agents/*.md` | Multi-step workflow templates |
 | Example projects | `examples/starter-*/` | Project scaffolding (any platform) |
@@ -170,12 +194,13 @@ Skills can be configured via `.sui-full-stack.json`:
 ## 📚 Documentation
 
 - **Quick Start:** `docs/QUICKSTART.md` - 5-minute introduction
-- **Complete Guide:** `docs/GUIDE.md` - Full usage guide (v2.0.0)
-- **Architecture:** `docs/ARCHITECTURE.md` - Component design (v2.0.0)
-- **Commands:** `commands/*.md` - Command reference
-- **Skills:** `skills/*/SKILL.md` - Skill documentation
-- **Agents:** `agents/*/prompt.md` - Agent documentation
-- **Rules:** `rules/**/*.md` - Coding conventions
+- **Complete Guide:** `docs/GUIDE.md` - Full usage guide
+- **Architecture:** `docs/ARCHITECTURE.md` - Component design
+- **Commands:** `commands/*.md` - 9 command references
+- **Skills:** `skills/*/SKILL.md` - 22 skill docs
+- **Agents:** `agents/*.md` - 19 agent definitions
+- **Rules:** `rules/**/*.md` - 5 coding conventions
+- **MCP Server:** `mcp-server/` - 14 gRPC tools source
 - **Examples:** `examples/` - Starter projects
 
 ## 🔗 Integration with CLAUDE.md

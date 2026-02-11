@@ -1,0 +1,21 @@
+{
+  "name": "sui-dev-mcp",
+  "version": "1.0.0",
+  "description": "SUI blockchain MCP server for Claude Code - query tools + agent wallet",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@mysten/sui": "^1.21.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

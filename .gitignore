@@ -1,2 +1,8 @@
 .DS_Store
 **/build/
+**/node_modules/
+mcp-server/dist/
+*.coverage_map.mvcov
+.trace
+.claude/
+deepbook-code-tab.png

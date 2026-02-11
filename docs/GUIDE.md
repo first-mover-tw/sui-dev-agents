@@ -1,6 +1,6 @@
 # SUI Dev Agents - Complete Usage Guide
 
-**Version 2.1.0**
+**Version 2.2.0**
 
 Complete guide to building production-ready SUI blockchain applications using the sui-dev-agents plugin.
 
@@ -10,11 +10,12 @@ Complete guide to building production-ready SUI blockchain applications using th
 2. [Commands](#commands)
 3. [Skills](#skills)
 4. [Agents](#agents)
-5. [Hooks](#hooks)
-6. [Rules](#rules)
-7. [Developer Tools](#developer-tools)
-8. [Examples](#examples)
-9. [Workflows](#workflows)
+5. [MCP Server & Agent Wallet](#mcp-server--agent-wallet)
+6. [Hooks](#hooks)
+7. [Rules](#rules)
+8. [Developer Tools](#developer-tools)
+9. [Examples](#examples)
+10. [Workflows](#workflows)
 
 ---
 
@@ -243,6 +244,30 @@ Generate gas usage report.
 → Total: 2.0M gas
 ```
 
+### `/sui-dev-agents:mcp-status`
+
+Check MCP server connection and available tools.
+
+**Usage:**
+```bash
+/mcp-status
+→ Server: sui-dev-mcp (gRPC)
+→ Network: testnet
+→ Tools: 14 available
+```
+
+### `/sui-dev-agents:wallet-status`
+
+Check agent wallet address and balance.
+
+**Usage:**
+```bash
+/wallet-status
+→ Address: 0x1234...
+→ Balance: 1.5 SUI
+→ Network: testnet
+```
+
 ---
 
 ## Skills
@@ -319,6 +344,44 @@ Staged deployment to networks.
 - Mainnet (full security checklist)
 
 **Best for:** Production deployment
+
+### Security & Analysis Skills
+
+#### `/sui-red-team`
+Adversarial security testing with automated attack simulation.
+
+**Features:**
+- 8 attack categories (reentrancy, flash loan, overflow, access control, etc.)
+- Configurable rounds (default 10)
+- `--keep-tests` to preserve generated attack tests
+- Security report with EXPLOITED/SUSPICIOUS/DEFENDED classification
+
+**Best for:** Pre-deployment security validation
+
+#### `/sui-decompile`
+On-chain contract reverse engineering and source retrieval.
+
+**Methods:**
+- SUI CLI (fastest, no browser)
+- Suivision Explorer (verified source)
+- Suiscan Explorer (fallback)
+
+**Best for:** Studying existing on-chain contracts
+
+#### `/move-code-quality`
+Move Book code quality checklist analysis.
+
+**Best for:** Code quality gate before deployment
+
+#### `/sui-wallet`
+Agent wallet operations via MCP server.
+
+**Features:**
+- Dry-run → approve → execute workflow
+- Transfer, call, publish operations
+- SDK-based PTB (no CLI shell injection risk)
+
+**Best for:** On-chain transactions from Claude Code
 
 ### Infrastructure Skills
 
@@ -441,62 +504,82 @@ Task({
 
 ---
 
+## MCP Server & Agent Wallet
+
+### Overview
+
+Built-in MCP server (`mcp-server/`) provides 14 gRPC-based tools for on-chain data queries and wallet operations. All tools use `SuiGrpcClient` — no JSON-RPC dependency.
+
+### Query Tools (10)
+
+| Tool | Description |
+|------|-------------|
+| `sui_get_balance` | All coin balances for an address |
+| `sui_get_object` | Object details by ID |
+| `sui_get_owned_objects` | Objects owned by address |
+| `sui_get_coins` | Coin objects with pagination |
+| `sui_get_events` | Events by transaction digest |
+| `sui_get_transaction` | Transaction details |
+| `sui_dry_run` | Simulate transaction execution |
+| `sui_get_latest_checkpoint` | Latest checkpoint number |
+| `sui_resolve_name` | SuiNS bidirectional name resolution |
+| `sui_get_package` | Package modules, structs, functions |
+
+### Wallet Tools (4)
+
+| Tool | Description |
+|------|-------------|
+| `sui_wallet_status` | Active address + balance |
+| `sui_wallet_transfer` | Transfer SUI/coins |
+| `sui_wallet_call` | Call Move function |
+| `sui_wallet_publish` | Publish Move package |
+
+**Security model:** Wallet tools use dry-run → `PENDING_APPROVAL` → execute flow. The `tx-approval-guard` hook catches any attempt to bypass MCP wallet tools via direct CLI.
+
+### Configuration
+
+Set `SUI_NETWORK` (default: testnet) and optionally `SUI_GRPC_URL` to override the gRPC endpoint.
+
+---
+
 ## Hooks
 
 Automatic verification hooks in `hooks/hooks.json`.
 
-### PostToolUse Hook
+### PreToolUse Hooks (3)
 
-**Trigger:** After `Edit` or `Write` tools used on `.move` files
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| `gas-budget-guard` | `Bash` with `sui client publish` | Block abnormally large gas budgets |
+| `red-team-guard` | `Bash` with deploy/publish/upgrade | Suggest red-team testing before deploy |
+| `tx-approval-guard` | `Bash` with `sui client` tx commands | Warn when bypassing MCP wallet tools |
 
-**Action:**
-```bash
-sui move build --skip-fetch-latest-git-deps 2>&1 | tail -5
-```
+### UserPromptSubmit Hook (1)
 
-**Purpose:** Immediate syntax verification
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| `mainnet-guard` | User mentions mainnet publish/upgrade/deploy | Warn about mainnet operations |
 
-**Example:**
-```
-[You edit nft.move]
-→ Hook runs automatically
-→ Build output: ✅ BUILDING nft
-→ Build output: Success
-```
+### PostToolUse Hooks (2)
 
-### SessionStart Hook
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| `move-lint` | `Edit`/`Write` on `.move` files | Auto-verify Move syntax |
+| `jsonrpc-warn` | `Edit`/`Write` on `.ts`/`.js` files | Warn about deprecated JSON-RPC patterns |
 
-**Trigger:** When Claude Code session starts
+### SessionStart Hook (1)
 
-**Action:**
-```bash
-sui client active-env 2>/dev/null
-```
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| `active-env` | Session starts | Display active SUI network |
 
-**Purpose:** Display active SUI environment
+### Stop Hook (1)
 
-**Example:**
-```
-[Session starts]
-→ Active environment: devnet
-```
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| `test-reminder` | Session ends | Remind to run tests if .move files were modified |
 
-### Stop Hook
-
-**Trigger:** When session stops
-
-**Action:**
-```bash
-grep -rn "#\[test_only\]" sources/ 2>/dev/null | head -3
-```
-
-**Purpose:** Warn if test_only code in production
-
-**Example:**
-```
-[Session ends]
-→ Warning: test_only code in sources/nft.move:45
-```
+**Configuration:** `hooks/hooks.json` — all hook scripts in `scripts/hooks/`
 
 ---
 
@@ -554,11 +637,11 @@ Rules are automatically applied by Claude in all SUI projects. They provide:
 
 ## Developer Tools
 
-### MCP Server Template (`.mcp.json`)
+### MCP Server (`.mcp.json` + `mcp-server/`)
 
-Template configuration for MCP servers.
+Built-in MCP server with 14 gRPC tools. Auto-loaded via plugin `mcpServers` field.
 
-**Usage:**
+**Custom setup (optional):**
 ```bash
 cp ~/.claude/plugins/sui-dev-agents/.mcp.json ./
 # Edit to add project-specific MCP servers
@@ -810,7 +893,9 @@ SUI provides three data access methods:
 | **JSON-RPC** | **Deprecated** (removed April 2026) | Legacy — migrate away |
 
 - `@mysten/sui` SDK handles transport automatically
+- The plugin's MCP server uses `SuiGrpcClient` for all operations
 - Custom RPC users must migrate to gRPC endpoints
+- `jsonrpc-warn` hook detects deprecated patterns in your code
 - See `skills/sui-frontend/references/grpc-reference.md` for details
 
 **Built for Protocol 110, Move 2024 Edition**

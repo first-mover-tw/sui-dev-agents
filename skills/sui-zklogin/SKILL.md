@@ -148,8 +148,9 @@ class ZkLoginAuth {
 
     const signed = await this.provider.signTransaction(tx, proof);
 
-    const result = await this.client.executeTransactionBlock({
-      transactionBlock: signed,
+    // ✅ SDK v1.65+ uses gRPC internally — no manual migration needed
+    const result = await this.client.executeTransaction({
+      transaction: signed,
       signature: proof.signature
     });
 

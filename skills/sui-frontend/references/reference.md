@@ -8,11 +8,13 @@ Complete SDK API reference and advanced patterns.
 
 ### SuiClient Methods
 
+> **Note:** SuiClient in SDK v1.65+ uses gRPC internally. These methods work as-is — no manual migration needed.
+
 - `getObject(params)` - Fetch single object
 - `multiGetObjects(params)` - Fetch multiple objects (batch)
 - `getOwnedObjects(params)` - Query objects by owner/type
 - `getDynamicFields(params)` - Query dynamic fields
-- `executeTransactionBlock(params)` - Execute transaction
+- `executeTransaction(params)` - Execute transaction
 - `subscribeEvent(params)` - Subscribe to events
 
 ### Transaction Methods

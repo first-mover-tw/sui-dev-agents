@@ -1,6 +1,6 @@
 # SUI Dev Agents - Architecture Overview
 
-**Version 2.0.0**
+**Version 2.2.0**
 
 Detailed architecture of the sui-dev-agents plugin, covering components, interactions, and design principles.
 
@@ -28,19 +28,19 @@ The sui-dev-agents plugin is a multi-layered toolkit for SUI blockchain developm
 │                   Component Layer                        │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
 │  │ Commands │  │  Skills  │  │  Agents  │             │
-│  │   (7)    │  │   (19)   │  │   (23)   │             │
+│  │   (9)    │  │   (22)   │  │   (19)   │             │
 │  └──────────┘  └──────────┘  └──────────┘             │
 │                                                          │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
-│  │  Hooks   │  │  Rules   │  │  Tools   │             │
-│  │   (3)    │  │   (4)    │  │   (2)    │             │
+│  │  Hooks   │  │  Rules   │  │MCP Server│             │
+│  │   (8)    │  │   (5)    │  │(14 tools)│             │
 │  └──────────┘  └──────────┘  └──────────┘             │
 └─────────────────────────────────────────────────────────┘
                           ▼
 ┌─────────────────────────────────────────────────────────┐
 │                   External Systems                       │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
-│  │ SUI CLI  │  │   Git    │  │   LSP    │             │
+│  │SUI gRPC  │  │   Git    │  │   LSP    │             │
 │  └──────────┘  └──────────┘  └──────────┘             │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -65,13 +65,15 @@ The sui-dev-agents plugin is a multi-layered toolkit for SUI blockchain developm
 
 **Command List:**
 ```
-init      → Initialize new Move project
-build     → Build contracts with verification
-test      → Run test suite
-deploy    → Deploy to network
-audit     → Security audit
-upgrade   → Upgrade contracts
-gas       → Gas usage report
+init          → Initialize new Move project
+build         → Build contracts with verification
+test          → Run test suite
+deploy        → Deploy to network
+audit         → Security audit
+upgrade       → Upgrade contracts
+gas           → Gas usage report
+mcp-status    → Check MCP server connection
+wallet-status → Check agent wallet address + balance
 ```
 
 **Flow:**
@@ -101,19 +103,26 @@ User → /sui-dev-agents:init → Command Handler → SUI CLI → Result
 Core Orchestrator (1)
 ├── sui-full-stack
 
-Development Workflow (6)
+Development Workflow (7)
 ├── sui-architect
 ├── sui-developer
 ├── sui-frontend
 ├── sui-fullstack-integration
 ├── sui-tester
-└── sui-deployer
+├── sui-deployer
+└── move-code-quality
+
+Security & Analysis (4)
+├── sui-security-guard
+├── sui-red-team
+├── sui-decompile
+└── sui-wallet
 
 Infrastructure (2)
-├── sui-security-guard
-└── sui-docs-query
+├── sui-docs-query
+└── sui-tools-guide
 
-Ecosystem Integrations (9)
+Ecosystem Integrations (8)
 ├── sui-kiosk
 ├── sui-zklogin
 ├── sui-passkey
@@ -121,8 +130,7 @@ Ecosystem Integrations (9)
 ├── sui-walrus
 ├── sui-suins
 ├── sui-seal
-├── sui-nautilus
-└── sui-tools-guide
+└── sui-nautilus
 ```
 
 **Flow:**
@@ -156,7 +164,6 @@ User → /sui-architect → Skill Handler → Multi-step Workflow
 sui-supreme (Supreme Orchestrator)
 │
 ├── sui-core-agent (Full-Stack Workflows)
-│   └── sui-full-stack-subagent
 │
 ├── sui-infrastructure-agent (Infrastructure Services)
 │   ├── sui-docs-query-subagent
@@ -167,25 +174,23 @@ sui-supreme (Supreme Orchestrator)
 │   ├── sui-developer-subagent
 │   ├── sui-frontend-subagent
 │   ├── sui-tester-subagent
-│   └── sui-deployer-subagent
+│   ├── sui-deployer-subagent
+│   ├── sui-red-team-subagent
+│   └── sui-fullstack-integration-subagent
 │
 └── sui-ecosystem-agent (Ecosystem Integrations)
     ├── sui-kiosk-subagent
     ├── sui-zklogin-subagent
     ├── sui-passkey-subagent
     ├── sui-deepbook-subagent
-    ├── sui-walrus-subagent
-    ├── sui-suins-subagent
-    ├── sui-seal-subagent
-    ├── sui-nautilus-subagent
-    └── sui-fullstack-integration-subagent
+    └── sui-walrus-subagent
 ```
 
 **Agent Types:**
 
 - **Supreme Orchestrator:** Top-level task decomposition
 - **Category Agents:** Domain-specific coordination (4 agents)
-- **Subagents:** Specialized task execution (18 agents)
+- **Subagents:** Specialized task execution (14 agents)
 
 **Flow:**
 ```
@@ -216,48 +221,29 @@ Task Tool → sui-supreme → Analyze Request
 
 **Location:** `hooks/hooks.json`
 
-**Hook Types:**
+**Hook Types (8 hooks across 5 event types):**
 
-```json
-{
-  "PostToolUse": [
-    {
-      "matcher": "Edit|Write",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "sui move build after .move file edits",
-          "description": "Auto-verify Move syntax"
-        }
-      ]
-    }
-  ],
-  "SessionStart": [
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "show active SUI environment",
-          "description": "Display network"
-        }
-      ]
-    }
-  ],
-  "Stop": [
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "check for test_only code in sources/",
-          "description": "Warn about test code leaks"
-        }
-      ]
-    }
-  ]
-}
+```
+PreToolUse (3)
+├── gas-budget-guard     → Block abnormally large gas budgets
+├── red-team-guard       → Suggest red-team testing before deploy
+└── tx-approval-guard    → Warn when bypassing MCP wallet tools
+
+UserPromptSubmit (1)
+└── mainnet-guard        → Warn about mainnet operations
+
+PostToolUse (2)
+├── move-lint            → Auto-verify Move syntax after .move edits
+└── jsonrpc-warn         → Warn about deprecated JSON-RPC patterns
+
+SessionStart (1)
+└── active-env           → Display active SUI network
+
+Stop (1)
+└── test-reminder        → Remind to run tests if .move files modified
 ```
 
-**Event Flow:**
+**Event Flow (PostToolUse example):**
 
 ```
 [User edits file.move]
@@ -266,7 +252,7 @@ Task Tool → sui-supreme → Analyze Request
     ↓
 [PostToolUse hook triggers]
     ↓
-[sui move build runs]
+[move-lint.sh runs sui move build]
     ↓
 [Output shown to user]
 ```
@@ -294,7 +280,8 @@ sui-move/
 └── testing.md        → Test patterns
 
 common/
-└── code-quality.md   → General quality standards
+├── code-quality.md   → General quality standards
+└── api-migration.md  → JSON-RPC → gRPC migration guide
 ```
 
 **Application:**
@@ -310,15 +297,34 @@ User writes code → Claude applies rules → Code generated
                   └─────────────┘
 ```
 
-### 6. Developer Tools
+### 6. MCP Server
+
+**Purpose:** On-chain data queries and wallet operations via gRPC
+
+**Location:** `mcp-server/` (TypeScript, `@modelcontextprotocol/sdk` + `@mysten/sui`)
+
+**Tools:** 10 query tools + 4 wallet tools (14 total)
+
+**Transport:** stdio, auto-loaded via `plugin.json` → `.mcp.json`
+
+**Architecture:**
+```
+Claude Code → MCP Protocol (stdio) → mcp-server/dist/index.js
+                                          ↓
+                                    SuiGrpcClient
+                                          ↓
+                                    SUI gRPC Endpoint
+```
+
+### 7. Developer Tools
 
 **Purpose:** IDE and tooling integration
 
 **Location:**
-- `.mcp.json` - MCP server template
+- `.mcp.json` - MCP server config (auto-loaded by plugin)
 - `.lsp.json` - move-analyzer LSP config
 
-**Usage:** Copy to project root for IDE integration
+**Usage:** LSP config can be copied to project root for IDE integration
 
 ---
 
@@ -327,28 +333,34 @@ User writes code → Claude applies rules → Code generated
 ```
 sui-dev-agents/
 ├── .claude-plugin/
-│   ├── plugin.json              # Plugin metadata (v2.0.0)
-│   ├── marketplace.json         # Marketplace listing
-│   └── README.md                # Plugin overview
+│   ├── plugin.json                    # Plugin metadata (v2.2.0)
+│   └── plugin-marketplace-metadata.json
 │
-├── commands/                    # 7 commands
+├── commands/                          # 9 commands
 │   ├── init.md
 │   ├── build.md
 │   ├── test.md
 │   ├── deploy.md
 │   ├── audit.md
 │   ├── upgrade.md
-│   └── gas.md
+│   ├── gas.md
+│   ├── mcp-status.md
+│   └── wallet-status.md
 │
-├── skills/                      # 19 skills
+├── skills/                            # 22 skills
 │   ├── sui-full-stack/
 │   ├── sui-architect/
 │   ├── sui-developer/
 │   ├── sui-frontend/
-│   ├── sui-tester/
+│   ├── sui-tester/                    # + coverage analysis scripts
 │   ├── sui-deployer/
 │   ├── sui-security-guard/
+│   ├── sui-red-team/                  # Adversarial testing (new)
+│   ├── sui-decompile/                 # On-chain analysis (new)
+│   ├── sui-wallet/                    # Agent wallet (new)
+│   ├── move-code-quality/             # Code quality (new)
 │   ├── sui-docs-query/
+│   ├── sui-tools-guide/
 │   ├── sui-kiosk/
 │   ├── sui-zklogin/
 │   ├── sui-passkey/
@@ -357,47 +369,60 @@ sui-dev-agents/
 │   ├── sui-suins/
 │   ├── sui-seal/
 │   ├── sui-nautilus/
-│   ├── sui-fullstack-integration/
-│   └── sui-tools-guide/
+│   └── sui-fullstack-integration/
 │
-├── agents/                      # 23 agents
-│   ├── sui-supreme.md           # Supreme orchestrator
-│   ├── sui-core-agent.md        # Category agents
+├── agents/                            # 19 agents (1 supreme + 4 category + 14 subagents)
+│   ├── sui-supreme.md
+│   ├── sui-core-agent.md
 │   ├── sui-infrastructure-agent.md
 │   ├── sui-development-agent.md
 │   ├── sui-ecosystem-agent.md
-│   └── [18 subagent files]
+│   ├── sui-red-team-subagent.md       # (new)
+│   ├── [13 other subagent files]
+│   └── subagents/                     # Agent prompt files
+│
+├── mcp-server/                        # Built-in MCP server (new)
+│   ├── src/
+│   │   ├── index.ts                   # Server entry, 14 tools
+│   │   ├── client.ts                  # SuiGrpcClient wrapper
+│   │   └── tools/                     # Tool implementations
+│   ├── dist/                          # Compiled output
+│   ├── package.json
+│   └── tsconfig.json
 │
 ├── hooks/
-│   └── hooks.json               # Hook configurations
+│   └── hooks.json                     # 8 hook configurations
 │
-├── rules/                       # 4 rule files
+├── rules/                             # 5 rule files
 │   ├── sui-move/
 │   │   ├── conventions.md
 │   │   ├── security.md
 │   │   └── testing.md
 │   └── common/
-│       └── code-quality.md
+│       ├── code-quality.md
+│       └── api-migration.md
 │
-├── examples/                    # 3 starters + template
+├── examples/                          # 3 starters + template
 │   ├── starter-nft/
 │   ├── starter-defi/
 │   ├── starter-dao/
-│   └── CLAUDE.md                # Project template
+│   └── CLAUDE.md
 │
-├── scripts/                     # 4 utility scripts
+├── scripts/
 │   ├── install-rules.sh
 │   ├── check-sui-env.sh
 │   ├── protocol-version-check.sh
-│   └── gas-report.sh
+│   ├── gas-report.sh
+│   ├── ci/validate-plugin.sh
+│   └── hooks/                         # 7 hook scripts
 │
 ├── docs/
-│   ├── QUICKSTART.md            # 5-minute intro
-│   ├── GUIDE.md                 # Complete guide (new)
-│   └── ARCHITECTURE.md          # This file (new)
+│   ├── QUICKSTART.md
+│   ├── GUIDE.md
+│   └── ARCHITECTURE.md
 │
-├── .mcp.json                    # MCP template
-├── .lsp.json                    # LSP config
+├── .mcp.json                          # MCP server config
+├── .lsp.json                          # LSP config
 ├── README.md
 ├── CHANGELOG.md
 └── LICENSE
@@ -570,6 +595,18 @@ Gradual Learning
 
 ## Version History
 
+- **v2.2.0** (2026-02-12)
+  - Added MCP Server with 14 gRPC tools (query + wallet)
+  - Added Agent Wallet with dry-run → approve → execute flow
+  - Added Red Team adversarial testing (sui-red-team skill + subagent)
+  - Added on-chain decompile skill (sui-decompile)
+  - Added Move code quality checklist (move-code-quality)
+  - Added coverage analysis tools (Python scripts in sui-tester)
+  - Added 2 new commands (mcp-status, wallet-status)
+  - Added 5 new hooks (red-team-guard, tx-approval-guard, jsonrpc-warn, mainnet-guard, gas-budget-guard)
+  - Migrated all code examples from JSON-RPC to gRPC
+  - Skills: 19 → 22, Commands: 7 → 9, Hooks: 3 → 8, Rules: 4 → 5
+
 - **v2.0.0** (2026-02-11)
   - Added Commands (7)
   - Added Hooks (3)
@@ -661,4 +698,4 @@ Gradual Learning
 
 ---
 
-**Architecture designed for Protocol 110, Move 2024 Edition**
+**Architecture designed for Protocol 110, Move 2024 Edition, gRPC GA**

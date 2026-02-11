@@ -81,6 +81,7 @@ function moveTypeToTypeScript(moveType: string): string {
 ```typescript
 // frontend/src/api/marketplace.ts
 import { Transaction } from '@mysten/sui/transactions';
+// ✅ SuiClient in SDK v1.65+ uses gRPC internally — no manual migration needed
 import { SuiClient } from '@mysten/sui/client';
 import type { Listing } from '../types/contracts';
 

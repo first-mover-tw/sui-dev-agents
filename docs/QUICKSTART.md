@@ -85,14 +85,31 @@
 
 ## 🔧 Individual Skills
 
-### Infrastructure
+### Security & Analysis
 
 ```bash
 # Security scan
 /sui-security-guard --mode strict
 
+# Adversarial testing (10-round default)
+/sui-red-team
+
+# Reverse-engineer on-chain contracts
+/sui-decompile
+
+# Move code quality checklist
+/move-code-quality
+```
+
+### Infrastructure
+
+```bash
 # Query latest docs
 /sui-docs-query "Kiosk transfer policies API"
+
+# Check MCP server + wallet
+/mcp-status
+/wallet-status
 ```
 
 ### Ecosystem Tools
@@ -111,7 +128,7 @@
 /sui-deepbook
 ```
 
-## ⚡ Commands (v2.0.0+)
+## ⚡ Commands
 
 Fast, focused operations for common tasks:
 
@@ -123,6 +140,8 @@ Fast, focused operations for common tasks:
 /sui-dev-agents:audit     # Security audit
 /sui-dev-agents:upgrade   # Upgrade contracts
 /sui-dev-agents:gas       # Gas usage report
+/mcp-status               # Check MCP server connection
+/wallet-status            # Check agent wallet address + balance
 ```
 
 ### Command Examples
@@ -149,24 +168,15 @@ Fast, focused operations for common tasks:
 → Coverage report
 ```
 
-## 🪝 Hooks (Auto Verification)
+## 🪝 Hooks (8 Auto Hooks)
 
-Plugin includes automatic verification hooks:
+Plugin includes 8 automatic hooks across 5 event types:
 
-### PostToolUse Hook
-- **Trigger:** After editing `.move` files
-- **Action:** Auto-runs `sui move build` to verify syntax
-- **Output:** Shows last 5 lines of build output
-
-### SessionStart Hook
-- **Trigger:** When Claude Code session starts
-- **Action:** Displays active SUI environment
-- **Output:** Shows current network (devnet/testnet/mainnet)
-
-### Stop Hook
-- **Trigger:** When session stops
-- **Action:** Warns if `#[test_only]` code leaked into `sources/`
-- **Output:** Shows files with test_only markers
+- **PreToolUse (3):** Gas budget guard, red-team reminder before deploy, tx-approval guard
+- **UserPromptSubmit (1):** Mainnet operation warning
+- **PostToolUse (2):** Auto-verify Move syntax, JSON-RPC deprecation warning
+- **SessionStart (1):** Show active SUI network
+- **Stop (1):** Remind to run tests if .move files were modified
 
 Configuration: `hooks/hooks.json`
 
@@ -228,13 +238,11 @@ Create `.sui-full-stack.json` in your project:
 }
 ```
 
-### LSP & MCP Servers
+### LSP & MCP Server
 
-Plugin includes templates for:
-- `.lsp.json` - move-analyzer LSP configuration
-- `.mcp.json` - MCP server template
-
-Copy to your project root if needed.
+Plugin includes:
+- **MCP Server** — 14 gRPC tools (auto-loaded, no setup needed)
+- `.lsp.json` — move-analyzer LSP configuration (copy to project root if needed)
 
 ## 📚 Example Projects
 

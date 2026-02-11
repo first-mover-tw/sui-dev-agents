@@ -13,6 +13,11 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/red-team-guard.sh",
             "description": "Suggest red-team testing before deploy/publish/upgrade"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/tx-approval-guard.sh",
+            "description": "Warn when direct sui client transaction commands bypass MCP wallet tools"
           }
         ]
       }

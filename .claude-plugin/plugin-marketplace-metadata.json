@@ -1,9 +1,9 @@
 {
   "name": "sui-dev-agents",
   "displayName": "SUI Dev Agents",
-  "version": "1.1.0",
-  "description": "Complete SUI blockchain development toolkit with skills and agents for Move smart contracts, frontend integration, testing, and deployment",
-  "longDescription": "SUI Dev Agents provides a comprehensive toolkit for building production-ready SUI blockchain applications. Includes 19 user-invocable skills and 23 orchestration agents covering the complete development lifecycle: on-chain contract analysis, architecture planning, Move smart contract development, frontend integration, comprehensive testing with coverage analysis, multi-network deployment, and ecosystem integrations (Kiosk, zkLogin, DeepBook, Walrus, SuiNS, etc.).",
+  "version": "2.2.0",
+  "description": "Complete SUI blockchain development toolkit with skills, agents, commands, hooks, MCP server, and rules for Move smart contracts, frontend integration, testing, and deployment",
+  "longDescription": "SUI Dev Agents provides a comprehensive toolkit for building production-ready SUI blockchain applications. Includes 22 user-invocable skills, 19 orchestration agents, 9 commands, 8 auto hooks, 5 rule files, and a built-in MCP server with 14 gRPC tools. Covers the complete development lifecycle: architecture planning, Move smart contract development, adversarial security testing (Red Team), on-chain contract analysis (Decompile), frontend integration, comprehensive testing with coverage analysis, agent wallet operations, multi-network deployment, and ecosystem integrations (Kiosk, zkLogin, DeepBook, Walrus, SuiNS, etc.). All gRPC-native — no JSON-RPC dependency.",
   "author": {
     "name": "Ramon Liao",
     "url": "https://x.com/RamonLiaoYC"
@@ -29,7 +29,11 @@
     "frontend",
     "kiosk",
     "zklogin",
-    "walrus"
+    "walrus",
+    "grpc",
+    "mcp",
+    "red-team",
+    "security"
   ],
   "categories": [
     "blockchain",
@@ -40,17 +44,20 @@
   ],
   "icon": "🌊",
   "features": [
-    "19 user-invocable skills for SUI development",
-    "23 hierarchical orchestration agents",
-    "Complete end-to-end workflow with /sui-full-stack",
-    "Move smart contract development with quality checks",
-    "React/Next.js/Vue frontend integration",
+    "22 user-invocable skills for SUI development",
+    "19 hierarchical orchestration agents",
+    "9 commands for fast operations",
+    "8 auto hooks across 5 event types",
+    "Built-in MCP server with 14 gRPC tools",
+    "Agent wallet with dry-run → approve → execute flow",
+    "Adversarial security testing (Red Team, 10-round default)",
     "On-chain contract decompilation and source analysis",
-    "Comprehensive testing (unit, integration, E2E, gas benchmarks, coverage analysis)",
+    "Move code quality checklist (Move Book)",
+    "Complete end-to-end workflow with /sui-full-stack",
+    "Comprehensive testing with coverage analysis",
     "Multi-network deployment (devnet, testnet, mainnet)",
-    "Security scanning and Git hooks",
     "Ecosystem integrations (Kiosk, zkLogin, DeepBook, Walrus, SuiNS)",
-    "TypeScript SDK type generation from Move"
+    "gRPC-native — no JSON-RPC dependency"
   ],
   "requirements": {
     "claudeCode": ">=1.0.0"
@@ -58,8 +65,10 @@
   "capabilities": {
     "skills": true,
     "agents": true,
-    "hooks": false,
-    "mcp": false
+    "hooks": true,
+    "mcp": true,
+    "commands": true,
+    "rules": true
   },
   "documentation": {
     "quickstart": "https://github.com/ramonliao/sui-dev-agents#-quick-start",

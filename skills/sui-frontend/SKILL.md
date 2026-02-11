@@ -105,6 +105,7 @@ frontend/
 
 ```typescript
 // src/config/sui.ts
+// ✅ SuiClient in SDK v1.65+ uses gRPC internally — no manual migration needed
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { createNetworkConfig } from '@mysten/dapp-kit';
 

@@ -110,6 +110,7 @@ async function placeBuyOrder(
 ### Query Orderbook
 
 ```typescript
+// ✅ SuiClient in SDK v1.65+ uses gRPC internally — no manual migration needed
 async function getOrderbook(poolId: string) {
   const pool = await client.getObject({
     id: poolId,

@@ -50,9 +50,9 @@ https://suivision.xyz/package/{package_id}?tab=Code
 
 ```
 1. Navigate to https://suivision.xyz/package/{package_id}?tab=Code
-2. Wait for code table to load
-3. If multiple modules: click each module tab in the sidebar
-4. Extract code with browser_evaluate:
+2. Wait for code table to load (look for `table tr` elements)
+3. If multiple modules: use browser_snapshot to find sidebar module names, then click each one
+4. Extract code per module with browser_evaluate:
 ```
 
 ```javascript
@@ -69,10 +69,16 @@ https://suivision.xyz/package/{package_id}?tab=Code
 ```
 
 ```javascript
-// List all module tabs
+// List all module names from sidebar (Suivision uses plain text elements, not role="tab")
 () => {
-  const tabs = document.querySelectorAll('[role="tab"], .module-tab, nav a');
-  return Array.from(tabs).map(t => t.textContent.trim()).filter(Boolean);
+  // Suivision renders module names as text items in a sidebar list near the code table
+  const codeSection = document.querySelector('table')?.closest('div')?.parentElement;
+  if (!codeSection) return [];
+  // Find all text-only elements that look like module names (short, no spaces, lowercase)
+  const candidates = codeSection.querySelectorAll('div, span, li, a');
+  return Array.from(candidates)
+    .map(el => el.textContent.trim())
+    .filter(t => t && /^[a-z_][a-z0-9_]*$/.test(t) && t.length < 30);
 }
 ```
 

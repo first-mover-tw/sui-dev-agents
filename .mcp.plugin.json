@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "sui-dev-mcp": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "SUI_NETWORK": "testnet"
+      }
+    }
+  }
+}
