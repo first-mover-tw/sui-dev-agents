@@ -23,14 +23,14 @@ Complete guide to building production-ready SUI blockchain applications using th
 ### Install from Marketplace
 
 ```bash
-/plugin marketplace add Thalassia/sui-dev-agents
+/plugin marketplace add first-mover-tw/sui-dev-agents
 /plugin install sui-dev-agents
 ```
 
 ### Direct Installation
 
 ```bash
-/plugin install Thalassia/sui-dev-agents
+/plugin install first-mover-tw/sui-dev-agents
 ```
 
 ### Post-Installation Setup

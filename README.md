@@ -7,14 +7,14 @@
 ### Install from Marketplace
 
 ```bash
-/plugin marketplace add Thalassia/sui-dev-agents
+/plugin marketplace add first-mover-tw/sui-dev-agents
 /plugin install sui-dev-agents
 ```
 
 ### Direct Installation (Alternative)
 
 ```bash
-/plugin install Thalassia/sui-dev-agents
+/plugin install first-mover-tw/sui-dev-agents
 ```
 
 ### Prerequisites
