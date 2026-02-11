@@ -14,6 +14,7 @@ Execute architecture, development, testing, and deployment phases by delegating 
 | Move smart contracts | sui-developer-subagent | sui-developer |
 | TypeScript frontend | sui-frontend-subagent | sui-frontend |
 | Testing | sui-tester-subagent | sui-tester |
+| Red Team Testing | sui-red-team-subagent | sui-red-team |
 | Deployment | sui-deployer-subagent | sui-deployer |
 
 ## Workflow Coordination
@@ -28,10 +29,11 @@ Execute architecture, development, testing, and deployment phases by delegating 
 2. sui-frontend-subagent completes TypeScript code
 3. Pass all code to sui-tester-subagent
 
-### Testing → Deployment
+### Testing → Red Team → Deployment
 1. sui-tester-subagent validates all tests passing
-2. Request security scan from sui-infrastructure-agent
-3. Pass package to sui-deployer-subagent
+2. sui-red-team-subagent runs adversarial attack rounds
+3. Request security scan from sui-infrastructure-agent
+4. Only if no EXPLOITED findings → pass package to sui-deployer-subagent
 
 ## Instructions
 

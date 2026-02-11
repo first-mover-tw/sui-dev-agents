@@ -59,6 +59,12 @@
       "description": "Execute sui-deployer skill - Staged deployment orchestration",
       "prompt_file": "agents/subagents/sui-deployer-subagent-prompt.md",
       "tools": ["Skill", "Bash", "AskUserQuestion"]
+    },
+    {
+      "subagent_type": "sui-red-team-subagent",
+      "description": "Execute sui-red-team skill - Adversarial security testing with attack simulation",
+      "prompt_file": "agents/subagents/sui-red-team-subagent-prompt.md",
+      "tools": ["Skill", "Read", "Write", "Edit", "Bash", "Glob", "Grep"]
     }
   ]
 }

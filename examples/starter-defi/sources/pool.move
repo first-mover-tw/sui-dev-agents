@@ -8,10 +8,17 @@ module starter_defi::pool {
     const EInsufficientLiquidity: u64 = 0;
     const EInsufficientAmount: u64 = 1;
     const ESlippageExceeded: u64 = 2;
+    const EBelowMinimumDeposit: u64 = 3;
+    const EBelowMinimumSwap: u64 = 4;
+    const EZeroLPMinted: u64 = 5;
+    const EPoolMismatch: u64 = 6;
 
     // ====== Constants ======
     const FEE_DENOMINATOR: u64 = 10000;
     const FEE_NUMERATOR: u64 = 30; // 0.3% fee
+    const MIN_LIQUIDITY: u64 = 1000; // Minimum initial LP to prevent first-depositor attack
+    const MIN_SWAP_AMOUNT: u64 = 334; // Minimum swap to guarantee fee >= 1 (334*30/10000=1)
+    const MIN_DEPOSIT_AMOUNT: u64 = 100; // Minimum deposit to prevent dust spam
 
     // ====== Structs ======
 
@@ -23,9 +30,10 @@ module starter_defi::pool {
         lp_supply: u64,
     }
 
-    /// LP token representing pool ownership
+    /// LP token representing pool ownership, bound to a specific pool
     public struct LPToken<phantom X, phantom Y> has key, store {
         id: UID,
+        pool_id: ID,
         amount: u64,
     }
 
@@ -52,17 +60,21 @@ module starter_defi::pool {
         let amount_x = coin_x.value();
         let amount_y = coin_y.value();
 
-        assert!(amount_x > 0 && amount_y > 0, EInsufficientAmount);
+        assert!(amount_x >= MIN_DEPOSIT_AMOUNT && amount_y >= MIN_DEPOSIT_AMOUNT, EBelowMinimumDeposit);
 
         let lp_amount = if (pool.lp_supply == 0) {
-            // First liquidity provider
-            (amount_x * amount_y).sqrt()
+            // Use u128 to prevent overflow: u64 * u64 can exceed u64::MAX
+            let product = (amount_x as u128) * (amount_y as u128);
+            let lp = (product.sqrt() as u64);
+            assert!(lp >= MIN_LIQUIDITY, EBelowMinimumDeposit);
+            lp
         } else {
-            // Subsequent providers: mint proportional to existing ratio
             let lp_from_x = (amount_x * pool.lp_supply) / pool.balance_x.value();
             let lp_from_y = (amount_y * pool.lp_supply) / pool.balance_y.value();
             if (lp_from_x < lp_from_y) lp_from_x else lp_from_y
         };
+
+        assert!(lp_amount > 0, EZeroLPMinted);
 
         coin::put(&mut pool.balance_x, coin_x);
         coin::put(&mut pool.balance_y, coin_y);
@@ -70,48 +82,59 @@ module starter_defi::pool {
 
         let lp_token = LPToken<X, Y> {
             id: object::new(ctx),
+            pool_id: object::id(pool),
             amount: lp_amount,
         };
         transfer::transfer(lp_token, ctx.sender());
     }
 
-    /// Swap X for Y
+    /// Swap X for Y with slippage protection
     public fun swap_x_to_y<X, Y>(
         pool: &mut Pool<X, Y>,
         coin_x: Coin<X>,
+        min_amount_out: u64,
         ctx: &mut TxContext
     ) {
         let amount_in = coin_x.value();
-        assert!(amount_in > 0, EInsufficientAmount);
+        assert!(amount_in >= MIN_SWAP_AMOUNT, EBelowMinimumSwap);
 
-        // Calculate output with fee: y_out = (y * x_in * 9970) / (x * 10000 + x_in * 9970)
         let reserve_x = pool.balance_x.value();
         let reserve_y = pool.balance_y.value();
-        let amount_in_with_fee = amount_in * (FEE_DENOMINATOR - FEE_NUMERATOR);
-        let amount_out = (reserve_y * amount_in_with_fee) / (reserve_x * FEE_DENOMINATOR + amount_in_with_fee);
+
+        // Use u128 to prevent overflow on large amounts
+        let amount_in_with_fee = (amount_in as u128) * ((FEE_DENOMINATOR - FEE_NUMERATOR) as u128);
+        let numerator = (reserve_y as u128) * amount_in_with_fee;
+        let denominator = (reserve_x as u128) * (FEE_DENOMINATOR as u128) + amount_in_with_fee;
+        let amount_out = (numerator / denominator as u64);
 
         assert!(amount_out > 0 && amount_out < reserve_y, EInsufficientLiquidity);
+        assert!(amount_out >= min_amount_out, ESlippageExceeded);
 
         coin::put(&mut pool.balance_x, coin_x);
         let coin_out = coin::take(&mut pool.balance_y, amount_out, ctx);
         transfer::public_transfer(coin_out, ctx.sender());
     }
 
-    /// Swap Y for X
+    /// Swap Y for X with slippage protection
     public fun swap_y_to_x<X, Y>(
         pool: &mut Pool<X, Y>,
         coin_y: Coin<Y>,
+        min_amount_out: u64,
         ctx: &mut TxContext
     ) {
         let amount_in = coin_y.value();
-        assert!(amount_in > 0, EInsufficientAmount);
+        assert!(amount_in >= MIN_SWAP_AMOUNT, EBelowMinimumSwap);
 
         let reserve_x = pool.balance_x.value();
         let reserve_y = pool.balance_y.value();
-        let amount_in_with_fee = amount_in * (FEE_DENOMINATOR - FEE_NUMERATOR);
-        let amount_out = (reserve_x * amount_in_with_fee) / (reserve_y * FEE_DENOMINATOR + amount_in_with_fee);
+
+        let amount_in_with_fee = (amount_in as u128) * ((FEE_DENOMINATOR - FEE_NUMERATOR) as u128);
+        let numerator = (reserve_x as u128) * amount_in_with_fee;
+        let denominator = (reserve_y as u128) * (FEE_DENOMINATOR as u128) + amount_in_with_fee;
+        let amount_out = (numerator / denominator as u64);
 
         assert!(amount_out > 0 && amount_out < reserve_x, EInsufficientLiquidity);
+        assert!(amount_out >= min_amount_out, ESlippageExceeded);
 
         coin::put(&mut pool.balance_y, coin_y);
         let coin_out = coin::take(&mut pool.balance_x, amount_out, ctx);
@@ -124,8 +147,11 @@ module starter_defi::pool {
         lp_token: LPToken<X, Y>,
         ctx: &mut TxContext
     ) {
-        let LPToken { id, amount } = lp_token;
+        let LPToken { id, pool_id, amount } = lp_token;
+        assert!(pool_id == object::id(pool), EPoolMismatch);
         object::delete(id);
+
+        assert!(amount > 0, EInsufficientAmount);
 
         let reserve_x = pool.balance_x.value();
         let reserve_y = pool.balance_y.value();

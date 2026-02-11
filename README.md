@@ -2,43 +2,6 @@
 
 **v2.1.0** - Complete toolkit for building production-ready SUI blockchain applications with skills, agents, commands, hooks, and rules. Now with **gRPC support** (JSON-RPC deprecated April 2026).
 
-## 📋 Prerequisites
-
-Before using this plugin, ensure you have the following installed:
-
-| Tool | Version | Required | Install |
-|------|---------|----------|---------|
-| [SUI CLI](https://docs.sui.io/guides/developer/getting-started/sui-install) | >= 1.65 | **Yes** | `cargo install --locked --git https://github.com/MystenLabs/sui.git sui` |
-| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | >= 1.0 | **Yes** | `npm install -g @anthropic-ai/claude-code` |
-| [Node.js](https://nodejs.org/) | >= 18 | **Yes** | `brew install node` or [nvm](https://github.com/nvm-sh/nvm) |
-| [Rust](https://www.rust-lang.org/tools/install) | latest stable | **Yes** | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| [Git](https://git-scm.com/) | >= 2.0 | **Yes** | `brew install git` |
-| [move-analyzer](https://github.com/MystenLabs/sui/tree/main/external-crates/move/crates/move-analyzer) | latest | Recommended | `cargo install --git https://github.com/MystenLabs/sui.git move-analyzer` |
-| [jq](https://jqlang.github.io/jq/) | >= 1.6 | Recommended | `brew install jq` |
-
-### Verify Installation
-
-```bash
-sui --version          # Should show >= 1.65
-sui client envs        # Should list devnet/testnet/mainnet
-node --version         # Should show >= 18
-git --version
-```
-
-### SUI Network Setup
-
-```bash
-# Add networks if not already configured
-sui client new-env --alias devnet --rpc https://fullnode.devnet.sui.io:443
-sui client new-env --alias testnet --rpc https://fullnode.testnet.sui.io:443
-
-# Get devnet tokens
-sui client faucet --url https://faucet.devnet.sui.io/v2/gas
-
-# Switch network
-sui client switch --env devnet
-```
-
 ## 📦 Installation
 
 ### Install from Marketplace
@@ -54,270 +17,69 @@ sui client switch --env devnet
 /plugin install Thalassia/sui-dev-agents
 ```
 
+### Prerequisites
+
+- **SUI CLI** >= 1.65 — `cargo install --locked --git https://github.com/MystenLabs/sui.git sui`
+- **Claude Code** >= 1.0 — `npm install -g @anthropic-ai/claude-code`
+- **Node.js** >= 18, **Rust** (stable), **Git** >= 2.0
+- Recommended: [move-analyzer](https://github.com/MystenLabs/sui/tree/main/external-crates/move/crates/move-analyzer), [jq](https://jqlang.github.io/jq/)
+
 ## 🚀 Quick Start
 
-### Using Skills (Direct Commands)
-
-Start a complete SUI project:
 ```bash
-/sui-full-stack
+/sui-full-stack                # Full project: architecture → deploy
+/sui-dev-agents:init           # Init new Move project
+/sui-dev-agents:build          # Build & verify
+/sui-dev-agents:test           # Run tests
+/sui-dev-agents:deploy         # Deploy to network
 ```
 
-Use individual skills:
-```bash
-/sui-architect      # Architecture planning
-/sui-developer      # Smart contract development
-/sui-frontend       # Frontend integration
-/sui-tester         # Comprehensive testing
-/sui-deployer       # Multi-network deployment
-```
+## 🔑 Key Features
 
-### Using Agents (Task Delegation)
-
-For complex orchestrated workflows, use agents via the Task tool:
-
-```typescript
-// Complete project build
-Task({
-  subagent_type: "sui-supreme",
-  prompt: "Build an NFT marketplace with Kiosk integration",
-  description: "NFT marketplace build"
-})
-
-// Specific development phase
-Task({
-  subagent_type: "sui-development-agent",
-  prompt: "Generate architecture for a DeFi AMM",
-  description: "AMM architecture"
-})
-```
-
-## 🧩 What's Included
-
-### ⚡ Commands (7 Fast Operations)
-
-Quick, focused operations for common tasks:
-- `/sui-dev-agents:init` - Initialize new Move project
-- `/sui-dev-agents:build` - Build contracts with verification
-- `/sui-dev-agents:test` - Run comprehensive tests
-- `/sui-dev-agents:deploy` - Deploy to network
-- `/sui-dev-agents:audit` - Security audit
-- `/sui-dev-agents:upgrade` - Upgrade contracts
-- `/sui-dev-agents:gas` - Gas usage report
-
-### 🛠️ Skills (20 User-Invocable Skills)
-
-**Core Orchestrator:**
-- `/sui-full-stack` - Complete end-to-end project workflow with Git integration
-
-**Development Workflow:**
-- `/sui-architect` - Architecture planning and specification generation
-- `/sui-developer` - Move smart contract development with quality checks
-- `/sui-frontend` - React/Next.js/Vue frontend integration
-- `/sui-fullstack-integration` - TypeScript type generation from Move
-- `/sui-tester` - Comprehensive testing (unit, integration, E2E, gas benchmarks)
-- `/sui-deployer` - Staged deployment (devnet, testnet, mainnet)
-
-**Infrastructure & Quality:**
-- `/sui-security-guard` - Security scanning, Git hooks, vulnerability detection
-- `/sui-red-team` - Adversarial testing and exploit simulation
-- `/sui-docs-query` - Latest SUI documentation lookup
-- `/move-code-quality` - Move code quality checklist analysis
-- `/sui-tools-guide` - Tool selection and recommendation
-
-**Ecosystem Integrations:**
-- `/sui-kiosk` - NFT marketplace protocol (royalties, policies)
-- `/sui-zklogin` - Zero-knowledge authentication
-- `/sui-passkey` - WebAuthn integration
-- `/sui-deepbook` - DEX protocol integration
-- `/sui-walrus` - Decentralized storage
-- `/sui-suins` - SUI name service
-- `/sui-seal` - Asset wrapping protocol
-- `/sui-nautilus` - AMM protocol
-
-### 🤖 Agents (25 Orchestration Agents)
-
-**Supreme Orchestrator:**
-- `sui-supreme` - Top-level task decomposition and coordination
-
-**Category Agents:**
-- `sui-core-agent` - Full-stack project workflows
-- `sui-infrastructure-agent` - Documentation and security services
-- `sui-development-agent` - Complete development lifecycle
-- `sui-ecosystem-agent` - Protocol integrations
-
-**Specialized Subagents (20):**
-- Architecture, development, frontend, testing, deployment subagents
-- Security guard, red-team subagents
-- Ecosystem-specific subagents (Kiosk, zkLogin, DeepBook, Walrus, etc.)
-
-### 🪝 Hooks (Automatic Verification)
-
-Three lifecycle hooks for automation:
-- **PostToolUse** - Auto-verify Move syntax after edits
-- **SessionStart** - Show active SUI environment
-- **Stop** - Warn if test_only code in production
-
-### 📏 Rules (Best Practices)
-
-Installable coding standards:
-- `sui-move/conventions.md` - Move coding patterns
-- `sui-move/security.md` - Security guidelines
-- `sui-move/testing.md` - Test patterns
-- `common/code-quality.md` - Code quality rules
-- `common/api-migration.md` - gRPC migration guide
-
-Install: `bash scripts/install-rules.sh`
-
-### 🔧 Developer Tools
-
-- `.mcp.json` - MCP server template
-- `.lsp.json` - move-analyzer LSP config
-
-### 📁 Examples
-
-Complete starter projects:
-- `starter-nft/` - NFT collection with Kiosk
-- `starter-defi/` - DeFi AMM
-- `starter-dao/` - DAO governance
-- `CLAUDE.md` - Project instructions template
-
-### 📜 Scripts
-
-Utility scripts:
-- `install-rules.sh` - Install rules to ~/.claude/rules/
-- `check-sui-env.sh` - Verify SUI environment
-- `protocol-version-check.sh` - Check protocol version
-- `gas-report.sh` - Generate gas report
-
-## 🏗️ Architecture
-
-### Three-Tier System
-
-**Commands** - Fast, focused operations:
-- Single-purpose tasks
-- Minimal interaction
-- Quick execution
-- Example: `/sui-dev-agents:build` to compile contracts
-
-**Skills** - Direct user invocation for specific tasks:
-- More complex than commands
-- Interactive workflows
-- Immediate execution
-- Example: `/sui-architect` to plan architecture
-
-**Agents** - Complex multi-step orchestration:
-- Hierarchical delegation
-- State management
-- Inter-agent communication
-- Example: `sui-supreme` orchestrates entire project
-
-### Component Hierarchy
-
-```
-Commands (7)           Skills (20)              Agents (25)
-    |                      |                         |
-  init              sui-full-stack          sui-supreme
-  build             sui-architect           +-- sui-core-agent
-  test              sui-developer           +-- sui-infrastructure-agent
-  deploy            sui-frontend            +-- sui-development-agent
-  audit             sui-tester              +-- sui-ecosystem-agent
-  upgrade           sui-deployer                 +-- [20 subagents]
-  gas               [14 more skills]
-
-        |
-    Hooks (3)               Rules (5)
-PostToolUse             sui-move/conventions.md
-SessionStart            sui-move/security.md
-Stop                    sui-move/testing.md
-                        common/code-quality.md
-                        common/api-migration.md
-```
-
-See `docs/ARCHITECTURE.md` for detailed component interactions.
-
-## 📖 Usage Examples
-
-### Example 1: Quick Start (Commands)
+### 🔒 Security: Audit + Red Team
 
 ```bash
-# Fast iteration workflow
-/sui-dev-agents:init               # 1. Initialize project
-# ... write some Move code ...
-/sui-dev-agents:build              # 2. Build & verify
-/sui-dev-agents:test               # 3. Run tests
-/sui-dev-agents:audit              # 4. Security scan
-/sui-dev-agents:deploy             # 5. Deploy to devnet
-/sui-dev-agents:gas                # 6. Check gas usage
-
-# Live on devnet in minutes!
+/sui-security-guard            # Defensive scan, Git hooks, vulnerability detection
+/sui-red-team                  # Adversarial testing & exploit simulation
+/sui-dev-agents:audit          # Quick security checklist
 ```
 
-### Example 2: Complete New Project (Skills)
+Red Team simulates real attack vectors against your Move contracts — reentrancy, flash loan exploits, access control bypass, overflow attacks — and generates a security report with fixes.
 
-```bash
-User: "Build an NFT marketplace"
+### ⚡ Full Development Lifecycle
 
-/sui-full-stack
--> Phase 0: Initialize project with Git + GitHub
--> Phase 1: Architecture planning (/sui-architect)
--> Phase 2: Smart contract development (/sui-developer)
--> Phase 3: Frontend integration (/sui-frontend)
--> Phase 4: Full-stack integration
--> Phase 5: Testing (/sui-tester)
--> Phase 6: Deployment (/sui-deployer)
--> Phase 7: Documentation generation
+| Phase | Skill | What it does |
+|-------|-------|-------------|
+| Design | `/sui-architect` | Architecture spec generation |
+| Code | `/sui-developer` | Move contract dev + quality checks |
+| Frontend | `/sui-frontend` | React/Next.js + wallet integration |
+| Test | `/sui-tester` | Unit, integration, E2E, gas benchmarks |
+| Deploy | `/sui-deployer` | Staged rollout: devnet → testnet → mainnet |
 
-# Production-ready NFT marketplace with Git history!
+### 🧩 Ecosystem Integrations
+
+`/sui-kiosk` (NFT marketplace) · `/sui-zklogin` (ZK auth) · `/sui-deepbook` (DEX) · `/sui-walrus` (storage) · `/sui-passkey` (WebAuthn) · `/sui-suins` (name service) · `/sui-seal` (sealed bids) · `/sui-nautilus` (AMM)
+
+### 🤖 Agent Orchestration
+
+For complex multi-step workflows, agents coordinate automatically:
+
+```
+sui-supreme → sui-core-agent / sui-development-agent / sui-ecosystem-agent
+              └── 20 specialized subagents
 ```
 
-### Example 3: Add Feature to Existing Project
+### 🪝 Auto Hooks
 
-```bash
-User: "Add zkLogin to my existing dApp"
+- **PostToolUse** — Auto-verify Move syntax after edits
+- **SessionStart** — Show active SUI network
+- **Stop** — Warn on test_only code in production
 
-/sui-architect --update    # Update architecture spec
-/sui-zklogin              # Integration guide
-/sui-developer            # Modify contracts
-/sui-frontend             # Add auth UI
-/sui-dev-agents:test      # Run tests quickly
-/sui-dev-agents:upgrade   # Upgrade deployment
-```
+## 🌐 Cross-Platform Usage
 
-### Example 4: Security Audit + Red Team
-
-```bash
-/sui-security-guard --mode strict    # Defensive scan
-/sui-red-team                        # Adversarial testing
-
--> Scans all Move contracts
--> Simulates attack vectors
--> Checks for OWASP vulnerabilities
--> Validates Git hooks
--> Generates security report
-```
-
-### Example 5: Using Example Projects
-
-```bash
-# Start from template
-cp -r ~/.claude/plugins/sui-dev-agents/examples/starter-nft ./my-nft
-
-cd my-nft
-/sui-dev-agents:build
-/sui-dev-agents:test
-/sui-dev-agents:deploy
-
-# NFT project running in 60 seconds!
-```
-
-## 🌐 Using on Other Platforms
-
-This plugin is built for **Claude Code**, but the underlying skills, prompts, and rules are portable markdown files. Here's how to leverage them on other AI coding platforms:
+Rules and skill prompts are portable markdown — works with Cursor, Windsurf, Codex CLI, Gemini CLI, Aider, Cline, OpenCode.
 
 ### Cursor / Windsurf
-
-Copy the rules into your project's AI rules directory:
 
 ```bash
 # Cursor
@@ -329,76 +91,35 @@ cp -r rules/sui-move/ .windsurf/rules/
 cp -r rules/common/ .windsurf/rules/
 ```
 
-You can also paste skill prompts (e.g. `skills/sui-developer/SKILL.md`) into the system instructions or rules file for specific workflows.
-
 ### OpenAI Codex CLI
 
-Use the rules as [Codex instructions](https://github.com/openai/codex):
-
 ```bash
-# Copy rules to Codex instructions
 cat rules/sui-move/conventions.md rules/sui-move/security.md > codex-instructions.md
-
-# Use as system prompt
 codex --instructions codex-instructions.md "Build a SUI Move token contract"
 ```
 
-For skill-level guidance, prepend a skill file to your prompt:
-
-```bash
-codex --instructions skills/sui-developer/SKILL.md "Create an NFT module"
-```
-
 ### Google Gemini CLI
-
-Use with [Gemini CLI](https://github.com/google-gemini/gemini-cli) via `GEMINI.md` or system instructions:
-
-```bash
-# Copy rules to Gemini system instructions
-cp rules/sui-move/conventions.md GEMINI.md
-
-# Or use as a context file
-gemini -s rules/sui-move/conventions.md "Write a Move coin module"
-```
-
-You can also create a `GEMINI.md` in your project root combining relevant rules:
 
 ```bash
 cat rules/sui-move/conventions.md rules/sui-move/security.md rules/common/code-quality.md > GEMINI.md
 ```
 
-### OpenCode
-
-For [OpenCode](https://github.com/opencode-ai/opencode), use as context files:
-
-```bash
-# Add rules to OpenCode's context
-cp rules/sui-move/conventions.md .opencode/context/sui-conventions.md
-cp rules/sui-move/security.md .opencode/context/sui-security.md
-```
-
 ### Aider
 
-Use rules as [Aider conventions](https://aider.chat/docs/usage/conventions.html):
-
 ```bash
-# Add to .aider.conf.yml
-cat > .aider.conf.yml << 'EOF'
-read:
-  - rules/sui-move/conventions.md
-  - rules/sui-move/security.md
-EOF
-
-# Or pass directly
 aider --read rules/sui-move/conventions.md
 ```
 
 ### Cline (VS Code)
 
-Add rules to Cline's custom instructions in VS Code settings, or place them in `.clinerules`:
-
 ```bash
 cat rules/sui-move/conventions.md rules/sui-move/security.md > .clinerules
+```
+
+### OpenCode
+
+```bash
+cp rules/sui-move/conventions.md .opencode/context/sui-conventions.md
 ```
 
 ### Portable Resources Summary
@@ -470,34 +191,14 @@ This plugin integrates with your global CLAUDE.md rules:
 
 ### SUI CLI Not Found
 ```bash
-# Install SUI CLI
 cargo install --locked --git https://github.com/MystenLabs/sui.git sui
-
-# Or check PATH
 which sui
-echo $PATH
-```
-
-### Skills Not Found
-```bash
-# Plugin may need to be loaded
-# Restart Claude Code or reload plugins
-```
-
-### Agent Not Found
-```bash
-# Verify agent registration
-cd ~/.claude/plugins/sui-dev-agents/agents
-cat claude-code-agent-config.json
 ```
 
 ### Move Build Errors
 ```bash
-# Verify SUI version matches protocol
 sui --version
 bash scripts/protocol-version-check.sh
-
-# Clean build
 sui move build --force
 ```
 

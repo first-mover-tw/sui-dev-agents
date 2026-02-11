@@ -49,7 +49,9 @@
     "./agents/subagents/sui-developer-subagent-prompt.md",
     "./agents/subagents/sui-frontend-subagent-prompt.md",
     "./agents/subagents/sui-deployer-subagent-prompt.md",
-    "./agents/subagents/sui-tester-subagent-prompt.md"
+    "./agents/subagents/sui-tester-subagent-prompt.md",
+    "./agents/sui-red-team-subagent.md",
+    "./agents/subagents/sui-red-team-subagent-prompt.md"
   ],
   "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json",

@@ -1,0 +1,16 @@
+{
+  "agent_id": "sui-red-team-subagent",
+  "name": "sui red-team Subagent",
+  "version": "1.0.0",
+  "description": "Executes the sui-red-team skill for adversarial security testing.",
+  "capabilities": [
+    "skill_execution",
+    "progress_reporting",
+    "state_updates"
+  ],
+  "skill": "sui-red-team",
+  "reports_to": [
+    "sui-development-agent"
+  ],
+  "prompt_template": "Execute the sui-red-team skill following its instructions exactly. Report progress to sui-development-agent. Update state file after completion."
+}

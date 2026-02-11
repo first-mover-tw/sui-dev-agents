@@ -8,6 +8,11 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/gas-budget-guard.sh",
             "description": "Block abnormally large gas budget on publish"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/red-team-guard.sh",
+            "description": "Suggest red-team testing before deploy/publish/upgrade"
           }
         ]
       }
