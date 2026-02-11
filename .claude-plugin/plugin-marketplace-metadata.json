@@ -3,7 +3,7 @@
   "displayName": "SUI Dev Agents",
   "version": "1.1.0",
   "description": "Complete SUI blockchain development toolkit with skills and agents for Move smart contracts, frontend integration, testing, and deployment",
-  "longDescription": "SUI Dev Agents provides a comprehensive toolkit for building production-ready SUI blockchain applications. Includes 18 user-invocable skills and 23 orchestration agents covering the complete development lifecycle: architecture planning, Move smart contract development, frontend integration, comprehensive testing, multi-network deployment, and ecosystem integrations (Kiosk, zkLogin, DeepBook, Walrus, SuiNS, etc.).",
+  "longDescription": "SUI Dev Agents provides a comprehensive toolkit for building production-ready SUI blockchain applications. Includes 19 user-invocable skills and 23 orchestration agents covering the complete development lifecycle: on-chain contract analysis, architecture planning, Move smart contract development, frontend integration, comprehensive testing with coverage analysis, multi-network deployment, and ecosystem integrations (Kiosk, zkLogin, DeepBook, Walrus, SuiNS, etc.).",
   "author": {
     "name": "Ramon Liao",
     "url": "https://x.com/RamonLiaoYC"
@@ -40,12 +40,13 @@
   ],
   "icon": "🌊",
   "features": [
-    "18 user-invocable skills for SUI development",
+    "19 user-invocable skills for SUI development",
     "23 hierarchical orchestration agents",
     "Complete end-to-end workflow with /sui-full-stack",
     "Move smart contract development with quality checks",
     "React/Next.js/Vue frontend integration",
-    "Comprehensive testing (unit, integration, E2E, gas benchmarks)",
+    "On-chain contract decompilation and source analysis",
+    "Comprehensive testing (unit, integration, E2E, gas benchmarks, coverage analysis)",
     "Multi-network deployment (devnet, testnet, mainnet)",
     "Security scanning and Git hooks",
     "Ecosystem integrations (Kiosk, zkLogin, DeepBook, Walrus, SuiNS)",

@@ -73,3 +73,33 @@
 - [x] 修復 LPToken pool_id 綁定（加 `pool_id: ID` field + `EPoolMismatch` check）
 - [x] add_liquidity 改用 u128 計算初始 LP（`(amount_x as u128) * (amount_y as u128)` 再 sqrt）
 - [x] MIN_SWAP_AMOUNT 100 → 334，確保 fee >= 1
+
+## 2026-02-11: 新增 sui-decompile skill + Coverage 分析工具
+
+### 背景
+比較 [EasonC13-agent/sui-skills](https://github.com/EasonC13-agent/sui-skills) 後，發現我們缺少「研究鏈上合約」和「自動覆蓋率分析」兩大功能。
+
+### 新增檔案
+- `skills/sui-decompile/SKILL.md` — 鏈上合約反編譯/原始碼擷取 skill
+  - Method 1: `sui client` CLI（最快，不需 browser）
+  - Method 2: Suivision Explorer（Playwright MCP，有 verified source）
+  - Method 3: Suiscan Explorer（Playwright MCP，fallback）
+  - 支援多模組 package、常用合約表、與其他 skill 整合
+- `skills/sui-tester/scripts/analyze_source.py` — PTY 擷取 colored coverage output，辨識未覆蓋段落，輸出 human/JSON/markdown
+- `skills/sui-tester/scripts/analyze_lcov.py` — 解析 LCOV 格式，function/line/branch 分析 + 優先級建議
+- `skills/sui-tester/scripts/parse_bytecode.py` — pipe-based bytecode coverage parser
+- `skills/sui-tester/scripts/parse_source.py` — pipe-based source coverage parser
+
+### 修改檔案
+- `skills/sui-tester/SKILL.md` — 新增「Automated Coverage Analysis Tools」、「Coverage Improvement Workflow」、「Coverage Test Patterns」三大段落
+- `.claude-plugin/plugin-marketplace-metadata.json` — skill count 18→19，features 加入 decompile + coverage analysis
+
+### 決策
+- sui-decompile 優先用 CLI method（不需 browser），browser 作為有 verified source 時的替代
+- Coverage scripts 放在 sui-tester/scripts/ 而非獨立 skill（與現有測試 workflow 整合更自然）
+- SUI MCP Server 和 Agent Wallet 暫不實作（plan 中標為 optional）
+
+### TODO
+- [ ] 用 `0xdee9` (DeepBook) 測試 sui-decompile 能否擷取原始碼
+- [ ] 用 `examples/` starter project 跑 coverage analysis，確認報告正確
+- [ ] 確認 analyze_source.py PTY 在 macOS 上正常運作

@@ -96,8 +96,83 @@ sui move test --gas-profile
 
 **Target:** >90% code coverage for core modules
 
+### Quick Coverage Check
+
 ```bash
+sui move test --coverage
 sui move coverage summary
+```
+
+### Automated Coverage Analysis Tools
+
+This skill includes Python scripts in `scripts/` for detailed coverage analysis:
+
+```bash
+# Location (relative to plugin install path)
+SCRIPTS=<plugin_path>/skills/sui-tester/scripts
+
+# Step 1: Run tests with coverage
+cd /path/to/move/package
+sui move test --coverage --trace
+
+# Step 2: Source-level analysis (primary tool)
+# Uses PTY to capture colored output, identifies exact uncovered segments
+python3 $SCRIPTS/analyze_source.py -m <module_name>
+python3 $SCRIPTS/analyze_source.py -m <module_name> -o coverage.md        # Markdown report
+python3 $SCRIPTS/analyze_source.py -m <module_name> --json                # JSON output
+
+# Step 3: LCOV statistics (function/line/branch breakdown)
+sui move coverage lcov
+python3 $SCRIPTS/analyze_lcov.py lcov.info -s sources/ --issues-only
+
+# Step 4: Low-level bytecode analysis (optional)
+sui move coverage bytecode --module <name> | python3 $SCRIPTS/parse_bytecode.py
+
+# Step 5: Piped source analysis (alternative to analyze_source.py)
+script -q /dev/null sui move coverage source --module <name> | python3 $SCRIPTS/parse_source.py
+```
+
+### Coverage Improvement Workflow
+
+1. **Analyze** — Run `analyze_source.py` to get uncovered segments
+2. **Identify gaps:**
+   - Uncalled functions → write tests that call them
+   - Uncovered assertions → write `#[expected_failure]` tests
+   - Untaken branches → write tests for both if/else paths
+3. **Write tests** for each gap (see patterns below)
+4. **Verify** — Re-run analysis to confirm improvement
+5. **Repeat** until >90% coverage
+
+### Coverage Test Patterns
+
+**A. Uncalled function:**
+```move
+#[test]
+fun test_<function_name>() {
+    let mut ctx = tx_context::dummy();
+    <function_name>(&mut ctx);
+    // Assert expected behavior
+}
+```
+
+**B. Assertion failure path:**
+```move
+#[test]
+#[expected_failure(abort_code = <ERROR_CONST>)]
+fun test_<function>_fails_when_<condition>() {
+    let mut ctx = tx_context::dummy();
+    // Setup state that triggers the assertion failure
+    <function_call_that_should_fail>();
+}
+```
+
+**C. Branch coverage (if/else):**
+```move
+#[test]
+fun test_<function>_when_true() { /* condition = true path */ }
+
+#[test]
+fun test_<function>_when_false() { /* condition = false path */ }
 ```
 
 ## Common Mistakes
