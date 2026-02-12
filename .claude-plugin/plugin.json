@@ -52,7 +52,5 @@
     "./agents/subagents/sui-tester-subagent-prompt.md",
     "./agents/sui-red-team-subagent.md",
     "./agents/subagents/sui-red-team-subagent-prompt.md"
-  ],
-  "_lspServers": "./.lsp.json",
-  "_mcpServers": "./.mcp.json"
+  ]
 }
