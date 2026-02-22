@@ -1,6 +1,6 @@
 # SUI Dev Agents
 
-**v2.2.0** - Complete toolkit for building production-ready SUI blockchain applications with skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Now with **gRPC support** (JSON-RPC deprecated April 2026).
+**v2.3.0** - Complete toolkit for building production-ready SUI blockchain applications with skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Now aligned with **SUI SDK v2**, **dApp Kit v2**, **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated April 2026). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
 
 ## 📦 Installation
 
@@ -54,7 +54,8 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 |-------|-------|-------------|
 | Design | `/sui-architect` | Architecture spec generation |
 | Code | `/sui-developer` | Move contract dev + quality checks |
-| Frontend | `/sui-frontend` | React/Next.js + wallet integration |
+| SDK | `/sui-ts-sdk` | TypeScript SDK v2 — PTB, queries, sponsored tx |
+| Frontend | `/sui-frontend` | React/Next.js + dApp Kit v2 wallet integration |
 | Test | `/sui-tester` | Unit, integration, E2E, gas benchmarks, coverage analysis |
 | Deploy | `/sui-deployer` | Staged rollout: devnet → testnet → mainnet |
 | Quality | `/move-code-quality` | Move Book code quality checklist |
@@ -197,7 +198,7 @@ Skills can be configured via `.sui-full-stack.json`:
 - **Complete Guide:** `docs/GUIDE.md` - Full usage guide
 - **Architecture:** `docs/ARCHITECTURE.md` - Component design
 - **Commands:** `commands/*.md` - 9 command references
-- **Skills:** `skills/*/SKILL.md` - 22 skill docs
+- **Skills:** `skills/*/SKILL.md` - 23 skill docs
 - **Agents:** `agents/*.md` - 19 agent definitions
 - **Rules:** `rules/**/*.md` - 5 coding conventions
 - **MCP Server:** `mcp-server/` - 14 gRPC tools source

@@ -45,9 +45,9 @@
 | Version | 2.2.0 | **2.3.0** |
 
 ### TODO
-- [ ] Review all changes and commit
+- [x] Review all changes and commit — `9e7fe5a`
+- [x] push v2.3.0 到 GitHub
 - [ ] 更新 README / docs 反映 v2.3.0（sdk v2, dApp Kit v2, 23 skills）
-- [ ] push v2.3.0 到 GitHub
 - [ ] 更新 plugin cache（rsync → ~/.claude/plugins/cache/）
 - [ ] 重啟 session 驗證 MCP Server 載入
 - [ ] E2E 全套測試

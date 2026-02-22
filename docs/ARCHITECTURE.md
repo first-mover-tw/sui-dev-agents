@@ -1,8 +1,8 @@
 # SUI Dev Agents - Architecture Overview
 
-**Version 2.2.0**
+**Version 2.3.0**
 
-Detailed architecture of the sui-dev-agents plugin, covering components, interactions, and design principles.
+Detailed architecture of the sui-dev-agents plugin, covering components, interactions, and design principles. Aligned with SUI SDK v2, dApp Kit v2, and Move 2024 Edition.
 
 ## Table of Contents
 
@@ -28,7 +28,7 @@ The sui-dev-agents plugin is a multi-layered toolkit for SUI blockchain developm
 │                   Component Layer                        │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
 │  │ Commands │  │  Skills  │  │  Agents  │             │
-│  │   (9)    │  │   (22)   │  │   (19)   │             │
+│  │   (9)    │  │   (23)   │  │   (19)   │             │
 │  └──────────┘  └──────────┘  └──────────┘             │
 │                                                          │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
@@ -103,9 +103,10 @@ User → /sui-dev-agents:init → Command Handler → SUI CLI → Result
 Core Orchestrator (1)
 ├── sui-full-stack
 
-Development Workflow (7)
+Development Workflow (8)
 ├── sui-architect
 ├── sui-developer
+├── sui-ts-sdk
 ├── sui-frontend
 ├── sui-fullstack-integration
 ├── sui-tester
@@ -333,7 +334,7 @@ Claude Code → MCP Protocol (stdio) → mcp-server/dist/index.js
 ```
 sui-dev-agents/
 ├── .claude-plugin/
-│   ├── plugin.json                    # Plugin metadata (v2.2.0)
+│   ├── plugin.json                    # Plugin metadata (v2.3.0)
 │   └── plugin-marketplace-metadata.json
 │
 ├── commands/                          # 9 commands
@@ -347,7 +348,7 @@ sui-dev-agents/
 │   ├── mcp-status.md
 │   └── wallet-status.md
 │
-├── skills/                            # 22 skills
+├── skills/                            # 23 skills
 │   ├── sui-full-stack/
 │   ├── sui-architect/
 │   ├── sui-developer/
@@ -356,9 +357,10 @@ sui-dev-agents/
 │   ├── sui-deployer/
 │   ├── sui-security-guard/
 │   ├── sui-red-team/                  # Adversarial testing (new)
-│   ├── sui-decompile/                 # On-chain analysis (new)
-│   ├── sui-wallet/                    # Agent wallet (new)
-│   ├── move-code-quality/             # Code quality (new)
+│   ├── sui-ts-sdk/                    # TypeScript SDK v2 (new)
+│   ├── sui-decompile/                 # On-chain analysis
+│   ├── sui-wallet/                    # Agent wallet
+│   ├── move-code-quality/             # Code quality
 │   ├── sui-docs-query/
 │   ├── sui-tools-guide/
 │   ├── sui-kiosk/
@@ -595,6 +597,13 @@ Gradual Learning
 
 ## Version History
 
+- **v2.3.0** (2026-02-22)
+  - Integrated MystenLabs sui-dev-skills as source of truth
+  - Added sui-ts-sdk skill (TypeScript SDK v2 — PTB, queries, sponsored tx)
+  - Updated all skills/rules for SUI SDK v2, dApp Kit v2, Move 2024 Edition
+  - Updated to Protocol 111
+  - Skills: 22 → 23
+
 - **v2.2.0** (2026-02-12)
   - Added MCP Server with 14 gRPC tools (query + wallet)
   - Added Agent Wallet with dry-run → approve → execute flow
@@ -698,4 +707,4 @@ Gradual Learning
 
 ---
 
-**Architecture designed for Protocol 110, Move 2024 Edition, gRPC GA**
+**Architecture designed for Protocol 111, Move 2024 Edition, SUI SDK v2, dApp Kit v2, gRPC GA**

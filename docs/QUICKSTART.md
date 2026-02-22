@@ -55,8 +55,8 @@
 /sui-frontend
 
 → Choose framework (React/Next.js/Vue)
-→ Wallet integration (@mysten/dapp-kit)
-→ SDK setup (@mysten/sui)
+→ Wallet integration (@mysten/dapp-kit v2)
+→ SDK setup (@mysten/sui v2)
 → API wrappers generated
 ```
 
@@ -150,7 +150,7 @@ Fast, focused operations for common tasks:
 # Quick project setup
 /sui-dev-agents:init
 → Creates project structure
-→ Configures Move.toml (Protocol 110)
+→ Configures Move.toml (Protocol 111)
 → Generates template files
 → Initializes git
 

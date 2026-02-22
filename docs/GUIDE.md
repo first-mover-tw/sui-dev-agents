@@ -1,8 +1,8 @@
 # SUI Dev Agents - Complete Usage Guide
 
-**Version 2.2.0**
+**Version 2.3.0**
 
-Complete guide to building production-ready SUI blockchain applications using the sui-dev-agents plugin.
+Complete guide to building production-ready SUI blockchain applications using the sui-dev-agents plugin. Aligned with SUI SDK v2, dApp Kit v2, and Move 2024 Edition.
 
 ## Table of Contents
 
@@ -68,7 +68,7 @@ Initialize new SUI Move project with proper structure.
 
 **Creates:**
 - Project structure via `sui move new`
-- Enhanced `Move.toml` with Protocol 110
+- Enhanced `Move.toml` with Protocol 111
 - Test directories and scaffolds
 - Git repository with initial commit
 - Documentation files
@@ -313,12 +313,23 @@ Move smart contract development with quality checks.
 
 **Best for:** Contract implementation
 
+#### `/sui-ts-sdk`
+TypeScript SDK v2 integration — PTB construction, queries, sponsored transactions, BCS encoding.
+
+**Features:**
+- Programmable Transaction Blocks (PTB)
+- Client queries and event subscriptions
+- Sponsored transactions
+- v1 → v2 migration reference
+
+**Best for:** Backend/CLI SDK usage, transaction construction
+
 #### `/sui-frontend`
 React/Next.js/Vue frontend integration.
 
 **Includes:**
-- Wallet integration (@mysten/dapp-kit)
-- SDK setup (@mysten/sui)
+- Wallet integration (@mysten/dapp-kit v2)
+- SDK setup (@mysten/sui v2)
 - Transaction builders
 - Component templates
 
@@ -601,7 +612,7 @@ Installs to: `~/.claude/rules/`
 - Module structure patterns
 - Naming conventions (PascalCase, snake_case)
 - Entry function patterns
-- TxContext positioning (Protocol 110)
+- TxContext positioning (Protocol 111)
 - Error handling conventions
 
 #### `sui-move/security.md`
@@ -898,4 +909,4 @@ SUI provides three data access methods:
 - `jsonrpc-warn` hook detects deprecated patterns in your code
 - See `skills/sui-frontend/references/grpc-reference.md` for details
 
-**Built for Protocol 110, Move 2024 Edition**
+**Built for Protocol 111, Move 2024 Edition, SUI SDK v2, dApp Kit v2**
