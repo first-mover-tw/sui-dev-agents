@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getSuiClient, getNetwork } from "../client.js";
+import { getSuiClient, getNetwork, safeStringify } from "../client.js";
 
 export function registerNetworkTools(server: McpServer) {
   server.tool(
@@ -14,7 +14,7 @@ export function registerNetworkTools(server: McpServer) {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify(
+            text: safeStringify(
               {
                 network: getNetwork(),
                 chain: response.chain,
@@ -22,8 +22,6 @@ export function registerNetworkTools(server: McpServer) {
                 epoch: response.epoch?.toString(),
                 latestCheckpoint: response.checkpointHeight?.toString(),
               },
-              null,
-              2
             ),
           },
         ],

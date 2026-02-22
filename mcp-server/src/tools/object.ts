@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getSuiClient } from "../client.js";
+import { getSuiClient, safeStringify } from "../client.js";
 
 export function registerObjectTools(server: McpServer) {
   server.tool(
@@ -12,7 +12,7 @@ export function registerObjectTools(server: McpServer) {
       const result = await client.core.getObjects({ objectIds: [objectId] });
       const obj = result.objects[0];
       return {
-        content: [{ type: "text" as const, text: JSON.stringify(obj, null, 2) }],
+        content: [{ type: "text" as const, text: safeStringify(obj) }],
       };
     }
   );
@@ -38,15 +38,11 @@ export function registerObjectTools(server: McpServer) {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify(
-              {
+            text: safeStringify({
                 data: result.objects,
                 cursor: result.cursor,
                 hasNextPage: result.hasNextPage,
-              },
-              null,
-              2
-            ),
+              }),
           },
         ],
       };

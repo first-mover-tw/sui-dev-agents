@@ -1,25 +1,31 @@
 import { z } from "zod";
+import { toBase64 } from "@mysten/sui/utils";
 import { execFileSync } from "node:child_process";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { Transaction } from "@mysten/sui/transactions";
-import { getSuiClient, getNetwork, getActiveAddress, getActiveKeypair } from "../client.js";
+import { getSuiClient, getJsonRpcClient, getNetwork, getActiveAddress, getActiveKeypair, safeStringify } from "../client.js";
 
 async function buildAndDryRun(tx: Transaction, sender: string) {
-  const client = getSuiClient();
+  // JSON-RPC fallback: gRPC does not support transaction resolution or dryRun
+  const rpcClient = getJsonRpcClient();
   tx.setSenderIfNotSet(sender);
-  const txBytes = await tx.build({ client: client.core });
-  const dryRun = await client.core.dryRunTransaction({ transaction: txBytes });
+  const txBytes = await tx.build({ client: rpcClient });
+  const dryRun = await rpcClient.dryRunTransactionBlock({
+    transactionBlock: toBase64(txBytes),
+  });
   return { txBytes, dryRun };
 }
 
 async function signAndExecute(tx: Transaction, sender: string) {
   const keypair = getActiveKeypair();
   if (!keypair) throw new Error("Cannot load keypair for active address");
-  const client = getSuiClient();
+  // Build via JSON-RPC (transaction resolution), execute via gRPC
+  const rpcClient = getJsonRpcClient();
+  const grpcClient = getSuiClient();
   tx.setSenderIfNotSet(sender);
-  const txBytes = await tx.build({ client: client.core });
+  const txBytes = await tx.build({ client: rpcClient });
   const { signature } = await keypair.signTransaction(txBytes);
-  return client.core.executeTransaction({ transaction: txBytes, signatures: [signature] });
+  return grpcClient.core.executeTransaction({ transaction: txBytes, signatures: [signature] });
 }
 
 export function registerWalletTools(server: McpServer) {
@@ -42,16 +48,12 @@ export function registerWalletTools(server: McpServer) {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify(
-              {
+            text: safeStringify({
                 address,
                 network: getNetwork(),
                 sui_balance: `${(Number(bal) / 1e9).toFixed(4)} SUI`,
                 raw_balance: bal,
-              },
-              null,
-              2
-            ),
+              }),
           },
         ],
       };
@@ -83,13 +85,13 @@ export function registerWalletTools(server: McpServer) {
           return {
             content: [{
               type: "text" as const,
-              text: JSON.stringify({
+              text: safeStringify({
                 action: "TRANSFER_SUI", status: "PENDING_APPROVAL",
                 network: getNetwork(), from: address, to: recipient,
                 amount: `${amount} SUI (${amountMist} MIST)`,
                 dry_run: dryRun,
                 instruction: "Call this tool again with execute=true to send the transaction.",
-              }, null, 2),
+              }),
             }],
           };
         } catch (e: any) {
@@ -102,7 +104,7 @@ export function registerWalletTools(server: McpServer) {
         return {
           content: [{
             type: "text" as const,
-            text: JSON.stringify({ action: "TRANSFER_SUI", status: "EXECUTED", network: getNetwork(), result }, null, 2),
+            text: safeStringify({ action: "TRANSFER_SUI", status: "EXECUTED", network: getNetwork(), result }),
           }],
         };
       } catch (e: any) {
@@ -144,14 +146,14 @@ export function registerWalletTools(server: McpServer) {
           return {
             content: [{
               type: "text" as const,
-              text: JSON.stringify({
+              text: safeStringify({
                 action: "MOVE_CALL", status: "PENDING_APPROVAL",
                 network: getNetwork(), signer: address,
                 target: `${package_id}::${module}::${function_name}`,
                 type_args, args, gas_budget,
                 dry_run: dryRun,
                 instruction: "Call this tool again with execute=true to send the transaction.",
-              }, null, 2),
+              }),
             }],
           };
         } catch (e: any) {
@@ -164,7 +166,7 @@ export function registerWalletTools(server: McpServer) {
         return {
           content: [{
             type: "text" as const,
-            text: JSON.stringify({ action: "MOVE_CALL", status: "EXECUTED", network: getNetwork(), result }, null, 2),
+            text: safeStringify({ action: "MOVE_CALL", status: "EXECUTED", network: getNetwork(), result }),
           }],
         };
       } catch (e: any) {
@@ -213,13 +215,13 @@ export function registerWalletTools(server: McpServer) {
           return {
             content: [{
               type: "text" as const,
-              text: JSON.stringify({
+              text: safeStringify({
                 action: "PUBLISH_PACKAGE", status: "PENDING_APPROVAL",
                 network: getNetwork(), signer: address, package_path, gas_budget,
                 modules_count: buildOutput.modules.length,
                 dry_run: dryRun,
                 instruction: "Call this tool again with execute=true to publish.",
-              }, null, 2),
+              }),
             }],
           };
         } catch (e: any) {
@@ -232,7 +234,7 @@ export function registerWalletTools(server: McpServer) {
         return {
           content: [{
             type: "text" as const,
-            text: JSON.stringify({ action: "PUBLISH_PACKAGE", status: "EXECUTED", network: getNetwork(), result }, null, 2),
+            text: safeStringify({ action: "PUBLISH_PACKAGE", status: "EXECUTED", network: getNetwork(), result }),
           }],
         };
       } catch (e: any) {

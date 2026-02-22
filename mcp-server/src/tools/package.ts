@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getSuiClient } from "../client.js";
+import { getSuiClient, safeStringify } from "../client.js";
 
 export function registerPackageTools(server: McpServer) {
   server.tool(
@@ -20,7 +20,7 @@ export function registerPackageTools(server: McpServer) {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify({ packageId, modules: summary }, null, 2),
+            text: safeStringify({ packageId, modules: summary }),
           },
         ],
       };

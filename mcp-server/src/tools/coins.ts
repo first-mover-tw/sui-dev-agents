@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getSuiClient } from "../client.js";
+import { getSuiClient, safeStringify } from "../client.js";
 
 export function registerCoinTools(server: McpServer) {
   server.tool(
@@ -24,7 +24,7 @@ export function registerCoinTools(server: McpServer) {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify(
+            text: safeStringify(
               {
                 data: result.objects.map((c) => ({
                   id: c.id,
@@ -34,8 +34,6 @@ export function registerCoinTools(server: McpServer) {
                 cursor: result.cursor,
                 hasNextPage: result.hasNextPage,
               },
-              null,
-              2
             ),
           },
         ],

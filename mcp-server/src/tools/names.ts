@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getSuiClient } from "../client.js";
+import { getSuiClient, safeStringify } from "../client.js";
 
 export function registerNameTools(server: McpServer) {
   server.tool(
@@ -18,7 +18,7 @@ export function registerNameTools(server: McpServer) {
           const resolved = await client.nameService.lookupName({ name });
           return {
             content: [
-              { type: "text" as const, text: JSON.stringify({ name, result: resolved.response }, null, 2) },
+              { type: "text" as const, text: safeStringify({ name, result: resolved.response }) },
             ],
           };
         } catch (e: any) {
@@ -32,7 +32,7 @@ export function registerNameTools(server: McpServer) {
           const resolved = await client.nameService.reverseLookupName({ address });
           return {
             content: [
-              { type: "text" as const, text: JSON.stringify({ address, result: resolved.response }, null, 2) },
+              { type: "text" as const, text: safeStringify({ address, result: resolved.response }) },
             ],
           };
         } catch (e: any) {

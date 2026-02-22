@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getSuiClient } from "../client.js";
+import { getSuiClient, safeStringify } from "../client.js";
 
 export function registerBalanceTools(server: McpServer) {
   server.tool(
@@ -14,7 +14,7 @@ export function registerBalanceTools(server: McpServer) {
         content: [
           {
             type: "text" as const,
-            text: JSON.stringify(
+            text: safeStringify(
               {
                 address,
                 coins: result.balances.map((b) => ({
@@ -22,8 +22,6 @@ export function registerBalanceTools(server: McpServer) {
                   balance: b.balance,
                 })),
               },
-              null,
-              2
             ),
           },
         ],
