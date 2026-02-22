@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getSuiClient, safeStringify } from "../client.js";
+import { getJsonRpcClient, safeStringify } from "../client.js";
 
 export function registerNameTools(server: McpServer) {
   server.tool(
@@ -11,33 +11,33 @@ export function registerNameTools(server: McpServer) {
       address: z.string().optional().describe("Address to reverse-resolve"),
     },
     async ({ name, address }) => {
-      const client = getSuiClient();
+      // Use JSON-RPC client — gRPC nameService returns BigInt that breaks MCP SDK serialization
+      const client = getJsonRpcClient();
 
       if (name) {
         try {
-          const resolved = await client.nameService.lookupName({ name });
+          const resolved = await client.resolveNameServiceAddress({ name });
           return {
             content: [
-              { type: "text" as const, text: safeStringify({ name, result: resolved.response }) },
+              { type: "text" as const, text: safeStringify({ name, address: resolved ?? null }) },
             ],
           };
         } catch (e: any) {
-          const msg = e.code === "NOT_FOUND" ? `No address found for name "${name}"` : e.message;
-          return { content: [{ type: "text" as const, text: msg }], isError: true };
+          return { content: [{ type: "text" as const, text: e.message }], isError: true };
         }
       }
 
       if (address) {
         try {
-          const resolved = await client.nameService.reverseLookupName({ address });
+          const resolved = await client.resolveNameServiceNames({ address });
+          const names = resolved.data ?? [];
           return {
             content: [
-              { type: "text" as const, text: safeStringify({ address, result: resolved.response }) },
+              { type: "text" as const, text: safeStringify({ address, names }) },
             ],
           };
         } catch (e: any) {
-          const msg = e.code === "NOT_FOUND" ? `No SuiNS name found for address ${address}` : e.message;
-          return { content: [{ type: "text" as const, text: msg }], isError: true };
+          return { content: [{ type: "text" as const, text: e.message }], isError: true };
         }
       }
 

@@ -300,7 +300,7 @@ User writes code → Claude applies rules → Code generated
 
 ### 6. MCP Server
 
-**Purpose:** On-chain data queries and wallet operations via gRPC
+**Purpose:** On-chain data queries and wallet operations
 
 **Location:** `mcp-server/` (TypeScript, `@modelcontextprotocol/sdk` + `@mysten/sui`)
 
@@ -308,14 +308,22 @@ User writes code → Claude applies rules → Code generated
 
 **Transport:** stdio, auto-loaded via `plugin.json` → `.mcp.json`
 
-**Architecture:**
+**Architecture (dual-client):**
 ```
 Claude Code → MCP Protocol (stdio) → mcp-server/dist/index.js
                                           ↓
-                                    SuiGrpcClient
-                                          ↓
-                                    SUI gRPC Endpoint
+                                  ┌───────┴───────┐
+                            SuiGrpcClient    SuiClient
+                            (primary)        (JSON-RPC fallback)
+                                  ↓               ↓
+                            SUI gRPC         SUI JSON-RPC
+                            Endpoint         Endpoint
 ```
+
+**Client routing:**
+- **gRPC primary:** balance, coins, objects, packages, checkpoint, owned_objects
+- **JSON-RPC fallback:** transactions, events, dry-run, name resolution, tx build (BigInt/schema incompatibilities)
+- **Hybrid:** wallet execute builds via JSON-RPC, executes via gRPC
 
 ### 7. Developer Tools
 

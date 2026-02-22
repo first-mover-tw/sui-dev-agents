@@ -519,7 +519,7 @@ Task({
 
 ### Overview
 
-Built-in MCP server (`mcp-server/`) provides 14 gRPC-based tools for on-chain data queries and wallet operations. All tools use `SuiGrpcClient` — no JSON-RPC dependency.
+Built-in MCP server (`mcp-server/`) provides 14 tools for on-chain data queries and wallet operations. Uses a **dual-client architecture**: gRPC primary (`SuiGrpcClient`) for most tools, with JSON-RPC fallback (`SuiClient`) for endpoints where gRPC has BigInt serialization or schema incompatibilities (transactions, events, dry-run, name resolution). All responses use `safeStringify` for consistent BigInt handling.
 
 ### Query Tools (10)
 

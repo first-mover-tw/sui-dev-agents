@@ -66,7 +66,7 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 
 ### 🔌 MCP Server + Agent Wallet
 
-Built-in MCP server with 14 gRPC-based tools for on-chain queries and wallet operations:
+Built-in MCP server with 14 tools for on-chain queries and wallet operations (gRPC primary, JSON-RPC fallback for BigInt-sensitive endpoints):
 
 ```bash
 # Query tools (no approval needed)
