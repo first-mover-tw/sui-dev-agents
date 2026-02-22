@@ -1,6 +1,6 @@
 {
   "name": "sui-dev-agents",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Complete SUI blockchain development toolkit with skills, agents, commands, hooks, and rules for Move smart contracts, frontend integration, testing, and deployment",
   "author": {
     "name": "Ramon Liao",

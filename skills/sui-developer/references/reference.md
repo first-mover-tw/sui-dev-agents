@@ -7,20 +7,22 @@ Complete reference for Move patterns, security checks, and best practices.
 ### Pattern 1: Capability-Based Administration
 
 ```move
-// Define capability
+module example::admin;
+
+/// Define capability
 public struct AdminCap has key, store {
     id: UID
 }
 
-// Initialize (called once during package publish)
+/// Initialize (called once during package publish)
 fun init(ctx: &mut TxContext) {
     transfer::transfer(
         AdminCap { id: object::new(ctx) },
-        tx_context::sender(ctx)
+        ctx.sender()
     );
 }
 
-// Admin-only function
+/// Admin-only function
 public fun admin_only_function(
     _: &AdminCap,
     // ... other parameters
@@ -29,7 +31,7 @@ public fun admin_only_function(
     // Only callable by admin cap holder
 }
 
-// Transfer admin rights
+/// Transfer admin rights
 public fun transfer_admin(
     cap: AdminCap,
     recipient: address
@@ -38,31 +40,43 @@ public fun transfer_admin(
 }
 ```
 
-### Pattern 2: Witness Pattern (One-Time Init)
+### Pattern 2: One-Time Witness (OTW) Pattern
 
 ```move
-// Witness struct (must match module name in UPPERCASE)
+module example::marketplace;
+
+/// OTW struct — must match module name in UPPERCASE, have only `drop`
 public struct MARKETPLACE has drop {}
 
-// Called once during package publish
+/// Called once during package publish
 fun init(witness: MARKETPLACE, ctx: &mut TxContext) {
-    // Witness can only be created by init
-    // Use for one-time-key (OTW) pattern
+    // OTW can only be created by the runtime in init
+    // Verify with sui::types::is_one_time_witness(&witness)
 
-    // Example: Create publisher object
+    // Create publisher object (proves package ownership)
     let publisher = package::claim(witness, ctx);
-    transfer::public_transfer(publisher, tx_context::sender(ctx));
+    transfer::public_transfer(publisher, ctx.sender());
 }
 ```
+
+**OTW Rules:**
+- Struct name must be module name in UPPERCASE
+- Must have only the `drop` ability (no `store`, `key`, `copy`)
+- No fields
+- Only instantiated by the Move runtime as the first arg of `init`
 
 ### Pattern 3: Shared Object with Versioning
 
 ```move
+module example::marketplace;
+
 public struct Marketplace has key {
     id: UID,
     version: u64,  // Track version for upgrades
     // ... other fields
 }
+
+const EWrongVersion: u64 = 0;
 
 public fun create_marketplace(ctx: &mut TxContext) {
     let marketplace = Marketplace {
@@ -72,7 +86,7 @@ public fun create_marketplace(ctx: &mut TxContext) {
     transfer::share_object(marketplace);
 }
 
-// Migration function
+/// Migration function
 public fun migrate(
     marketplace: &mut Marketplace,
     _admin: &AdminCap
@@ -88,38 +102,44 @@ public fun migrate(
 ```move
 use sui::dynamic_field as df;
 
-// Add metadata without changing struct
-public fun add_metadata<K: copy + drop + store, V: store>(
+/// Positional struct as typed key (preferred over bare primitives)
+public struct MetadataKey<phantom T>(u64) has copy, drop, store;
+
+/// Add metadata without changing struct
+public fun add_metadata<V: store>(
     object: &mut SomeObject,
-    key: K,
+    index: u64,
     value: V
 ) {
-    df::add(&mut object.id, key, value);
+    df::add(&mut object.id, MetadataKey<V>(index), value);
 }
 
-// Read metadata
-public fun get_metadata<K: copy + drop + store, V: store>(
+/// Read metadata
+public fun get_metadata<V: store>(
     object: &SomeObject,
-    key: K
+    index: u64,
 ): &V {
-    df::borrow(&object.id, key)
+    df::borrow(&object.id, MetadataKey<V>(index))
 }
 
-// Remove metadata
-public fun remove_metadata<K: copy + drop + store, V: store>(
+/// Remove metadata
+public fun remove_metadata<V: store>(
     object: &mut SomeObject,
-    key: K
+    index: u64,
 ): V {
-    df::remove(&mut object.id, key)
+    df::remove(&mut object.id, MetadataKey<V>(index))
 }
 ```
 
 ### Pattern 5: Safe Math Operations
 
 ```move
-const EOverflow: u64 = 1;
-const EUnderflow: u64 = 2;
-const EDivisionByZero: u64 = 3;
+#[error]
+const EOverflow: vector<u8> = b"Arithmetic overflow";
+#[error]
+const EUnderflow: vector<u8> = b"Arithmetic underflow";
+#[error]
+const EDivisionByZero: vector<u8> = b"Division by zero";
 
 public fun safe_add(a: u64, b: u64): u64 {
     let result = a + b;
@@ -150,7 +170,7 @@ public fun safe_div(a: u64, b: u64): u64 {
 ```move
 use sui::event;
 
-// Define events
+/// Define events
 public struct ItemCreated has copy, drop {
     item_id: ID,
     creator: address,
@@ -164,7 +184,7 @@ public struct ItemTransferred has copy, drop {
     timestamp: u64
 }
 
-// Emit events
+/// Emit events
 public fun create_item(ctx: &mut TxContext) {
     let item_id = object::new(ctx);
     let item_id_copy = object::uid_to_inner(&item_id);
@@ -173,8 +193,8 @@ public fun create_item(ctx: &mut TxContext) {
 
     event::emit(ItemCreated {
         item_id: item_id_copy,
-        creator: tx_context::sender(ctx),
-        created_at: tx_context::epoch(ctx)
+        creator: ctx.sender(),
+        created_at: ctx.epoch()
     });
 }
 ```
@@ -188,7 +208,8 @@ public struct Marketplace has key {
     admin: address
 }
 
-const EContractPaused: u64 = 100;
+#[error]
+const EContractPaused: vector<u8> = b"Contract is paused";
 
 public fun pause(
     marketplace: &mut Marketplace,
@@ -204,10 +225,82 @@ public fun unpause(
     marketplace.paused = false;
 }
 
-// Use in functions
-public fun some_action(marketplace: &Marketplace, ...) {
+/// Use in functions
+public fun some_action(marketplace: &Marketplace) {
     assert!(!marketplace.paused, EContractPaused);
     // ... rest of logic
+}
+```
+
+### Pattern 8: Enum Pattern (Move 2024)
+
+```move
+module example::order;
+
+/// Enums model variants with different data
+public enum OrderStatus has copy, drop, store {
+    Pending,
+    Active { start_time: u64 },
+    Completed { result: u64 },
+    Cancelled { reason: vector<u8> },
+}
+
+public fun process_order(status: &OrderStatus): u64 {
+    match (status) {
+        OrderStatus::Pending => 0,
+        OrderStatus::Active { start_time } => *start_time,
+        OrderStatus::Completed { result } => *result,
+        OrderStatus::Cancelled { .. } => abort 0,
+    }
+}
+
+public fun is_terminal(status: &OrderStatus): bool {
+    match (status) {
+        OrderStatus::Completed { .. } | OrderStatus::Cancelled { .. } => true,
+        _ => false,
+    }
+}
+```
+
+### Pattern 9: Pure Functions & Composability
+
+```move
+/// Pure function — no object reads/writes, only computation.
+/// Prefer pure helpers for logic that doesn't need on-chain state.
+public fun calculate_fee(amount: u64, fee_bps: u64): u64 {
+    amount * fee_bps / 10_000
+}
+
+public fun is_eligible(score: u64, threshold: u64): bool {
+    score >= threshold
+}
+
+/// Compose pure helpers in entry/public functions
+public fun purchase(
+    marketplace: &mut Marketplace,
+    payment: Coin<SUI>,
+    ctx: &mut TxContext
+) {
+    let price = marketplace.price;
+    let fee = calculate_fee(price, marketplace.fee_bps);
+    assert!(payment.value() >= price + fee);
+    // ...
+}
+```
+
+### Pattern 10: Balance Burn (Send to Zero Address)
+
+```move
+/// Burn an object by transferring to the zero address.
+/// Works for any object with `key + store`.
+public fun burn_item(item: Item) {
+    transfer::public_transfer(item, @0x0);
+}
+
+/// For coins, prefer coin::burn if you hold the TreasuryCap.
+/// Otherwise, send to zero address:
+public fun burn_coin(coin: Coin<SUI>) {
+    transfer::public_transfer(coin, @0x0);
 }
 ```
 
@@ -266,7 +359,7 @@ public fun some_action(marketplace: &Marketplace, ...) {
 ### Error Handling
 
 - [ ] All error codes defined as constants
-- [ ] Error messages descriptive (where safe)
+- [ ] Use `#[error]` macro for human-readable messages where possible
 - [ ] All inputs validated
 - [ ] Proper assertions before critical operations
 - [ ] No silent failures
@@ -285,18 +378,16 @@ public fun some_action(marketplace: &Marketplace, ...) {
 
 ### Reentrancy Protection
 
-**Status:** ✅ SUI's object model prevents reentrancy
+**Status:** SUI's object model prevents reentrancy
 
 Move's ownership model ensures objects can only be accessed by one function at a time. External calls during mutable borrows are not possible.
 
 ```move
 // This is safe in Move (unlike Solidity)
 public fun withdraw(vault: &mut Vault, amount: u64, ctx: &mut TxContext) {
-    let balance = vault.balance;
-
     // Transfer happens atomically
     let coin = coin::take(&mut vault.balance, amount, ctx);
-    transfer::public_transfer(coin, tx_context::sender(ctx));
+    transfer::public_transfer(coin, ctx.sender());
 
     // No reentrancy possible - object was mutably borrowed
 }
@@ -325,7 +416,7 @@ public fun reveal_bid(auction: &mut Auction, amount: u64, salt: vector<u8>, ctx:
 // Option 2: Minimum time between actions
 public fun place_bid(auction: &mut Auction, amount: u64, ctx: &mut TxContext) {
     let last_bid_time = auction.last_bid_time;
-    let current_time = tx_context::epoch(ctx);
+    let current_time = ctx.epoch();
 
     assert!(current_time >= last_bid_time + MIN_BID_INTERVAL, ETooFast);
     // Process bid
@@ -335,7 +426,7 @@ public fun place_bid(auction: &mut Auction, amount: u64, ctx: &mut TxContext) {
 ### Shared Object Race Conditions
 
 ```move
-// ❌ Unsafe: Multiple users can withdraw more than balance
+// Bad: Multiple users can withdraw more than balance
 public fun unsafe_withdraw(vault: &mut Vault, amount: u64, ctx: &mut TxContext) {
     // Race condition: balance checked but not decremented atomically
     assert!(vault.balance >= amount, EInsufficientBalance);
@@ -343,27 +434,27 @@ public fun unsafe_withdraw(vault: &mut Vault, amount: u64, ctx: &mut TxContext) 
     // Another transaction could withdraw here!
 
     let coin = coin::take(&mut vault.balance, amount, ctx);
-    transfer::public_transfer(coin, tx_context::sender(ctx));
+    transfer::public_transfer(coin, ctx.sender());
 }
 
-// ✅ Safe: Atomic check and update
+// Good: Atomic check and update
 public fun safe_withdraw(vault: &mut Vault, amount: u64, ctx: &mut TxContext) {
     // coin::take does atomic check and update
     let coin = coin::take(&mut vault.balance, amount, ctx);
-    transfer::public_transfer(coin, tx_context::sender(ctx));
+    transfer::public_transfer(coin, ctx.sender());
 }
 ```
 
 ### Authorization Bypass
 
 ```move
-// ❌ Bad: Address check
+// Bad: Address check
 public fun admin_function(ctx: &TxContext) {
-    assert!(tx_context::sender(ctx) == @0x123, ENotAdmin);
+    assert!(ctx.sender() == @0x123, ENotAdmin);
     // Anyone can deploy contract with this address
 }
 
-// ✅ Good: Capability check
+// Good: Capability check
 public fun admin_function(_: &AdminCap, ctx: &TxContext) {
     // Only admin cap holder can call
 }
@@ -376,22 +467,22 @@ public fun admin_function(_: &AdminCap, ctx: &TxContext) {
 ### Pattern 1: Cache Vector Length
 
 ```move
-// ❌ Expensive: Multiple length calls
+// Bad: Multiple length calls
 public fun process_items(items: &vector<Item>) {
     let mut i = 0;
-    while (i < vector::length(items)) {  // Called every iteration!
-        let item = vector::borrow(items, i);
+    while (i < items.length()) {  // Called every iteration!
+        let item = &items[i];
         // process item
         i = i + 1;
     }
 }
 
-// ✅ Efficient: Cache length
+// Good: Cache length
 public fun process_items(items: &vector<Item>) {
-    let len = vector::length(items);  // Called once
+    let len = items.length();  // Called once
     let mut i = 0;
     while (i < len) {
-        let item = vector::borrow(items, i);
+        let item = &items[i];
         // process item
         i = i + 1;
     }
@@ -403,13 +494,13 @@ public fun process_items(items: &vector<Item>) {
 ```move
 use sui::table::{Self, Table};
 
-// ❌ Expensive: Large vector in shared object
+// Bad: Large vector in shared object
 public struct Marketplace has key {
     id: UID,
     all_listings: vector<Listing>  // Expensive to modify
 }
 
-// ✅ Efficient: Use Table
+// Good: Use Table
 public struct Marketplace has key {
     id: UID,
     listings: Table<ID, Listing>,  // O(1) access
@@ -420,14 +511,14 @@ public struct Marketplace has key {
 ### Pattern 3: Batch Operations
 
 ```move
-// ❌ Expensive: Multiple transactions
+// Bad: Multiple transactions
 // User calls this 10 times = 10 transactions
 
 public fun claim_single_reward(farm: &mut Farm, ctx: &mut TxContext) {
     // claim one reward
 }
 
-// ✅ Efficient: Single transaction
+// Good: Single transaction
 public fun claim_all_rewards(farm: &mut Farm, ctx: &mut TxContext) {
     // claim all rewards in one transaction
 }
@@ -436,7 +527,7 @@ public fun claim_all_rewards(farm: &mut Farm, ctx: &mut TxContext) {
 ### Pattern 4: Minimize Storage
 
 ```move
-// ❌ Expensive: Redundant storage
+// Bad: Redundant storage
 public struct Listing has key, store {
     id: UID,
     nft_id: ID,
@@ -445,7 +536,7 @@ public struct Listing has key, store {
     nft_image_url: String,   // Redundant
 }
 
-// ✅ Efficient: Reference by ID
+// Good: Reference by ID
 public struct Listing has key, store {
     id: UID,
     nft_id: ID,  // Query NFT object for details
@@ -455,12 +546,52 @@ public struct Listing has key, store {
 
 ---
 
+## Testing Patterns (Move 2024)
+
+### Basic Test Structure
+
+```move
+#[test]
+fun test_create_marketplace() {
+    let mut ctx = tx_context::dummy();
+    let marketplace = create_marketplace(&mut ctx);
+
+    assert_eq!(marketplace.version, 1);
+    assert_eq!(marketplace.paused, false);
+
+    test_utils::destroy(marketplace);
+}
+
+#[test]
+#[expected_failure(abort_code = EWrongVersion)]
+fun test_migrate_wrong_version() {
+    let mut ctx = tx_context::dummy();
+    let mut marketplace = create_marketplace(&mut ctx);
+    marketplace.version = 99;
+
+    let admin = AdminCap { id: object::new(&mut ctx) };
+    migrate(&mut marketplace, &admin);
+
+    test_utils::destroy(marketplace);
+    test_utils::destroy(admin);
+}
+```
+
+### Key Testing APIs
+
+- `tx_context::dummy()` — create a test TxContext
+- `assert_eq!(a, b)` — equality assertion (preferred over `assert!(a == b, code)`)
+- `test_utils::destroy(obj)` — destroy any object in tests (avoids writing custom destructors)
+- `test_scenario::begin(sender)` — start a multi-tx test scenario
+
+---
+
 ## Frontend Integration Patterns
 
 ### Event Design for Frontend
 
 ```move
-// Complete event with all frontend needs
+/// Complete event with all frontend needs
 public struct ListingCreated has copy, drop {
     // IDs for object references
     listing_id: ID,

@@ -1,407 +1,418 @@
 ---
 name: sui-frontend
-description: Use when building SUI frontend applications, integrating wallet connections, constructing transactions in TypeScript/React, or managing blockchain state. Triggers on dApp frontend development, wallet integration, or transaction UI tasks.
+description: Sui frontend dApp development with @mysten/dapp-kit-react (React) and @mysten/dapp-kit-core (Vue, vanilla JS, other frameworks). Use when building browser apps that connect to Sui wallets, query on-chain data, or execute transactions. Use alongside the sui-ts-sdk skill for PTB construction patterns.
 ---
 
-# SUI Frontend
+# Sui Frontend Skill
 
-**Complete frontend development guide for SUI dApps with TypeScript SDK.**
+This skill covers building browser-based Sui dApps using the dApp Kit SDK. The SDK has two packages:
+- `@mysten/dapp-kit-react` — React hooks, DAppKitProvider, and React component wrappers
+- `@mysten/dapp-kit-core` — Framework-agnostic core: actions, nanostores state, and Web Components
 
-## Overview
+Both packages expose the same `createDAppKit` factory and identical action APIs. What differs is how you access reactive state and render UI.
 
-This skill provides comprehensive frontend development support for SUI applications:
-- Project setup (React/Next.js/Vue/Svelte)
-- @mysten/sui SDK integration
-- @mysten/dapp-kit React hooks
-- Multi-wallet support
-- Transaction building and signing
-- Event listening and real-time updates
-- State management patterns
+For PTB construction details, apply the **sui-ts-sdk** skill alongside this one.
 
-## SUI SDK & API Updates (v1.65, February 2026)
+> **Note:** The older `@mysten/dapp-kit` package is deprecated. New projects must use `dapp-kit-react` or `dapp-kit-core`.
 
-**Breaking SDK changes:**
-- **Package renamed:** `@mysten/sui.js` → `@mysten/sui` (update all imports)
-- **Transaction class renamed:** `TransactionBlock` → `Transaction`
-- **Hook renamed:** `useSignAndExecuteTransactionBlock` → `useSignAndExecuteTransaction`
-- **Import paths:** `@mysten/sui/client`, `@mysten/sui/transactions` (no `.js`)
-
-**Data Access Migration (CRITICAL):**
-- **JSON-RPC is deprecated** and will be removed in **April 2026**
-- **gRPC is now GA** — primary API for full node interaction (7 services)
-- **GraphQL** remains beta, best for frontend/Relay-style queries
-- SDK (`@mysten/sui`) handles transport automatically — no code changes for most users
-- **`subscribeEvent` via WebSocket** is replaced by gRPC streaming internally
-- Direct `fetch()` calls to JSON-RPC endpoints must be migrated
-- See [grpc-reference.md](references/grpc-reference.md) for migration guide
-
-**GraphQL API changes (v1.64-v1.65):**
-- `Query.node(id: ID!)` for Global Identification Specification (Relay support)
-- `effectsJson` / `transactionJson` fields for JSON blob returns
-- `MoveValue.extract`, `MoveValue.format`, `MoveValue.asAddress` for value manipulation
-- `Balance.totalBalance` now sums owned coins + accumulator objects
-  - Use `Balance.coinBalance` for coin-only balance (previous behavior)
-  - Use `Balance.addressBalance` for address-specific balance
-- SuiNS: `Query.suinsName` → `Query.address(name: ...)`, `defaultSuinsName` → `defaultNameRecord.target`
-- Single "rich query" limit enforces database request budgets per GraphQL request
-- `DynamicFieldName.literal` for providing dynamic field names as Display v2 literals
-
-**TxContext flexibility:** `TxContext` arguments can now appear in any position in PTBs.
-
-## Quick Start
-
-### Framework Support
-
-**Supported frameworks:**
-- ✅ React (Vite) - Recommended for most projects
-- ✅ Next.js - For SSR/SSG requirements
-- ✅ Vue 3 - Alternative to React
-- ✅ Svelte - Lightweight alternative
-- ✅ Vanilla TypeScript - For simple projects
-
-### Initialize React Project
+## 1. Package Installation
 
 ```bash
-# Create project
-npm create vite@latest my-sui-dapp -- --template react-ts
+# React
+npm install @mysten/dapp-kit-react @mysten/sui @tanstack/react-query
 
-cd my-sui-dapp
-
-# Install SUI dependencies (note: package is @mysten/sui, not @mysten/sui.js)
-npm install @mysten/sui @mysten/dapp-kit
-
-# Install state management
-npm install @tanstack/react-query zustand
-
-# Install dev dependencies
-npm install -D @types/node
+# Non-React (Vue / Svelte / vanilla JS)
+npm install @mysten/dapp-kit-core @mysten/sui
 ```
 
-### Project Structure
+## 2. Instance & Provider Setup (React)
 
-```
-frontend/
-├── src/
-│   ├── config/
-│   │   ├── sui.ts           # SUI client config
-│   │   └── contracts.ts     # Contract addresses
-│   ├── api/
-│   │   └── marketplace.ts   # Contract API wrappers
-│   ├── hooks/
-│   │   ├── useMarketplace.ts
-│   │   └── useEvents.ts
-│   ├── components/
-│   │   ├── ConnectWallet.tsx
-│   │   └── NFTCard.tsx
-│   ├── types/
-│   │   └── contracts.ts     # Auto-generated from Move
-│   └── main.tsx
-└── package.json
-```
-
-## Core Features
-
-### 1. Environment Configuration
+`createDAppKit` factory + `DAppKitProvider`. Use `SuiGrpcClient` in `createClient`.
 
 ```typescript
-// src/config/sui.ts
-// ✅ SuiClient in SDK v1.65+ uses gRPC internally — no manual migration needed
-import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
-import { createNetworkConfig } from '@mysten/dapp-kit';
+// src/dapp-kit.ts
+import { createDAppKit, DAppKitProvider } from '@mysten/dapp-kit-react';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const { networkConfig, useNetworkVariable } = createNetworkConfig({
-  devnet: {
-    url: getFullnodeUrl('devnet'),
-    variables: {
-      packageId: import.meta.env.VITE_PACKAGE_ID_DEVNET,
+const dAppKit = createDAppKit({
+  networks: {
+    devnet: {
+      createClient: () => new SuiGrpcClient({ url: 'https://fullnode.devnet.sui.io:443' }),
+    },
+    testnet: {
+      createClient: () => new SuiGrpcClient({ url: 'https://fullnode.testnet.sui.io:443' }),
+    },
+    mainnet: {
+      createClient: () => new SuiGrpcClient({ url: 'https://fullnode.mainnet.sui.io:443' }),
     },
   },
-  testnet: {
-    url: getFullnodeUrl('testnet'),
-    variables: {
-      packageId: import.meta.env.VITE_PACKAGE_ID_TESTNET,
-    },
-  },
+  defaultNetwork: 'devnet',
 });
 
-export { networkConfig, useNetworkVariable };
+// TypeScript type inference via module augmentation
+declare module '@mysten/dapp-kit-react' {
+  interface Register {
+    dAppKit: typeof dAppKit;
+  }
+}
 
-export const suiClient = new SuiClient({
-  url: getFullnodeUrl(import.meta.env.VITE_SUI_NETWORK || 'devnet'),
-});
+export { dAppKit };
 ```
-
-### 2. Wallet Integration
 
 ```typescript
 // src/main.tsx
-import { WalletProvider } from '@mysten/dapp-kit';
+import { DAppKitProvider } from '@mysten/dapp-kit-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { networkConfig } from './config/sui';
+import { dAppKit } from './dapp-kit';
 
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
-    <WalletProvider networks={networkConfig} defaultNetwork="devnet">
+    <DAppKitProvider dAppKit={dAppKit}>
       <App />
-    </WalletProvider>
+    </DAppKitProvider>
   </QueryClientProvider>
 );
 ```
 
-**Connect Wallet Component:**
+## 3. Non-React Integration (Vue / Vanilla JS / Svelte)
+
+`@mysten/dapp-kit-core` with `createDAppKit`. Web Components for connect button/modal. Reactive state via nanostores.
 
 ```typescript
-import { ConnectButton, useCurrentAccount } from '@mysten/dapp-kit';
+import { createDAppKit } from '@mysten/dapp-kit-core';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-export function ConnectWallet() {
+const dAppKit = createDAppKit({
+  networks: {
+    mainnet: {
+      createClient: () => new SuiGrpcClient({ url: 'https://fullnode.mainnet.sui.io:443' }),
+    },
+  },
+  defaultNetwork: 'mainnet',
+});
+
+// Web Components — auto-registered <sui-connect-button>, <sui-connect-modal>
+import '@mysten/dapp-kit-core/web-components';
+
+// Reactive state via nanostores
+const currentAccount = dAppKit.stores.currentAccount;
+currentAccount.subscribe((account) => {
+  console.log('Account changed:', account?.address);
+});
+
+// Actions — same API as React hooks
+const result = await dAppKit.signAndExecuteTransaction({ transaction: tx });
+```
+
+## 4. Wallet Connection
+
+```typescript
+import { ConnectButton, useWallets, useDAppKit } from '@mysten/dapp-kit-react';
+
+// Simple — built-in ConnectButton
+function WalletConnect() {
+  return <ConnectButton />;
+}
+
+// Custom — list wallets and connect manually
+function CustomConnect() {
+  const wallets = useWallets();
+  const dAppKit = useDAppKit();
+
+  return (
+    <ul>
+      {wallets.map((wallet) => (
+        <li key={wallet.name}>
+          <button onClick={() => dAppKit.connect(wallet)}>
+            {wallet.name}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### Connection Status
+
+```typescript
+import { useWalletConnection } from '@mysten/dapp-kit-react';
+
+function ConnectionStatus() {
+  const { status } = useWalletConnection(); // 'disconnected' | 'connecting' | 'connected'
+  return <span>Status: {status}</span>;
+}
+```
+
+## 5. Current Account & Wallet
+
+```typescript
+import { useCurrentAccount, useCurrentWallet } from '@mysten/dapp-kit-react';
+
+function AccountInfo() {
   const account = useCurrentAccount();
+  const wallet = useCurrentWallet();
+
+  if (!account) return <p>Connect a wallet</p>;
 
   return (
     <div>
-      {account ? (
-        <div>
-          <span>{account.address.slice(0, 6)}...{account.address.slice(-4)}</span>
-          <ConnectButton />
-        </div>
-      ) : (
-        <ConnectButton />
-      )}
+      <p>Address: {account.address}</p>
+      <p>Wallet: {wallet?.name}</p>
     </div>
   );
 }
 ```
 
-### 3. Transaction Building
+## 6. Accessing the Raw Client
+
+`useCurrentClient` returns the `SuiClient` for the active network.
 
 ```typescript
-// src/api/marketplace.ts
-import { Transaction } from '@mysten/sui/transactions';
+import { useCurrentClient } from '@mysten/dapp-kit-react';
 
-export class MarketplaceAPI {
-  static createListing(params: { nftId: string; price: number | bigint }) {
-    const tx = new Transaction();
-
-    tx.moveCall({
-      target: `${packageId}::listing::create_listing`,
-      arguments: [
-        tx.object(params.nftId),
-        tx.pure(params.price, 'u64'),
-      ],
-    });
-
-    return tx;
-  }
+function MyComponent() {
+  const client = useCurrentClient();
+  // client.core.getObject(...), client.core.getCoins(...), etc.
 }
 ```
 
-### 4. React Hooks for Contract Calls
+## 7. Querying On-Chain Data
+
+No `useSuiClientQuery`. Use `useCurrentClient` + `useQuery` from `@tanstack/react-query`.
 
 ```typescript
-// src/hooks/useMarketplace.ts
-import { useSignAndExecuteTransaction } from '@mysten/dapp-kit';
-import { useMutation } from '@tanstack/react-query';
-
-export function useCreateListing() {
-  const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
-
-  return useMutation({
-    mutationFn: async (params: { nftId: string; price: number }) => {
-      const tx = MarketplaceAPI.createListing(params);
-      return await signAndExecute({ transaction: tx });
-    },
-    onSuccess: () => {
-      toast.success('Listing created successfully!');
-    },
-  });
-}
-```
-
-### 5. Querying On-Chain Data
-
-```typescript
-// src/hooks/useNFT.ts
-import { useSuiClient } from '@mysten/dapp-kit';
+import { useCurrentClient, useCurrentAccount } from '@mysten/dapp-kit-react';
 import { useQuery } from '@tanstack/react-query';
 
-export function useNFT(nftId: string) {
-  const client = useSuiClient();
+function useOwnedObjects() {
+  const client = useCurrentClient();
+  const account = useCurrentAccount();
 
   return useQuery({
-    queryKey: ['nft', nftId],
-    queryFn: async () => {
-      return await client.getObject({
-        id: nftId,
-        options: {
-          showContent: true,
-          showOwner: true,
-        },
-      });
-    },
-    enabled: !!nftId,
+    queryKey: ['ownedObjects', account?.address],
+    queryFn: () =>
+      client.core.getOwnedObjects({
+        owner: account!.address,
+        include: { content: true },
+      }),
+    enabled: !!account,
   });
 }
 ```
 
-### 6. Event Listening
+## 8. Paginated Queries
+
+`useInfiniteQuery` from react-query + `useCurrentClient`.
 
 ```typescript
-// src/hooks/useEvents.ts
-import { useEffect, useState } from 'react';
-import { useSuiClient } from '@mysten/dapp-kit';
+import { useCurrentClient, useCurrentAccount } from '@mysten/dapp-kit-react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
-export function useMarketplaceEvents(eventType: string) {
-  const client = useSuiClient();
-  const [events, setEvents] = useState<any[]>([]);
+function usePaginatedCoins() {
+  const client = useCurrentClient();
+  const account = useCurrentAccount();
 
-  useEffect(() => {
-    const subscribe = async () => {
-      const unsubscribe = await client.subscribeEvent({
-        filter: { MoveEventType: `${packageId}::listing::${eventType}` },
-        onMessage: (event) => {
-          setEvents((prev) => [event, ...prev]);
-        },
-      });
-      return unsubscribe;
-    };
-
-    subscribe();
-  }, [client, eventType]);
-
-  return events;
+  return useInfiniteQuery({
+    queryKey: ['coins', account?.address],
+    queryFn: ({ pageParam }) =>
+      client.core.getCoins({
+        owner: account!.address,
+        cursor: pageParam,
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    enabled: !!account,
+  });
 }
 ```
 
-### 7. State Management
+## 9. Signing and Executing Transactions
+
+`useDAppKit().signAndExecuteTransaction()` — async function, NOT a mutation hook.
+Result is a discriminated union: `result.Transaction.digest` or `result.FailedTransaction`.
 
 ```typescript
-// src/store/useAppStore.ts
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { useDAppKit } from '@mysten/dapp-kit-react';
+import { Transaction } from '@mysten/sui/transactions';
+import { useState } from 'react';
 
-interface AppState {
-  network: 'devnet' | 'testnet' | 'mainnet';
-  setNetwork: (network: AppState['network']) => void;
-  favorites: string[];
-  toggleFavorite: (nftId: string) => void;
-}
+function MintButton({ packageId }: { packageId: string }) {
+  const dAppKit = useDAppKit();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export const useAppStore = create<AppState>()(
-  persist(
-    (set) => ({
-      network: 'devnet',
-      setNetwork: (network) => set({ network }),
-      favorites: [],
-      toggleFavorite: (nftId) =>
-        set((state) => ({
-          favorites: state.favorites.includes(nftId)
-            ? state.favorites.filter((id) => id !== nftId)
-            : [...state.favorites, nftId],
-        })),
-    }),
-    { name: 'app-storage' }
-  )
-);
-```
+  async function handleMint() {
+    setIsPending(true);
+    setError(null);
+    try {
+      const tx = new Transaction();
+      tx.moveCall({ target: `${packageId}::nft::mint` });
 
-## Best Practices
+      const result = await dAppKit.signAndExecuteTransaction({ transaction: tx });
 
-### Type Safety
-
-```typescript
-// Use generated types from Move ABI
-import { Listing } from './types/contracts';
-
-function handleListing(listing: Listing) {
-  console.log(listing.price);
-  console.log(listing.seller);
-}
-```
-
-### Error Handling
-
-```typescript
-// Parse contract errors
-export function parseContractError(error: any): string {
-  if (error.message?.includes('MoveAbort')) {
-    const abortMatch = error.message.match(/code:\s*(\d+)/);
-    if (abortMatch) {
-      return getErrorMessage(abortMatch[1]);
+      if ('Transaction' in result) {
+        console.log('Success:', result.Transaction.digest);
+      } else {
+        console.error('Failed:', result.FailedTransaction);
+      }
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setIsPending(false);
     }
   }
-  return error.message || 'Transaction failed';
+
+  return (
+    <button onClick={handleMint} disabled={isPending}>
+      {isPending ? 'Minting...' : 'Mint NFT'}
+    </button>
+  );
 }
 ```
 
-### Performance Optimization
+## 10. Signing Without Executing
+
+For sponsored transaction flows:
 
 ```typescript
-// Batch queries
-export function useMultipleNFTs(nftIds: string[]) {
-  const client = useSuiClient();
+const dAppKit = useDAppKit();
 
-  return useQuery({
-    queryKey: ['nfts', nftIds],
-    queryFn: async () => {
-      return await client.multiGetObjects({
-        ids: nftIds,
-        options: { showContent: true },
-      });
-    },
-  });
+const { bytes, signature } = await dAppKit.signTransaction({ transaction: tx });
+// Send bytes + signature to sponsor backend
+```
+
+## 11. Personal Message Signing
+
+```typescript
+const dAppKit = useDAppKit();
+
+const { signature } = await dAppKit.signPersonalMessage({
+  message: new TextEncoder().encode('Hello Sui'),
+});
+```
+
+## 12. Network Switching
+
+```typescript
+import { useCurrentNetwork, useDAppKit } from '@mysten/dapp-kit-react';
+
+function NetworkSwitcher() {
+  const network = useCurrentNetwork();
+  const dAppKit = useDAppKit();
+
+  return (
+    <select value={network} onChange={(e) => dAppKit.switchNetwork(e.target.value)}>
+      <option value="devnet">Devnet</option>
+      <option value="testnet">Testnet</option>
+      <option value="mainnet">Mainnet</option>
+    </select>
+  );
 }
 ```
 
-### Security Considerations
+## 13. Cache Invalidation After Transactions
+
+`waitForTransaction` before `invalidateQueries`.
 
 ```typescript
-// ⚠️ NEVER put private keys in frontend
-// ❌ BAD
-const ADMIN_PRIVATE_KEY = 'suiprivkey1...';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCurrentClient, useDAppKit } from '@mysten/dapp-kit-react';
 
-// ✅ GOOD - Use wallet for signing
-const { mutate: signTransaction } = useSignAndExecuteTransaction();
+function useExecuteAndRefresh() {
+  const dAppKit = useDAppKit();
+  const client = useCurrentClient();
+  const queryClient = useQueryClient();
 
-// ⚠️ NEVER trust user input
-// ✅ GOOD - Validate first
-const validatedAmount = validateAmount(userInput);
-tx.pure(validatedAmount, 'u64');
+  return async (tx: Transaction) => {
+    const result = await dAppKit.signAndExecuteTransaction({ transaction: tx });
+
+    if ('Transaction' in result) {
+      await client.core.waitForTransaction({ digest: result.Transaction.digest });
+      await queryClient.invalidateQueries();
+    }
+
+    return result;
+  };
+}
 ```
+
+## 14. Wallet-Gated UI
+
+```typescript
+import { useCurrentAccount } from '@mysten/dapp-kit-react';
+import { ConnectButton } from '@mysten/dapp-kit-react';
+
+function ProtectedPage() {
+  const account = useCurrentAccount();
+
+  if (!account) {
+    return (
+      <div>
+        <p>Please connect your wallet to continue</p>
+        <ConnectButton />
+      </div>
+    );
+  }
+
+  return <Dashboard address={account.address} />;
+}
+```
+
+## 15. What dApp Kit is NOT
+
+| Mistake | Correct Approach |
+|---------|-----------------|
+| `useSuiClientQuery('getObject', ...)` | `useCurrentClient()` + `useQuery()` from react-query |
+| `useSuiClient()` | `useCurrentClient()` |
+| `useSignAndExecuteTransaction()` as mutation hook | `useDAppKit().signAndExecuteTransaction()` — async fn |
+| `result.digest` | `result.Transaction.digest` / `result.FailedTransaction` |
+| `import { ... } from '@mysten/dapp-kit'` | `from '@mysten/dapp-kit-react'` or `'@mysten/dapp-kit-core'` |
+| Three-provider wrap (`SuiClientProvider`, `WalletProvider`, `QueryClientProvider`) | `createDAppKit()` + `DAppKitProvider` (+ `QueryClientProvider`) |
+| `new SuiClient({ url })` | `new SuiGrpcClient({ url })` |
+| `options: { showContent: true }` | `include: { content: true }` |
+| `client.getObject(...)` | `client.core.getObject(...)` |
 
 ## Common Mistakes
 
+❌ **Using deprecated `@mysten/dapp-kit`**
+- **Problem:** Old package, will stop receiving updates
+- **Fix:** Migrate to `@mysten/dapp-kit-react` (React) or `@mysten/dapp-kit-core` (other frameworks)
+
+❌ **Using `useSuiClientQuery` / `useSuiClientMutation`**
+- **Problem:** These hooks are removed in dApp Kit v2
+- **Fix:** Use `useCurrentClient()` + `useQuery()` / `useInfiniteQuery()` from `@tanstack/react-query`
+
+❌ **Using `useSignAndExecuteTransaction` as a mutation hook**
+- **Problem:** v2 removed mutation-style hooks; this pattern no longer works
+- **Fix:** Use `useDAppKit().signAndExecuteTransaction()` (async function), manage `isPending`/`error` with `useState`
+
+❌ **Accessing `result.digest` directly**
+- **Problem:** v2 returns a discriminated union, not a flat object
+- **Fix:** Check `'Transaction' in result` then access `result.Transaction.digest`, or handle `result.FailedTransaction`
+
+❌ **Using `SuiClient` from `@mysten/sui/client`**
+- **Problem:** `SuiClient` is removed in SDK v2; `@mysten/sui/client` no longer exists
+- **Fix:** Use `SuiGrpcClient` from `@mysten/sui/grpc`
+
+❌ **Using `options: { showContent: true }`**
+- **Problem:** `options` parameter renamed in v2
+- **Fix:** Use `include: { content: true }` instead
+
+❌ **Calling `client.getObject(...)` directly**
+- **Problem:** Methods moved under `.core` namespace in v2
+- **Fix:** Use `client.core.getObject(...)`, `client.core.getCoins(...)`, etc.
+
 ❌ **Not handling wallet disconnection**
 - **Problem:** App crashes when user disconnects wallet mid-session
-- **Fix:** Listen to wallet events, clear user state on disconnect
-
-❌ **Passing numbers as transaction arguments**
-- **Problem:** Transaction fails with "invalid argument type"
-- **Fix:** Use `tx.pure(value, 'u64')` for integers, `tx.pure(value, 'u128')` for large numbers
-
-❌ **Not enabling query options**
-- **Problem:** Object returned without content/owner data
-- **Fix:** Always specify `options: { showContent: true, showOwner: true }`
-
-❌ **Polling instead of subscribing to events**
-- **Problem:** High RPC costs, delayed updates, rate limiting
-- **Fix:** Use `client.subscribeEvent()` for real-time updates
-
-❌ **Not handling transaction failures gracefully**
-- **Problem:** Generic "Transaction failed" message, users confused
-- **Fix:** Parse abort codes, display user-friendly error messages
-
-❌ **Storing sensitive data in localStorage**
-- **Problem:** XSS attacks can steal wallet proofs/keys
-- **Fix:** Use sessionStorage for sensitive data, encrypt if necessary
-
-❌ **Not batching queries**
-- **Problem:** 100 NFTs = 100 RPC calls, slow loading
-- **Fix:** Use `multiGetObjects()` to fetch multiple objects in one call
+- **Fix:** Use `useWalletConnection()` for connection status, null-check `useCurrentAccount()`
 
 ❌ **Hardcoding package IDs**
 - **Problem:** Package ID changes between networks
-- **Fix:** Use environment variables (VITE_PACKAGE_ID_DEVNET, etc.)
+- **Fix:** Use environment variables or network-specific config in `createDAppKit`
 
 ## Integration
 
@@ -410,6 +421,7 @@ tx.pure(validatedAmount, 'u64');
 - `sui-fullstack-integration` (contract-frontend integration)
 
 ### Calls
+- `sui-ts-sdk` - PTB construction patterns
 - `sui-docs-query` - Query latest SDK documentation
 
 ### Next Step
@@ -422,9 +434,5 @@ Next: Ready for full-stack integration with sui-fullstack-integration?
 ## See Also
 
 - [reference.md](references/reference.md) - Complete SDK API reference, hooks documentation
-- [grpc-reference.md](references/grpc-reference.md) - gRPC API reference, JSON-RPC migration guide
+- [grpc-reference.md](references/grpc-reference.md) - gRPC API reference, migration guide
 - [examples.md](references/examples.md) - Complete component examples, integration patterns
-
----
-
-**Build modern, type-safe, performant SUI frontends with confidence!**

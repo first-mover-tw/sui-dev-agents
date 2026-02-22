@@ -158,12 +158,12 @@ export class MarketplaceAPI {
 ```typescript
 // frontend/src/hooks/useMarketplaceAPI.ts
 import { useMemo } from 'react';
-import { useSuiClient } from '@mysten/dapp-kit';
+import { useCurrentClient } from '@mysten/dapp-kit-react';
 import { useNetworkVariable } from '../config/sui';
 import { MarketplaceAPI } from '../api/marketplace';
 
 export function useMarketplaceAPI() {
-  const client = useSuiClient();
+  const client = useCurrentClient();
   const packageId = useNetworkVariable('packageId');
 
   const api = useMemo(
@@ -182,14 +182,14 @@ export function useMarketplaceAPI() {
 ```typescript
 // frontend/src/hooks/useContractEvents.ts
 import { useEffect, useState } from 'react';
-import { useSuiClient } from '@mysten/dapp-kit';
+import { useCurrentClient } from '@mysten/dapp-kit-react';
 import { useNetworkVariable } from '../config/sui';
 import type { NFTPurchasedEvent } from '../types/contracts';
 
 export function useNFTPurchasedEvents(
   onEvent?: (event: NFTPurchasedEvent) => void
 ) {
-  const client = useSuiClient();
+  const client = useCurrentClient();
   const packageId = useNetworkVariable('packageId');
   const [events, setEvents] = useState<NFTPurchasedEvent[]>([]);
 
@@ -321,15 +321,15 @@ function mapMoveErrorCode(code: string) {
 ```typescript
 // frontend/src/components/Marketplace.tsx
 import { useMarketplaceAPI } from '../hooks/useMarketplaceAPI';
-import { useSignAndExecuteTransaction } from '@mysten/dapp-kit';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDAppKit } from '@mysten/dapp-kit-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNFTPurchasedEvents } from '../hooks/useContractEvents';
 import { toast } from 'sonner';
 
 export function Marketplace() {
   const api = useMarketplaceAPI();
   const queryClient = useQueryClient();
-  const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
+  const dAppKit = useDAppKit();
 
   // Fetch listings
   const { data: listings } = useQuery({
@@ -350,7 +350,7 @@ export function Marketplace() {
         listing_id: listingId,
         payment: '0x...',
       });
-      return await signAndExecute({ transaction: tx });
+      return await dAppKit.signAndExecuteTransaction({ transaction: tx });
     },
     onSuccess: () => {
       toast.success('Purchase successful!');

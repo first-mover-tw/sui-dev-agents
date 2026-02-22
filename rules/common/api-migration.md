@@ -41,10 +41,32 @@ const response = await fetch(rpcUrl, {
   }),
 });
 
-// GOOD: Use SDK (handles gRPC automatically)
-import { SuiClient } from '@mysten/sui/client';
+// GOOD (SDK v2): Use gRPC client
+import { SuiGrpcClient } from '@mysten/sui/grpc';
+const client = new SuiGrpcClient({ url: 'https://grpc.testnet.sui.io' });
+const object = await client.core.getObject({ objectId });
+```
+
+### SDK v2 Migration (v1.x → v2.x)
+
+In SDK v2:
+- `SuiClient` and `getFullnodeUrl` from `@mysten/sui/client` are **removed**
+- Use `SuiGrpcClient` from `@mysten/sui/grpc` (recommended) or `SuiJsonRpcClient` from `@mysten/sui/rpc` (JSON-RPC fallback)
+- Core methods move to `client.core.*` namespace
+- ESM-only: requires `"type": "module"` in `package.json`
+
+```typescript
+// v1.x (deprecated)
+import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
 const client = new SuiClient({ url: getFullnodeUrl('testnet') });
-const object = await client.getObject({ id: objectId });
+
+// v2.x (gRPC — recommended)
+import { SuiGrpcClient } from '@mysten/sui/grpc';
+const client = new SuiGrpcClient({ url: 'https://grpc.testnet.sui.io' });
+
+// v2.x (JSON-RPC — fallback for environments without gRPC)
+import { SuiJsonRpcClient } from '@mysten/sui/rpc';
+const client = new SuiJsonRpcClient({ url: 'https://fullnode.testnet.sui.io' });
 ```
 
 ### Detection

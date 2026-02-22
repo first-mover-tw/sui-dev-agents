@@ -33,6 +33,19 @@ All wallet tools follow a **dry-run → approve → execute** flow:
 - **ALWAYS** use MCP wallet tools instead of direct `sui client` CLI when possible
 - The `tx-approval-guard` hook will warn if direct CLI signing is attempted
 
+## When to Use This vs dApp Kit
+
+| Scenario | Use This Skill | Use `sui-frontend` Skill |
+|----------|---------------|-------------------------|
+| Automated deployments | ✅ MCP wallet tools | |
+| Testing flows / CI/CD | ✅ Agent-driven transactions | |
+| Backend scripts / headless ops | ✅ CLI wallet | |
+| Browser wallet signing (React/Vue) | | ✅ dApp Kit |
+| User-facing UI with wallet connect | | ✅ dApp Kit |
+
+- **MCP wallet tools** = agent automation (backend, scripts, CI/CD, headless operations)
+- **dApp Kit** = user-facing wallet signing in browser (frontend, React/Vue apps)
+
 ## Examples
 
 ### Check wallet status

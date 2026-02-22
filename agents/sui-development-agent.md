@@ -22,6 +22,8 @@ Execute architecture, development, testing, and deployment phases by delegating 
 | TypeScript frontend | sui-frontend-subagent | sui-frontend |
 | Testing | sui-tester-subagent | sui-tester |
 | Deployment | sui-deployer-subagent | sui-deployer |
+| TypeScript backend/CLI | sui-frontend-subagent | sui-ts-sdk |
+| Move-to-Frontend bridge | sui-fullstack-integration-subagent | sui-fullstack-integration |
 
 ## Workflow Coordination
 

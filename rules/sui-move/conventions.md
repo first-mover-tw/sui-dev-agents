@@ -2,145 +2,230 @@
 paths: "**/*.move"
 ---
 
-# Sui Move Conventions
+# Sui Move Conventions (Move 2024)
 
-## Module Naming
-- Use `snake_case` for module names
-- One module per file, filename matches module name
-- Example: `nft_marketplace.move` contains `module nft_marketplace`
+## Package Setup
 
-## Struct Naming
-- Use `PascalCase` for struct names
-- Prefix capability structs with purpose: `AdminCap`, `MintCap`, `TreasuryCap`
-- Use descriptive names: `NFTCollection`, `MarketplaceListing`
+- Edition required in Move.toml: `edition = "2024.beta"`
+- Implicit framework dependencies (Sui 1.45+): do NOT list `Sui`, `MoveStdlib`, `Bridge`, or `SuiSystem` in `[dependencies]`
+- Named addresses: prefix with project name to avoid conflicts
 
-## Object Patterns
+## Module Declaration
 
-### Shared Objects
-- Use for objects that need concurrent access
-- Include version/epoch fields for optimistic concurrency
-- Example: `public fun create_shared_pool(ctx: &mut TxContext) { transfer::share_object(Pool { ... }) }`
-
-### Owned Objects
-- Default for user-owned assets (NFTs, coins, etc.)
-- Transferred using `transfer::public_transfer` or `transfer::transfer`
-- Example: `transfer::public_transfer(nft, recipient)`
-
-### Wrapped Objects
-- Use for composability (wrapping one object in another)
-- Parent object owns the child
-- Example: storing NFT inside a staking position
-
-## Capability Pattern
-- Use empty structs for capabilities: `struct AdminCap has key, store { id: UID }`
-- Store capabilities in `TxContext` sender or as owned objects
-- Pass capabilities as immutable references: `_admin: &AdminCap`
-- Name parameter with underscore if only used for access control
-
-## Entry Functions
-- Mark user-facing functions with `entry` or `public entry`
-- Entry functions should be simple orchestrators
-- Keep complex logic in internal functions
-- Entry function naming: verb_noun (e.g., `mint_nft`, `list_item`, `cancel_listing`)
-
-## Error Codes
-- Use constants for error codes: `const E_NOT_AUTHORIZED: u64 = 0;`
-- Naming: `E_SNAKE_CASE_DESCRIPTION`
-- Start from 0, increment by 1
-- Group related errors together
-- Document what each error means
+Single-line declaration, no braces (Move 2024):
 
 ```move
-const E_NOT_AUTHORIZED: u64 = 0;
-const E_INSUFFICIENT_BALANCE: u64 = 1;
-const E_INVALID_AMOUNT: u64 = 2;
-const E_ALREADY_EXISTS: u64 = 3;
+module my_package::my_module;
 ```
 
-## Import Ordering
-1. Standard library (`std::`)
-2. Sui framework (`sui::`)
-3. Project modules (relative imports)
-4. Alphabetical within each group
+## Module Layout Order
+
+```
+use imports
+Constants
+Structs / Enums
+init
+Public functions
+public(package) functions
+Private functions
+Test module
+```
+
+Use `=== Section Title ===` comments to delimit sections.
+
+## Imports
+
+- Don't use a lone `{Self}` — import the module directly
+- When importing both the module and members, group with `Self`:
 
 ```move
-use std::string::{Self, String};
-use std::vector;
-
 use sui::coin::{Self, Coin};
-use sui::sui::SUI;
-use sui::transfer;
-use sui::tx_context::{Self, TxContext};
-
-use project::utils;
 ```
 
-## Struct Field Ordering
-1. `id: UID` (always first for objects)
-2. Capability/permission fields
-3. Core data fields (sorted by importance)
-4. Metadata fields
-5. Timestamp/version fields
+## Structs
+
+All structs must use `public struct`:
 
 ```move
-struct NFT has key, store {
+public struct NFT has key, store {
     id: UID,
-    owner: address,
     name: String,
-    description: String,
-    url: String,
-    created_at: u64,
 }
 ```
 
-## Function Ordering in Module
-1. Constants (error codes, config values)
-2. Structs
-3. Init function
-4. Public entry functions
-5. Public functions
-6. Internal functions
-7. Test-only functions
+Object rule: any struct with `key` must have `id: UID` as first field.
 
-## Comments and Documentation
-- Use `///` for public function documentation
-- Include @param and @return annotations for complex functions
-- Explain invariants and assumptions
-- Document gas implications for expensive operations
+### Naming
 
-```move
-/// Mints a new NFT and transfers it to the recipient.
-/// @param name: The name of the NFT
-/// @param recipient: The address to receive the NFT
-/// @param ctx: The transaction context
-public entry fun mint_nft(
-    name: String,
-    recipient: address,
-    ctx: &mut TxContext
-) {
-    // Implementation
-}
-```
+- Capabilities: `Cap` suffix (`AdminCap`, `MintCap`)
+- Events: past tense (`ItemPurchased`, `PoolCreated`)
+- No `Potato` suffix
+- Dynamic field keys: positional structs `public struct BalanceKey() has copy, drop, store;`
+
+## Object Abilities Cheat Sheet
+
+| Ability | Meaning |
+|---------|---------|
+| `key` | On-chain object, requires `id: UID` |
+| `store` | Can be embedded; enables `public_transfer` / `public_share_object` / `public_freeze_object` |
+| `copy` | Can be duplicated (not valid on objects with `key`) |
+| `drop` | Can be silently discarded |
+
+- Only call non-`public_` transfer variants inside the defining module
+- Never construct an object struct literal outside its defining module
 
 ## Constants
-- Use SCREAMING_SNAKE_CASE for constants
-- Group by purpose (errors, config, limits)
-- Add inline comments for non-obvious values
+
+- Error constants: `EPascalCase` (e.g., `EInsufficientBalance`)
+- Other constants: `ALL_CAPS` (e.g., `MAX_SUPPLY`)
+
+### Clever Errors
+
+Use `#[error]` macro for string error messages:
 
 ```move
-const MAX_SUPPLY: u64 = 10000;
-const DECIMALS: u8 = 9;
-const BASIS_POINTS: u64 = 10000; // 100% = 10000 basis points
+#[error]
+const EInsufficientBalance: vector<u8> = b"Balance too low for this operation";
 ```
 
-## Abilities
-- `key`: Object can be owned, stored in global storage
-- `store`: Object can be stored inside other objects
-- `copy`: Object can be copied (use sparingly)
-- `drop`: Object can be dropped (use sparingly)
+`assert!` without abort code auto-derives a clever abort code.
+Never pass abort codes to `assert!` — conflicts with app error codes.
 
-Common patterns:
-- NFTs: `has key, store`
-- Capabilities: `has key, store`
-- Singletons: `has key`
-- Pure data: `has store, drop, copy`
+## Visibility
+
+- `public` = any module
+- `public(package)` = same package only
+- `(none)` = same module only
+- `public(friend)` is **deprecated** — use `public(package)`
+- **Never use `public entry`** — choose one or the other
+
+## Parameter Ordering
+
+`mutable objects → immutable objects → capabilities → primitives → Clock → TxContext`
+
+## Getter Naming
+
+Name after the field, no `get_` prefix: `fee_bps()` not `get_fee_bps()`.
+
+## Mutability
+
+`let mut` required for mutable bindings and function parameters:
+
+```move
+let mut v = vector[];
+fun process(mut coin: Coin<SUI>) { ... }
+```
+
+## Method Syntax
+
+Prefer method form when the first argument matches the type:
+
+```move
+ctx.sender()
+id.delete()
+coin.value()
+opt.destroy_or!(default)
+```
+
+## Enums (Move 2024)
+
+Use enums for types with multiple variants. Cannot have `key` ability. Pattern match with `match`.
+
+```move
+public enum Status has store, drop {
+    Active,
+    Paused,
+    Closed,
+}
+```
+
+## Macros (Move 2024)
+
+Vector macros: `do!`, `tabulate!`, `do_ref!`, `do_mut!`, `destroy!`, `fold!`, `filter!`
+Option macros: `do!`, `destroy_or!`
+
+## Comments
+
+- `///` for doc comments (no `/** */`)
+- `//` for non-obvious logic only
+
+## OTW Pattern (One-Time Witness)
+
+```move
+public struct MY_MODULE has drop {}
+
+fun init(otw: MY_MODULE, ctx: &mut TxContext) { ... }
+```
+
+## Capability Pattern
+
+Use capability objects to gate privileged functions — don't check `ctx.sender()`:
+
+```move
+public fun admin_action(cap: &AdminCap, ...) { ... }
+```
+
+## Pure Functions & Composability
+
+- Keep core logic functions pure — don't call `transfer` inside core logic
+- Return excess coins even if zero
+
+## Common Stdlib Patterns
+
+```move
+// Strings
+b"hello".to_string()
+
+// Coin/Balance — method syntax
+let balance = coin.into_balance();
+let value = coin.value();
+
+// Burn pattern
+transfer::public_transfer(obj, @0x0)
+
+// Option
+opt.destroy_or!(default_value)
+
+// UID deletion
+id.delete()
+
+// TxContext sender
+ctx.sender()
+
+// Vector literals & index syntax
+let v = vector[1, 2, 3];
+let x = v[0];
+
+// Struct unpack with ..
+let NFT { id, name, .. } = nft;
+```
+
+## Dynamic Fields
+
+```move
+df::add(&mut obj.id, key, value);
+df::borrow(&obj.id, key);
+df::borrow_mut(&mut obj.id, key);
+df::remove(&mut obj.id, key);
+// Dynamic object fields
+dof::add(&mut obj.id, key, obj_value);
+```
+
+## Events
+
+Emit events for all state-changing operations:
+
+```move
+public struct ItemPurchased has copy, drop {
+    item_id: ID,
+    buyer: address,
+    price: u64,
+}
+
+event::emit(ItemPurchased { item_id, buyer, price });
+```
+
+## What Sui Move is NOT
+
+These do not exist in Sui Move:
+`acquires`, `move_to`, `move_from`, `borrow_global`, `signer`, `Script`, `public(friend)`, `struct` without `public`, `let` without `mut` for mutable vars.

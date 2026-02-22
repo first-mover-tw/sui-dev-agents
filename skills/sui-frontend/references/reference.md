@@ -1,21 +1,40 @@
 # SUI Frontend - Reference Guide
 
-Complete SDK API reference and advanced patterns.
+Complete SDK API reference and advanced patterns for dApp Kit v2.
 
 ## @mysten/sui SDK Reference
 
-> **Note:** Package was renamed from `@mysten/sui.js` to `@mysten/sui` in 2025. Update all imports accordingly.
+> **Note:** Package was renamed from `@mysten/sui.js` to `@mysten/sui` in 2025. In v2, `SuiClient` from `@mysten/sui/client` is removed — use `SuiGrpcClient` from `@mysten/sui/grpc`.
 
-### SuiClient Methods
+### SuiGrpcClient Methods
 
-> **Note:** SuiClient in SDK v1.65+ uses gRPC internally. These methods work as-is — no manual migration needed.
+All methods are under the `.core` namespace:
 
-- `getObject(params)` - Fetch single object
-- `multiGetObjects(params)` - Fetch multiple objects (batch)
-- `getOwnedObjects(params)` - Query objects by owner/type
-- `getDynamicFields(params)` - Query dynamic fields
-- `executeTransaction(params)` - Execute transaction
-- `subscribeEvent(params)` - Subscribe to events
+- `client.core.getObject(params)` - Fetch single object
+- `client.core.multiGetObjects(params)` - Fetch multiple objects (batch)
+- `client.core.getOwnedObjects(params)` - Query objects by owner/type
+- `client.core.getDynamicFields(params)` - Query dynamic fields
+- `client.core.getCoins(params)` - Query coins by owner
+- `client.core.getBalance(params)` - Get balance for coin type
+- `client.core.executeTransaction(params)` - Execute transaction
+- `client.core.waitForTransaction(params)` - Wait for transaction finality
+
+### v1 → v2 Method Rename Table
+
+| v1 (SuiClient) | v2 (SuiGrpcClient) |
+|---|---|
+| `import { SuiClient } from '@mysten/sui/client'` | `import { SuiGrpcClient } from '@mysten/sui/grpc'` |
+| `client.getObject({ id, options: { showContent: true } })` | `client.core.getObject({ id, include: { content: true } })` |
+| `client.multiGetObjects({ ids, options: { showContent: true } })` | `client.core.multiGetObjects({ ids, include: { content: true } })` |
+| `client.getOwnedObjects({ owner, options })` | `client.core.getOwnedObjects({ owner, include })` |
+| `client.getCoins({ owner })` | `client.core.getCoins({ owner })` |
+| `client.getBalance({ owner })` | `client.core.getBalance({ owner })` |
+| `client.getDynamicFields({ parentId })` | `client.core.getDynamicFields({ parentId })` |
+| `client.executeTransactionBlock(...)` | `client.core.executeTransaction(...)` |
+| `client.dryRunTransactionBlock(...)` | `client.core.simulateTransaction(...)` |
+| `client.subscribeEvent(...)` | `client.core.subscribeEvents(...)` (gRPC streaming) |
+| `client.waitForTransactionBlock(...)` | `client.core.waitForTransaction(...)` |
+| `options: { showContent, showOwner, showType }` | `include: { content, owner, type }` |
 
 ### Transaction Methods
 
@@ -27,32 +46,53 @@ Complete SDK API reference and advanced patterns.
 - `mergeCoins(destination, sources)` - Merge coins
 - `pure(value, type)` - Pure argument
 - `object(id)` - Object argument
+- `coinWithBalance({ balance, type? })` - Create coin with exact balance (auto-splits from gas or specified type)
+- `$extend(name, fn)` - Add custom methods to Transaction instance
 
-## @mysten/dapp-kit Hooks
+## @mysten/dapp-kit-react Hooks (v2)
+
+> **Note:** `@mysten/dapp-kit` is **deprecated**. Use `@mysten/dapp-kit-react` (React) or `@mysten/dapp-kit-core` (non-React).
+
+### Setup
+
+- `createDAppKit(config)` - Factory to create dApp Kit instance
+- `DAppKitProvider` - React context provider (replaces three-provider pattern)
 
 ### Wallet Hooks
 
 - `useCurrentAccount()` - Get current connected account
-- `useAccounts()` - Get all connected accounts
-- `useConnectWallet()` - Connect wallet mutation
-- `useDisconnectWallet()` - Disconnect wallet mutation
-- `useSwitchAccount()` - Switch account mutation
+- `useCurrentWallet()` - Get current wallet info
+- `useWallets()` - List all available wallets
+- `useWalletConnection()` - Connection status (`'disconnected' | 'connecting' | 'connected'`)
 
-### Client Hooks
+### Client & Network Hooks
 
-- `useSuiClient()` - Get SUI client instance
-- `useSuiClientQuery()` - Query with SUI client
-- `useSuiClientMutation()` - Mutation with SUI client
+- `useCurrentClient()` - Get SuiGrpcClient for active network (replaces `useSuiClient()`)
+- `useCurrentNetwork()` - Get active network name
 
-### Transaction Hooks
+### Instance Methods (via `useDAppKit()`)
 
-> **Note:** Hooks were renamed: `useSignAndExecuteTransactionBlock` → `useSignAndExecuteTransaction`
+> **Note:** `useSuiClientQuery()`, `useSuiClientMutation()`, `useSignAndExecuteTransaction()` (mutation hook), `useSignTransaction()`, `useSignPersonalMessage()` are all **removed** in v2.
 
-- `useSignAndExecuteTransaction()` - Sign and execute transaction
-- `useSignTransaction()` - Sign transaction only
-- `useSignPersonalMessage()` - Sign message
+- `dAppKit.signAndExecuteTransaction({ transaction })` - Sign + execute (async, returns discriminated union)
+- `dAppKit.signTransaction({ transaction })` - Sign only (for sponsored flows)
+- `dAppKit.signPersonalMessage({ message })` - Sign personal message
+- `dAppKit.connect(wallet)` - Connect to wallet
+- `dAppKit.disconnect()` - Disconnect wallet
+- `dAppKit.switchNetwork(network)` - Switch active network
 
-## gRPC API (v1.65+, GA)
+### Result Types
+
+```typescript
+// signAndExecuteTransaction returns a discriminated union:
+if ('Transaction' in result) {
+  result.Transaction.digest; // success
+} else {
+  result.FailedTransaction; // failure details
+}
+```
+
+## gRPC API (GA)
 
 > **JSON-RPC is deprecated** (removed April 2026). See [grpc-reference.md](grpc-reference.md) for full migration guide.
 
@@ -64,8 +104,6 @@ gRPC is now the primary full node API with 7 services:
 - `MovePackageService` — Package and module queries
 - `SignatureVerificationService` — Off-chain signature verification
 - `NameService` — SuiNS resolution
-
-**SDK users:** `@mysten/sui` `SuiClient` handles gRPC transport automatically. No code changes needed for most operations.
 
 ## GraphQL API (v1.64-v1.65)
 

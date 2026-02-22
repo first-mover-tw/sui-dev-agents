@@ -93,14 +93,17 @@ sui move test
 
 **Speed:** ~2 minutes
 
+**Cross-reference:** For deep Move semantics review (enum correctness, ability constraints, borrow safety), invoke the `move-code-quality` skill after Strict mode passes.
+
 See [scripts/](scripts/) for implementation details.
 
-## SUI v1.65 Updates (Protocol 110)
+## SUI v1.66 Updates (Protocol 111)
 
 **Key changes affecting Move development (as of February 2026):**
 
 - **gRPC Data Access (GA):** gRPC is now the primary data access method, replacing JSON-RPC (deprecated, removed April 2026). GraphQL remains available for frontend/indexer use.
-- **Balance API Split:** `coinBalance` (fungible coins only) and `addressBalance` (all balance types) replace the previous unified Balance query.
+- **Quorum Driver Disabled:** Quorum Driver is removed. Use **Transaction Driver** for transaction submission instead.
+- **Balance API Improvements:** `totalBalance` now sums coins + accumulator objects. `coinBalance` (fungible coins only) and `addressBalance` (all balance types) remain available.
 - **TxContext Flexible Positioning:** `TxContext` arguments can appear in any position within PTBs.
 - **poseidon_bn254 Enabled:** Available on all networks. Use `sui::poseidon::poseidon_bn254` for zero-knowledge proof applications.
 - **Address Alias (Testnet):** Address alias feature is enabled on testnet, allowing human-readable address mappings.
@@ -156,10 +159,10 @@ Auto-suggest better patterns while coding:
 
 ```move
 // Detect hardcoded address
-const ADMIN_KEY = @0x123...;
+const ADMIN_KEY: address = @0x123;
 
 // Suggest improvement:
-// ⚠️  Use capability instead:
+// Warning: Use capability instead:
 public struct AdminCap has key { id: UID }
 ```
 

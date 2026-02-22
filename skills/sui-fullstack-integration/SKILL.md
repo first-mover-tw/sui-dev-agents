@@ -5,6 +5,8 @@ description: Use when connecting Move contracts to frontend, generating TypeScri
 
 # SUI Fullstack Integration
 
+> **Scope:** This skill covers Move ↔ TypeScript bridging: type generation, event handling, ABI wrappers. For dApp UI setup and wallet integration, use the `sui-frontend` skill. For PTB construction and SDK client patterns, use the `sui-ts-sdk` skill.
+
 **Seamlessly integrate Move smart contracts with frontend applications.**
 
 ## Overview
@@ -58,7 +60,7 @@ useNFTPurchasedEvents((event) => {
 | **Type Generation** | Auto-generate TS types from Move ABI |
 | **API Wrapper** | Type-safe transaction builders |
 | **React Hooks** | `useMarketplaceAPI()` for component integration |
-| **Event Subscriptions** | Real-time updates via `subscribeEvent` |
+| **Event Subscriptions** | Real-time updates via gRPC streaming (replaces WebSocket `subscribeEvent`) |
 | **Error Handling** | Map Move abort codes to user messages |
 
 ## Move Type to TypeScript Mapping
@@ -90,6 +92,21 @@ project/
 └── scripts/
     ├── generate-types.ts
     └── dev.sh
+```
+
+## SDK v2 Notes
+
+- SDK v2 uses `client.core.*` namespace for core RPC methods
+- ESM-only: SDK v2 requires ESM (`"type": "module"` in `package.json` or `.mts` files)
+- Use `coinWithBalance` for non-SUI coin transfers (not just SUI)
+- Extend client capabilities with `$extend()` for ecosystem integration:
+
+```typescript
+import { SuiGrpcClient } from '@mysten/sui/grpc';
+import { kiosk } from '@mysten/kiosk';
+
+const client = new SuiGrpcClient({ url: '...' })
+  .$extend(kiosk());
 ```
 
 ## References
@@ -129,7 +146,7 @@ const patterns = await sui_docs_query({
 
 ❌ **Polling for updates instead of subscribing to events**
 - **Problem:** Delayed updates, high RPC costs
-- **Fix:** Use `client.subscribeEvent()` for real-time updates
+- **Fix:** Use gRPC streaming for real-time updates (WebSocket `subscribeEvent` is deprecated)
 
 ❌ **Not testing integration locally**
 - **Problem:** Integration bugs discovered after deployment

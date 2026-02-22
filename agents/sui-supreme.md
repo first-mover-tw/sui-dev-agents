@@ -66,6 +66,8 @@ Analyze user requests, decompose into subtasks, route to appropriate category ag
 | "Kiosk", "Walrus", "zkLogin", "DeepBook" | sui-ecosystem-agent | Integration |
 | "security", "audit", "vulnerability" | sui-infrastructure-agent (security) | Security check |
 | "docs", "API", "documentation" | sui-infrastructure-agent (docs) | Documentation query |
+| "backend script", "CLI", "Node.js SDK", "server-side" | sui-development-agent (frontend subagent + sui-ts-sdk skill) | Backend/CLI TS development |
+| "TypeScript SDK", "PTB construction", "transaction building" (non-React) | sui-development-agent (frontend subagent + sui-ts-sdk skill) | SDK transaction patterns |
 
 ## Workflow Patterns
 

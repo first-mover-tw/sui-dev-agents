@@ -8,6 +8,8 @@
 
 SUI full nodes now expose gRPC as the primary API interface, replacing the deprecated JSON-RPC. The gRPC API provides 7 services covering all blockchain interaction needs.
 
+> **SDK v2 Breaking Change:** `SuiClient` from `@mysten/sui/client` is **removed**. Use `SuiGrpcClient` from `@mysten/sui/grpc` instead. See [TypeScript section](#typescript-via-mystensui) below.
+
 ## gRPC Services
 
 ### 1. TransactionExecutionService
@@ -128,19 +130,24 @@ grpcurl -d '{"filter": {"move_event_type": "0x2::coin::CoinEvent"}}' \
 
 ### TypeScript (via @mysten/sui)
 
-The `@mysten/sui` SDK abstracts the transport layer. When using `SuiClient`, the SDK handles gRPC/JSON-RPC selection automatically based on the endpoint:
+In SDK v2, `SuiClient` from `@mysten/sui/client` is **removed**. Use `SuiGrpcClient` from `@mysten/sui/grpc`:
 
 ```typescript
-import { SuiClient } from '@mysten/sui/client';
+// ❌ v1 (removed)
+// import { SuiClient } from '@mysten/sui/client';
+// const client = new SuiClient({ url: getFullnodeUrl('testnet') });
 
-// SDK handles transport automatically
-const client = new SuiClient({ url: getFullnodeUrl('testnet') });
+// ✅ v2
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-// Same API, gRPC transport under the hood
-const object = await client.getObject({ id: '0x...' });
+const client = new SuiGrpcClient({ url: 'https://fullnode.testnet.sui.io:443' });
+
+// Methods are under .core namespace
+const object = await client.core.getObject({ id: '0x...', include: { content: true } });
+const coins = await client.core.getCoins({ owner: '0x...' });
 ```
 
-> **Note:** For custom RPC endpoints, ensure your node exposes gRPC. The SDK will use gRPC when available.
+> **Note:** All client methods now live under `client.core.*`. The `options` parameter is renamed to `include` (e.g., `include: { content: true }` instead of `options: { showContent: true }`).
 
 ## Migration: JSON-RPC → gRPC
 
@@ -172,9 +179,12 @@ const object = await client.getObject({ id: '0x...' });
 
 ### SDK Users
 
-If you use `@mysten/sui` SDK, **no code changes required** for most operations. The SDK handles transport selection. However:
+If you use `@mysten/sui` SDK v2:
 
-- **`subscribeEvent` via WebSocket** is deprecated. The SDK now uses gRPC streaming internally.
+- **Import changed:** `SuiGrpcClient` from `@mysten/sui/grpc` (not `SuiClient` from `@mysten/sui/client`)
+- **Methods under `.core`:** `client.core.getObject(...)` instead of `client.getObject(...)`
+- **`options` → `include`:** `include: { content: true }` instead of `options: { showContent: true }`
+- **`subscribeEvent` via WebSocket** is removed. Use `client.core.subscribeEvents(...)` (gRPC streaming).
 - **Custom RPC middleware** that intercepts JSON-RPC payloads will need updating.
 - **Direct `fetch()` calls** to JSON-RPC must be migrated.
 

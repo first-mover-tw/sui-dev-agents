@@ -1,9 +1,9 @@
 {
   "name": "sui-dev-agents",
   "displayName": "SUI Dev Agents",
-  "version": "2.2.0",
-  "description": "Complete SUI blockchain development toolkit with skills, agents, commands, hooks, MCP server, and rules for Move smart contracts, frontend integration, testing, and deployment",
-  "longDescription": "SUI Dev Agents provides a comprehensive toolkit for building production-ready SUI blockchain applications. Includes 22 user-invocable skills, 19 orchestration agents, 9 commands, 8 auto hooks, 5 rule files, and a built-in MCP server with 14 gRPC tools. Covers the complete development lifecycle: architecture planning, Move smart contract development, adversarial security testing (Red Team), on-chain contract analysis (Decompile), frontend integration, comprehensive testing with coverage analysis, agent wallet operations, multi-network deployment, and ecosystem integrations (Kiosk, zkLogin, DeepBook, Walrus, SuiNS, etc.). All gRPC-native — no JSON-RPC dependency.",
+  "version": "2.3.0",
+  "description": "Complete SUI blockchain development toolkit with SDK v2 support, dApp Kit v2, skills, agents, commands, hooks, MCP server, and rules for Move smart contracts, frontend integration, testing, and deployment",
+  "longDescription": "SUI Dev Agents provides a comprehensive toolkit for building production-ready SUI blockchain applications. Includes 23 user-invocable skills, 19 orchestration agents, 9 commands, 8 auto hooks, 5 rule files, and a built-in MCP server with 14 gRPC tools. Covers the complete development lifecycle: architecture planning, Move smart contract development, adversarial security testing (Red Team), on-chain contract analysis (Decompile), frontend integration with SDK v2 and dApp Kit v2, comprehensive testing with coverage analysis, agent wallet operations, multi-network deployment, and ecosystem integrations (Kiosk, zkLogin, DeepBook, Walrus, SuiNS, etc.). All gRPC-native — no JSON-RPC dependency.",
   "author": {
     "name": "Ramon Liao",
     "url": "https://x.com/RamonLiaoYC"
@@ -31,6 +31,7 @@
     "zklogin",
     "walrus",
     "grpc",
+    "sdk-v2",
     "mcp",
     "red-team",
     "security"
@@ -44,7 +45,7 @@
   ],
   "icon": "🌊",
   "features": [
-    "22 user-invocable skills for SUI development",
+    "23 user-invocable skills for SUI development",
     "19 hierarchical orchestration agents",
     "9 commands for fast operations",
     "8 auto hooks across 5 event types",

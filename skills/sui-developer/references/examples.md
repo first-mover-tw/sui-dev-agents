@@ -635,22 +635,23 @@ sui-developer gen-types
 
 ```typescript
 import { create_listing, subscribeToListingCreated } from './types/marketplace';
-import { useWallet } from '@mysten/dapp-kit';
+import { useDAppKit } from '@mysten/dapp-kit-react';
 import { Transaction } from '@mysten/sui/transactions';
 
 export function CreateListingButton({ nftId, price }: Props) {
-  const { signAndExecuteTransaction } = useWallet();
+  const dAppKit = useDAppKit();
 
   const handleCreateListing = async () => {
     // Use generated function
     const txb = create_listing(nftId, price);
 
     // Execute transaction
-    const result = await signAndExecuteTransaction({
-      transaction: tx,
+    const result = await dAppKit.signAndExecuteTransaction({
+      transaction: txb,
     });
 
-    console.log('Listing created:', result.digest);
+    if (result.FailedTransaction) throw new Error('Transaction failed');
+    console.log('Listing created:', result.Transaction.digest);
   };
 
   return (

@@ -7,7 +7,7 @@ Real-world component and integration examples.
 ```typescript
 // src/components/NFTMarketplace.tsx
 import { useListings, useCreateListing, useBuyListing } from '../hooks/useMarketplace';
-import { useCurrentAccount } from '@mysten/dapp-kit';
+import { useCurrentAccount } from '@mysten/dapp-kit-react';
 
 export function NFTMarketplace() {
   const account = useCurrentAccount();
