@@ -1,21 +1,34 @@
 # SUI Dev Agents
 
-**v2.4.0** - Complete toolkit for building production-ready SUI blockchain applications with skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Now aligned with **SUI CLI v1.67+**, **SUI SDK v2**, **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated April 2026). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
+**v2.4.0** — An open-source toolkit built for the SUI community to streamline blockchain development. Provides skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Aligned with **SUI CLI v1.67+**, **SUI SDK v2**, **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated April 2026). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
+
+Works with **Claude Code** (full plugin) and other AI development tools (rules-only) — see [Platform Guides](docs/platforms/).
 
 ## 📦 Installation
 
-### Install from Marketplace
+### Claude Code (Full Plugin)
 
 ```bash
+# From Marketplace
 /plugin marketplace add first-mover-tw/sui-dev-agents
 /plugin install sui-dev-agents
-```
 
-### Direct Installation (Alternative)
-
-```bash
+# Or direct install
 /plugin install first-mover-tw/sui-dev-agents
 ```
+
+### Other AI Tools (Rules-Only)
+
+Rules and skill prompts are portable markdown — works with any AI-powered development tool. Quick setup for popular CLI tools:
+
+| Tool | Quick Start |
+|------|-------------|
+| **Antigravity** | `cp -r rules/sui-move/ .antigravity/rules/` |
+| **Gemini CLI** | `cat rules/sui-move/conventions.md rules/sui-move/security.md > GEMINI.md` |
+| **Codex CLI** | `cat rules/sui-move/conventions.md rules/sui-move/security.md > codex-instructions.md` |
+| **OpenCode** | `cp rules/sui-move/conventions.md .opencode/context/sui-conventions.md` |
+
+> Detailed guides for 14 platforms (Cursor, Windsurf, Cline, GitHub Copilot, Zed, Continue, Aider, Augment Code, Amazon Q, and more): **[docs/platforms/](docs/platforms/)**
 
 ### Prerequisites
 
@@ -101,67 +114,7 @@ sui-supreme → sui-core-agent / sui-development-agent / sui-ecosystem-agent
 
 ## 🌐 Cross-Platform Usage
 
-Rules and skill prompts are portable markdown — works with Cursor, Windsurf, Codex CLI, Gemini CLI, Aider, Cline, OpenCode.
-
-### Cursor / Windsurf
-
-```bash
-# Cursor
-cp -r rules/sui-move/ .cursor/rules/
-cp -r rules/common/ .cursor/rules/
-
-# Windsurf
-cp -r rules/sui-move/ .windsurf/rules/
-cp -r rules/common/ .windsurf/rules/
-```
-
-### OpenAI Codex CLI
-
-```bash
-cat rules/sui-move/conventions.md rules/sui-move/security.md > codex-instructions.md
-codex --instructions codex-instructions.md "Build a SUI Move token contract"
-```
-
-### Google Gemini CLI
-
-```bash
-cat rules/sui-move/conventions.md rules/sui-move/security.md rules/common/code-quality.md > GEMINI.md
-```
-
-### Aider
-
-```bash
-aider --read rules/sui-move/conventions.md
-```
-
-### Cline (VS Code)
-
-```bash
-cat rules/sui-move/conventions.md rules/sui-move/security.md > .clinerules
-```
-
-### OpenCode
-
-```bash
-cp rules/sui-move/conventions.md .opencode/context/sui-conventions.md
-```
-
-### Portable Resources Summary
-
-| Resource | Path | Use As |
-|----------|------|--------|
-| Move conventions | `rules/sui-move/conventions.md` | System prompt / rules file |
-| Security rules | `rules/sui-move/security.md` | System prompt / rules file |
-| Testing patterns | `rules/sui-move/testing.md` | System prompt / rules file |
-| Code quality | `rules/common/code-quality.md` | System prompt / rules file |
-| API migration | `rules/common/api-migration.md` | Reference document |
-| gRPC reference | `skills/sui-frontend/references/grpc-reference.md` | Migration guide |
-| Skill prompts | `skills/*/SKILL.md` | Task-specific system prompts |
-| Agent prompts | `agents/*.md` | Multi-step workflow templates |
-| Example projects | `examples/starter-*/` | Project scaffolding (any platform) |
-| LSP config | `.lsp.json` | Editor LSP setup (any editor) |
-
-> **Note:** Skills, agents, hooks, and commands use Claude Code's plugin system and won't run natively on other platforms. However, the prompt content within each skill/agent markdown file can be adapted as system instructions or custom prompts for any LLM-powered tool.
+Rules and skill prompts are portable markdown — see **[docs/platforms/](docs/platforms/)** for detailed installation guides covering 14 platforms including Cursor, Windsurf, Codex CLI, Gemini CLI, Aider, Cline, OpenCode, Zed, Continue, GitHub Copilot, Augment Code, Amazon Q, and Antigravity.
 
 ## ⚙️ Configuration
 
@@ -194,15 +147,16 @@ Skills can be configured via `.sui-full-stack.json`:
 
 ## 📚 Documentation
 
-- **Quick Start:** `docs/QUICKSTART.md` - 5-minute introduction
-- **Complete Guide:** `docs/GUIDE.md` - Full usage guide
-- **Architecture:** `docs/ARCHITECTURE.md` - Component design
-- **Commands:** `commands/*.md` - 9 command references
-- **Skills:** `skills/*/SKILL.md` - 23 skill docs
-- **Agents:** `agents/*.md` - 19 agent definitions
-- **Rules:** `rules/**/*.md` - 5 coding conventions
-- **MCP Server:** `mcp-server/` - 14 gRPC tools source
-- **Examples:** `examples/` - Starter projects
+- **Quick Start:** `docs/QUICKSTART.md` — 5-minute introduction
+- **Complete Guide:** `docs/GUIDE.md` — Full usage guide
+- **Architecture:** `docs/ARCHITECTURE.md` — Component design
+- **Platform Guides:** `docs/platforms/` — Installation for 14 AI tools
+- **Commands:** `commands/*.md` — 9 command references
+- **Skills:** `skills/*/SKILL.md` — 23 skill docs
+- **Agents:** `agents/*.md` — 19 agent definitions
+- **Rules:** `rules/**/*.md` — 5 coding conventions
+- **MCP Server:** `mcp-server/` — 14 gRPC tools source
+- **Examples:** `examples/` — Starter projects
 
 ## 🔗 Integration with CLAUDE.md
 
@@ -238,8 +192,13 @@ Ramon Liao
 
 ## 🤝 Contributing
 
-This is a personal plugin. Fork and customize for your needs!
+This is an open-source project for the SUI developer community. Contributions are welcome!
+
+- **Bug reports & feature requests** — [Open an issue](https://github.com/first-mover-tw/sui-dev-agents/issues)
+- **Pull requests** — Fork the repo, create a branch, submit a PR
+- **New platform guides** — Add to `docs/platforms/` and update the platform README
+- **Skill improvements** — Edit `skills/*/SKILL.md` with better prompts or patterns
 
 ---
 
-**From idea to production-ready SUI dApp - guided every step of the way!**
+**From idea to production-ready SUI dApp — guided every step of the way.**
