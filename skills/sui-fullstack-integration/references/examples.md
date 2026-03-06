@@ -81,13 +81,12 @@ function moveTypeToTypeScript(moveType: string): string {
 ```typescript
 // frontend/src/api/marketplace.ts
 import { Transaction } from '@mysten/sui/transactions';
-// ✅ SuiClient in SDK v1.67+ uses gRPC internally — no manual migration needed
-import { SuiClient } from '@mysten/sui/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import type { Listing } from '../types/contracts';
 
 export class MarketplaceAPI {
   constructor(
-    private client: SuiClient,
+    private client: SuiGrpcClient,
     private packageId: string
   ) {}
 
@@ -129,9 +128,9 @@ export class MarketplaceAPI {
    * Fetch listing by ID
    */
   async getListing(listingId: string): Promise<Listing | null> {
-    const object = await this.client.getObject({
+    const object = await this.client.core.getObject({
       id: listingId,
-      options: { showContent: true },
+      include: { content: true },
     });
 
     if (!object.data || object.data.content?.dataType !== 'moveObject') {

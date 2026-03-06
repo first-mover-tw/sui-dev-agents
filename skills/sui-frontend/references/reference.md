@@ -130,5 +130,6 @@ gRPC is now the primary full node API with 7 services:
   - Use `Balance.addressBalance` for address-specific balance
 - `IAddressable.defaultSuinsName` → `IAddressable.defaultNameRecord.target`
 - Single "rich query" limit enforces database request budgets
+- **(v1.67)** `error` field removed from `simulateResult` / `ExecutionResult` — errors now flow through standard GraphQL error handling
 
 See examples.md for complete usage patterns.

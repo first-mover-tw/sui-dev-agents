@@ -92,18 +92,18 @@ public fun create_profile(
 // Complete zkLogin implementation
 
 import { ZkLoginProvider, generateNonce } from '@mysten/zklogin';
-import { SuiClient } from '@mysten/sui/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 
 class ZkLoginAuth {
   private provider: ZkLoginProvider;
-  private client: SuiClient;
+  private client: SuiGrpcClient;
 
   constructor() {
     this.provider = new ZkLoginProvider({
       network: 'testnet',
       provider: 'google'
     });
-    this.client = new SuiClient({ url: getFullnodeUrl('testnet') });
+    this.client = new SuiGrpcClient({ network: 'testnet' });
   }
 
   async login() {
@@ -148,8 +148,7 @@ class ZkLoginAuth {
 
     const signed = await this.provider.signTransaction(tx, proof);
 
-    // ✅ SDK v1.67+ uses gRPC internally — no manual migration needed
-    const result = await this.client.executeTransaction({
+    const result = await this.client.core.executeTransaction({
       transaction: signed,
       signature: proof.signature
     });
