@@ -16,9 +16,9 @@ This skill provides comprehensive testing across all layers:
 - **Property-Based Tests** - Test invariants with random inputs
 - **Gas Benchmarks** - Measure and track gas consumption
 
-## SUI v1.65 Testing Updates (Protocol 110)
+## SUI v1.67 Testing Updates (Protocol 114)
 
-**Key changes affecting testing (February 2026):**
+**Key changes affecting testing (March 2026):**
 - **Regex Test Filtering:** Test filtering uses regex. Use `sui move test --filter "regex_pattern"` for precise test selection.
 - **poseidon_bn254:** Available on all networks. Add tests for ZK-related functions using `sui::poseidon::poseidon_bn254`.
 - **TxContext Flexible Positioning:** `TxContext` can be in any argument position. Update integration tests if they assume last-position TxContext.

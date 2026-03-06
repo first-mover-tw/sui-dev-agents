@@ -3,303 +3,520 @@ name: sui-ts-sdk
 description: Use when writing TypeScript code interacting with SUI blockchain via @mysten/sui SDK. Covers PTB construction, client setup, transaction execution, and on-chain queries. Triggers on backend scripts, CLI tools, serverless functions, or any non-React TS SDK usage. For frontend-specific setup (dApp Kit, wallet adapters, React hooks), use sui-frontend skill alongside this one.
 ---
 
-# Sui TypeScript SDK
+# Sui TypeScript SDK Skill
 
-**Complete guide to `@mysten/sui` v2+ for backend, CLI, and serverless TypeScript.**
+You are writing TypeScript code that interacts with the Sui blockchain using the `@mysten/sui` SDK (v2+). Follow these rules precisely. This skill covers PTB (Programmable Transaction Block) construction, client setup, transaction execution, and on-chain queries. These patterns apply equally in backend scripts and frontend apps. If you are building a frontend, use the **sui-frontend** skill first (or alongside this one) for dApp Kit setup, wallet connection, and React integration — then apply the PTB and client patterns from this skill.
+
+---
 
 ## 1. Package & Imports
 
-The SDK is **ESM-only** (v2+). Use subpath exports — never import from the package root.
+The SDK package is `@mysten/sui`. The old package name `@mysten/sui.js` was renamed at v1.0 and must not be used.
 
 ```bash
+# correct
 npm install @mysten/sui
+
+# deprecated package name — will not receive updates
+npm install @mysten/sui.js
 ```
+
+All imports use subpath exports from `@mysten/sui`:
 
 ```typescript
-// Client
-import { SuiGrpcClient } from '@mysten/sui/grpc';
-import { SuiJsonRpcClient } from '@mysten/sui/jsonRpc';
-import { SuiGraphQLClient } from '@mysten/sui/graphql';
-
-// Transactions
+// correct subpath imports
 import { Transaction } from '@mysten/sui/transactions';
-import { Inputs } from '@mysten/sui/transactions';
-
-// Keypairs
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
-import { Secp256k1Keypair } from '@mysten/sui/keypairs/secp256k1';
-import { Secp256r1Keypair } from '@mysten/sui/keypairs/secp256r1';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-// Utilities
-import { coinWithBalance } from '@mysten/sui/transactions';
-import { bcs } from '@mysten/sui/bcs';
+// wrong: old package name
+import { TransactionBlock } from '@mysten/sui.js';
+
+// wrong: importing from package root
+import { Transaction } from '@mysten/sui';
 ```
 
-> **ESM requirement**: Set `"type": "module"` in `package.json` or use `.mts` extension. CommonJS `require()` is NOT supported.
+**ESM-only (v2+)**: Set `"type": "module"` in `package.json` and update `tsconfig.json`:
+
+```json
+{ "compilerOptions": { "moduleResolution": "NodeNext", "module": "NodeNext" } }
+```
+
+---
 
 ## 2. Client Setup
 
-### SuiGrpcClient (Recommended)
-
-gRPC is GA and the recommended client. JSON-RPC is deprecated (removal: April 2026).
+The SDK provides three client types. **Use `SuiGrpcClient` for new code** — it is the recommended client with the best performance. The JSON-RPC API is deprecated (removal: April 2026).
 
 ```typescript
+// Recommended — gRPC client (best performance, type-safe protobuf)
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-// Public endpoints — use `network` shorthand
-const client = new SuiGrpcClient({ network: 'testnet' });
-const client = new SuiGrpcClient({ network: 'mainnet' });
-const client = new SuiGrpcClient({ network: 'devnet' });
-
-// Custom fullnode
 const client = new SuiGrpcClient({
-  network: 'mainnet',
-  baseUrl: 'https://your-fullnode.example.com:443',
+  network: 'testnet',
+  baseUrl: 'https://fullnode.testnet.sui.io:443',
 });
 ```
 
-### SuiJsonRpcClient (Legacy)
-
 ```typescript
+// Legacy — JSON-RPC client (deprecated API)
+// In v2, SuiClient was removed from @mysten/sui/client. Use SuiJsonRpcClient instead.
 import { SuiJsonRpcClient, getJsonRpcFullnodeUrl } from '@mysten/sui/jsonRpc';
 
 const client = new SuiJsonRpcClient({
   url: getJsonRpcFullnodeUrl('testnet'),
+  network: 'testnet', // required in v2
 });
 ```
 
-### SuiGraphQLClient
-
 ```typescript
+// GraphQL client — for advanced query use cases
 import { SuiGraphQLClient } from '@mysten/sui/graphql';
 
 const gqlClient = new SuiGraphQLClient({
-  url: 'https://sui-testnet.mystenlabs.com/graphql',
+  url: 'https://graphql.testnet.sui.io/graphql',
+  network: 'testnet', // required in v2
 });
 ```
+
+### Network URLs
+
+| Network | gRPC base URL | GraphQL URL | JSON-RPC URL |
+|---------|--------------|-------------|-------------|
+| Mainnet | `https://fullnode.mainnet.sui.io:443` | `https://graphql.mainnet.sui.io/graphql` | `getJsonRpcFullnodeUrl('mainnet')` |
+| Testnet | `https://fullnode.testnet.sui.io:443` | `https://graphql.testnet.sui.io/graphql` | `getJsonRpcFullnodeUrl('testnet')` |
+| Devnet | `https://fullnode.devnet.sui.io:443` | `https://graphql.devnet.sui.io/graphql` | `getJsonRpcFullnodeUrl('devnet')` |
+
+### gRPC Service Clients
+
+The `SuiGrpcClient` exposes typed service clients for lower-level access:
+
+```typescript
+// Transaction execution
+await client.transactionExecutionService.executeTransaction({ ... });
+
+// Ledger queries
+await client.ledgerService.getObject({ objectId: '0x...' });
+
+// Move package introspection
+await client.movePackageService.getFunction({
+  packageId: '0x2',
+  moduleName: 'coin',
+  name: 'transfer',
+});
+
+// Name service (SuiNS)
+await client.nameService.reverseLookupName({ address: '0x...' });
+```
+
+---
 
 ## 3. Transaction Construction
 
-All on-chain writes go through the `Transaction` class (renamed from `TransactionBlock` in v1).
+A Programmable Transaction Block (PTB) is built using the `Transaction` class. The class was renamed from `TransactionBlock` at v1.0:
 
 ```typescript
+// correct
 import { Transaction } from '@mysten/sui/transactions';
-
 const tx = new Transaction();
 
-// Add commands (see sections 6-7)
-const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(1_000_000_000)]);
-tx.transferObjects([coin], tx.pure.address('0xRecipient'));
-
-// Execute
-const result = await client.signAndExecuteTransaction({
-  transaction: tx,
-  signer: keypair,
-});
+// wrong: old class name (pre-1.0)
+import { TransactionBlock } from '@mysten/sui.js/transactions';
+const txb = new TransactionBlock();
 ```
+
+### Cloning a transaction
+
+```typescript
+// v1.0+
+const newTx = Transaction.from(existingTx);
+
+// wrong: old constructor-based cloning
+const newTx = new TransactionBlock(existingTx);
+```
+
+### Serialization
+
+```typescript
+// v1.0+ — async, runs serialization plugins
+const json = await tx.toJSON();
+
+// Deserialize
+const restored = Transaction.from(json);
+
+// deprecated
+const bytes = tx.serialize();
+```
+
+---
 
 ## 4. Pure Value Inputs
 
-Non-object inputs must be serialized as BCS. Use `tx.pure.*` typed helpers:
+Use `tx.pure.<type>()` helpers for non-object inputs. These handle BCS serialization automatically. **Never manually BCS-encode values when a `tx.pure` helper exists.**
 
 ```typescript
-tx.pure.address('0xSomeAddress')    // Move `address`
-tx.pure.bool(true)                   // Move `bool`
-tx.pure.string('hello')             // Move `vector<u8>` (UTF-8)
-tx.pure.u8(255)                      // Move `u8`
-tx.pure.u16(65535)                   // Move `u16`
-tx.pure.u32(4294967295)             // Move `u32`
-tx.pure.u64(1_000_000_000n)         // Move `u64`
-tx.pure.u128(100n)                   // Move `u128`
-tx.pure.u256(100n)                   // Move `u256`
+// Typed pure helpers
+tx.pure.u8(255);
+tx.pure.u16(65535);
+tx.pure.u32(4294967295);
+tx.pure.u64(1000000n);              // accepts bigint or number
+tx.pure.u128(1000000n);
+tx.pure.u256(1000000n);
+tx.pure.bool(true);
+tx.pure.string('hello');
+tx.pure.address('0xSomeAddress');
+tx.pure.id('0xSomeObjectId');       // equivalent to address, for object IDs as values
 
-// Vectors and Options
-tx.pure.vector('u64', [1n, 2n, 3n])
-tx.pure.option('address', '0xAbc')
-tx.pure.option('u64', null)          // None
+// Vectors
+tx.pure.vector('u64', [100n, 200n, 300n]);
+tx.pure.vector('address', [addr1, addr2]);
+tx.pure.vector('bool', [true, false]);
 
-// Raw BCS (advanced)
-tx.pure(bcs.U64.serialize(100))
+// Option
+tx.pure.option('u64', 42n);         // Some(42)
+tx.pure.option('u64', null);        // None
 ```
+
+```typescript
+// don't manually construct BCS for types that have helpers
+import { bcs } from '@mysten/sui/bcs';
+tx.pure(bcs.U64.serialize(100));    // unnecessary — use tx.pure.u64(100)
+```
+
+For advanced types without a built-in helper, fall back to `tx.pure(bcsBytes)` where `bcsBytes` is a `Uint8Array`:
+
+```typescript
+import { bcs } from '@mysten/sui/bcs';
+
+const MyStruct = bcs.struct('MyStruct', {
+  id: bcs.Address,
+  value: bcs.U64,
+});
+tx.pure(MyStruct.serialize({ id: '0x...', value: 100n }));
+```
+
+---
 
 ## 5. Object Inputs
 
+Use `tx.object(id)` for object inputs. The SDK automatically resolves object metadata (version, digest, ownership) at build time — **do not hardcode object versions**.
+
 ```typescript
-// By object ID (auto-resolved by SDK)
-tx.object('0xObjectId')
+// Let the SDK resolve object details
+tx.object('0xSomeObjectId');
 
-// System shortcuts
-tx.object.clock()          // 0x6 — sui::clock::Clock
-tx.object.random()         // 0x8 — sui::random::Random
-tx.object.denyList()       // 0x403 — sui::deny_list::DenyList
-tx.object.system()         // 0x5 — sui_system::SuiSystemState
+// Well-known system object shortcuts
+tx.object.system();    // 0x5 — Sui system state
+tx.object.clock();     // 0x6 — Clock
+tx.object.random();    // 0x8 — Random
+tx.object.denyList();  // 0x403 — DenyList
 
-// Receiving objects
-tx.object.receiving('0xObjectId')
+// Construct an Option<Object> input
+tx.object.option({
+  type: '0xpkg::mod::MyType',
+  value: '0xSomeObjectId',      // Some(obj) — or omit `value` for None
+});
 ```
+
+```typescript
+// don't hardcode object versions
+tx.object(Inputs.ObjectRef({
+  objectId: '0x...',
+  version: '42',     // will break when object is modified
+  digest: 'abc...',
+}));
+// Exception: offline building (see section 13)
+```
+
+### Receiving objects
+
+When a Move function takes a `Receiving<T>` parameter, the SDK auto-converts `tx.object()` to a receiving reference. No special handling is needed — just pass the object ID normally.
+
+---
 
 ## 6. Built-in Commands
 
 ### splitCoins
+
+Creates new coins by splitting from a source coin. Returns an array of coin references:
+
 ```typescript
-// Split from gas coin
-const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(1_000_000_000)]);
+// Split from gas coin — most common pattern for SUI
+const [coin] = tx.splitCoins(tx.gas, [1000]);
 
 // Split multiple amounts
-const coins = tx.splitCoins(tx.gas, [
-  tx.pure.u64(1_000_000_000),
-  tx.pure.u64(2_000_000_000),
-]);
+const [coin1, coin2] = tx.splitCoins(tx.gas, [1000, 2000]);
+
+// Split from a non-gas coin
+const [portion] = tx.splitCoins(tx.object('0xMyCoin'), [500]);
 ```
 
 ### mergeCoins
+
+Merges coins into a destination coin:
+
 ```typescript
-tx.mergeCoins(primaryCoin, [coin1, coin2]);
+tx.mergeCoins(tx.object('0xDestCoin'), [
+  tx.object('0xCoinA'),
+  tx.object('0xCoinB'),
+]);
 ```
 
 ### transferObjects
+
+Transfers one or more objects to a recipient address:
+
 ```typescript
-tx.transferObjects([coin, nft], tx.pure.address('0xRecipient'));
+// Transfer a split coin
+const [coin] = tx.splitCoins(tx.gas, [1000]);
+tx.transferObjects([coin], '0xRecipientAddress');
+
+// Transfer existing objects
+tx.transferObjects(
+  [tx.object('0xObj1'), tx.object('0xObj2')],
+  '0xRecipientAddress',
+);
+
+// Transfer the entire gas coin (send all SUI to someone)
+tx.transferObjects([tx.gas], '0xRecipientAddress');
 ```
 
 ### moveCall
+
+Calls a Move function:
+
 ```typescript
 tx.moveCall({
-  target: '0xPkg::module::function',
-  arguments: [tx.object('0xObj'), tx.pure.u64(100)],
-  typeArguments: ['0xPkg::module::MyType'],
+  target: '0xPackageId::module_name::function_name',
+  arguments: [
+    tx.object('0xSomeObject'),     // object argument
+    tx.pure.u64(1000),             // pure value argument
+  ],
+  typeArguments: ['0x2::sui::SUI'], // generic type parameters
 });
 ```
 
-### makeMoveVec
+**Return values** from `moveCall` are usable in subsequent commands:
+
 ```typescript
-// Typed vector of objects
+const [result] = tx.moveCall({
+  target: '0xpkg::amm::swap',
+  arguments: [tx.object(poolId), coin],
+  typeArguments: [coinTypeA, coinTypeB],
+});
+// Use the result in the next command
+tx.transferObjects([result], myAddress);
+```
+
+### makeMoveVec
+
+Constructs a `vector<T>` of objects for passing into a Move function:
+
+```typescript
 const vec = tx.makeMoveVec({
-  type: '0xPkg::module::Item',
-  elements: [item1, item2],
+  type: '0xpkg::mod::MyType',
+  elements: [tx.object('0xA'), tx.object('0xB')],
+});
+tx.moveCall({
+  target: '0xpkg::mod::process_all',
+  arguments: [vec],
 });
 ```
 
 ### publish
+
+Publishes a new Move package. Build the package with the Sui CLI first, then pass the compiled modules:
+
 ```typescript
-const [upgradeCap] = tx.publish({
-  modules: compiledModules,
-  dependencies: [
-    '0x0000000000000000000000000000000000000000000000000000000000000001',
-    '0x0000000000000000000000000000000000000000000000000000000000000002',
-  ],
-});
+const tx = new Transaction();
+const [upgradeCap] = tx.publish({ modules, dependencies });
+tx.transferObjects([upgradeCap], myAddress);
 ```
+
+To get the `modules` and `dependencies`, run:
+
+```bash
+sui move build --dump-bytecode-as-base64 --path ./your_package
+```
+
+Parse the JSON output to extract `modules` and `dependencies` arrays.
+
+---
 
 ## 7. Command Result Chaining
 
-Commands return results that can be used as inputs to subsequent commands — this is what makes PTBs atomic and composable.
+Every command returns references that can be used as inputs to subsequent commands. This is the core power of PTBs — composing multiple operations atomically:
 
 ```typescript
 const tx = new Transaction();
 
-// Split a coin from gas
-const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(1_000_000_000)]);
+// Step 1: Split a coin
+const [coin] = tx.splitCoins(tx.gas, [1_000_000]);
 
-// Use the result in a move call
-tx.moveCall({
-  target: '0xPkg::module::deposit',
-  arguments: [tx.object('0xPool'), coin],
+// Step 2: Pass the split coin into a Move call
+const [receipt] = tx.moveCall({
+  target: '0xpkg::shop::buy_item',
+  arguments: [tx.object(shopId), coin, tx.pure.string('sword')],
 });
 
-// Access nested results
-const result = tx.moveCall({
-  target: '0xPkg::module::swap',
-  arguments: [tx.object('0xPool'), coin],
-});
-// result[0], result[1] — access individual return values
-tx.transferObjects([result[0]], tx.pure.address('0xRecipient'));
+// Step 3: Transfer the receipt to the sender
+tx.transferObjects([receipt], myAddress);
 ```
+
+For commands that return multiple values, destructure the result array:
+
+```typescript
+const [coinOut, receipt] = tx.moveCall({
+  target: '0xpkg::amm::swap',
+  arguments: [tx.object(poolId), coinIn],
+  typeArguments: [typeA, typeB],
+});
+// coinOut is the first return value, receipt is the second
+```
+
+---
 
 ## 8. Gas Coin
 
-`tx.gas` is a special reference to the transaction's gas coin.
+`tx.gas` is a special reference to the gas payment coin:
 
 ```typescript
-// Split from gas (most common pattern)
-const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(100)]);
+// Split from gas coin (by-reference)
+const [coin] = tx.splitCoins(tx.gas, [100]);
 
-// Set explicit gas budget
-tx.setGasBudget(50_000_000);
+// Merge into gas coin
+tx.mergeCoins(tx.gas, [tx.object('0xOtherCoin')]);
 
-// Set gas price
-tx.setGasPrice(1000);
+// Transfer the entire gas coin (moves all SUI)
+tx.transferObjects([tx.gas], recipient);
 
-// Set explicit gas payment coin(s)
-tx.setGasPayment([{
-  objectId: '0xGasCoinId',
-  version: '1',
-  digest: 'abc123',
-}]);
+// Pass gas coin as a Move call argument (by-reference)
+tx.moveCall({
+  target: '0xpkg::mod::deposit',
+  arguments: [tx.object(vaultId), tx.gas],
+});
 ```
 
-> **Warning**: Do NOT use `tx.gas` as a moveCall argument directly. Split first.
+### Gas configuration
+
+The SDK automatically sets gas price, budget, and selects gas payment coins. Override only when needed:
+
+```typescript
+// Manual overrides (rarely needed)
+tx.setGasPrice(1000);
+tx.setGasBudget(10_000_000);
+tx.setGasPayment([{
+  objectId: '0x...',
+  version: '1',
+  digest: '...',
+}]);
+// Gas payment coins must not overlap with transaction input objects
+
+// Set sender explicitly (required for some offline or sponsored flows)
+tx.setSender('0xSenderAddress');
+```
+
+---
 
 ## 9. Transaction Intents — `coinWithBalance`
 
-For non-SUI coin types, use `coinWithBalance` to automatically resolve coins:
+For non-SUI coin types, manually splitting coins is complex because you must find, select, and merge coins of the correct type. The `coinWithBalance` intent automates this:
 
 ```typescript
-import { coinWithBalance } from '@mysten/sui/transactions';
+import { coinWithBalance, Transaction } from '@mysten/sui/transactions';
 
 const tx = new Transaction();
 
-// SUI (default)
-tx.transferObjects(
-  [coinWithBalance({ balance: 1_000_000_000n })],
-  tx.pure.address('0xRecipient'),
-);
+// REQUIRED: setSender when using coinWithBalance with non-SUI types
+tx.setSender(keypair.toSuiAddress());
 
-// Non-SUI token
 tx.transferObjects(
-  [coinWithBalance({
-    balance: 1_000_000_000n,
-    type: '0xPkg::token::TOKEN',
-  })],
-  tx.pure.address('0xRecipient'),
+  [
+    // SUI coin — splits from gas coin automatically
+    coinWithBalance({ balance: 1_000_000 }),
+
+    // Non-SUI coin — SDK finds, merges, and splits automatically
+    coinWithBalance({ balance: 500_000, type: '0xpkg::token::TOKEN' }),
+  ],
+  recipient,
 );
 ```
 
-The SDK automatically finds, splits, and merges coins owned by the sender to satisfy the requested balance.
+**Why use `coinWithBalance` over manual `splitCoins`?**
+
+For SUI, `tx.splitCoins(tx.gas, [...])` works fine. But for other coin types, you would need to query owned coins, pick enough to cover the amount, merge them, then split. `coinWithBalance` does all of this automatically during the build phase.
+
+**Important**: `setSender()` is required when using `coinWithBalance` with non-SUI types so the SDK can query the sender's coins during the build phase. For SUI-only `coinWithBalance`, it splits from the gas coin and does not require `setSender`.
+
+---
 
 ## 10. Execution & Status Checking
 
+### Sign and execute
+
 ```typescript
 const result = await client.signAndExecuteTransaction({
-  transaction: tx,
   signer: keypair,
+  transaction: tx,
 });
-
-// CRITICAL: Always check for failure
-if (result.$kind === 'FailedTransaction') {
-  throw new Error(
-    `Transaction failed: ${result.FailedTransaction.status.error?.message}`
-  );
-}
-
-console.log('Digest:', result.digest);
 ```
 
-### With options/include (gRPC)
+**Always check the transaction status.** A transaction can be finalized on-chain but still fail (e.g., Move abort, insufficient gas):
 
 ```typescript
+// Always check for failure
 const result = await client.signAndExecuteTransaction({
+  signer: keypair,
+  transaction: tx,
+});
+
+if (result.$kind === 'FailedTransaction') {
+  throw new Error(
+    `Transaction failed: ${result.FailedTransaction.status.error?.message}`,
+  );
+}
+```
+
+```typescript
+// Don't assume success
+const result = await client.signAndExecuteTransaction({
+  signer: keypair,
+  transaction: tx,
+});
+console.log('Success!', result.digest); // may be a failed transaction
+```
+
+### Execution with include options
+
+All clients support an `include` parameter via the Core API to control what data is returned:
+
+```typescript
+const result = await client.core.signAndExecuteTransaction({
   transaction: tx,
   signer: keypair,
   include: {
     effects: true,
     events: true,
     balanceChanges: true,
+    objectTypes: true,
   },
 });
 ```
 
-### Manual sign + execute
+Available transaction include options:
+
+| Option | Description |
+|--------|-------------|
+| `effects` | Transaction effects (BCS-encoded) |
+| `events` | Emitted events |
+| `transaction` | Parsed transaction data (sender, gas, inputs, commands) |
+| `balanceChanges` | Balance changes |
+| `objectTypes` | Map of object IDs to their types for changed objects |
+| `bcs` | Raw BCS-encoded transaction bytes |
+
+### Separate sign + execute
+
+For advanced flows (e.g., multi-sig, sponsored transactions):
 
 ```typescript
 const { bytes, signature } = await tx.sign({ client, signer: keypair });
@@ -311,38 +528,47 @@ const result = await client.core.executeTransaction({
 });
 ```
 
+---
+
 ## 11. Waiting for Indexing
 
-After execution, the transaction may not be immediately visible to queries. Use `waitForTransaction`:
+After execution, the transaction is finalized but may not be immediately visible in query APIs. Use `waitForTransaction` before making follow-up queries:
 
 ```typescript
+const result = await client.signAndExecuteTransaction({
+  signer: keypair,
+  transaction: tx,
+});
+
+// Wait for indexing before querying
 await client.waitForTransaction({ digest: result.digest });
 
-// Now safe to query objects created by the transaction
-const obj = await client.core.getObject({
-  objectId: createdObjectId,
-  include: { content: true },
-});
+// Now safe to query updated state
+const obj = await client.getObject({ id: objectId });
 ```
+
+---
 
 ## 12. Keypairs & Signing
 
+### Creating keypairs
+
 ```typescript
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
+import { Secp256k1Keypair } from '@mysten/sui/keypairs/secp256k1';
+import { Secp256r1Keypair } from '@mysten/sui/keypairs/secp256r1';
 
-// Generate new
+// Generate a new random keypair
 const keypair = new Ed25519Keypair();
 
-// From secret key (base64 or hex)
-const keypair = Ed25519Keypair.fromSecretKey('suiprivkey1...');
+// Derive from a mnemonic (BIP-39)
+const keypair = Ed25519Keypair.deriveKeypair('word1 word2 ... word12');
 
-// From mnemonic
-const keypair = Ed25519Keypair.deriveKeypair(
-  'your twelve word mnemonic phrase here ...'
-);
+// From a secret key (base64 or raw bytes)
+const keypair = Ed25519Keypair.fromSecretKey(secretKeyBytes);
 
-// Get address
-const address = keypair.getPublicKey().toSuiAddress();
+// Get the address
+const address = keypair.toSuiAddress();
 ```
 
 ### Multi-sig
@@ -360,52 +586,67 @@ const multiSigPk = MultiSigPublicKey.fromPublicKeys({
 });
 ```
 
+---
+
 ## 13. Offline Building
 
-When building transactions without a connected client, manually specify all resolution data:
+To build a transaction without a network connection, you must fully define all inputs and gas configuration:
 
 ```typescript
 import { Transaction, Inputs } from '@mysten/sui/transactions';
 
 const tx = new Transaction();
 
-tx.setSender('0xSenderAddress');
-tx.setGasPrice(1000);
-tx.setGasBudget(50_000_000);
-tx.setGasPayment([{
-  objectId: '0xGasCoinId',
-  version: '1',
-  digest: 'abc123',
-}]);
-
-// Owned or immutable objects — use ObjectRef
+// For owned or immutable objects — provide full ref
 tx.object(Inputs.ObjectRef({
-  objectId: '0xObjId',
-  version: '1',
-  digest: 'abc123',
+  objectId: '0x...',
+  version: '42',
+  digest: 'base58digest...',
 }));
 
-// Shared objects — use SharedObjectRef
+// For shared objects — provide initial shared version
 tx.object(Inputs.SharedObjectRef({
-  objectId: '0xSharedObjId',
+  objectId: '0x...',
   initialSharedVersion: '1',
   mutable: true,
 }));
 
-// Receiving objects
+// For receiving objects
 tx.object(Inputs.ReceivingRef({
-  objectId: '0xObjId',
-  version: '1',
-  digest: 'abc123',
+  objectId: '0x...',
+  version: '42',
+  digest: 'base58digest...',
 }));
 
-// Build without client
+// Must set gas configuration manually
+tx.setSender('0xSenderAddress');
+tx.setGasPrice(1000);
+tx.setGasBudget(10_000_000);
+tx.setGasPayment([{ objectId: '0x...', version: '1', digest: '...' }]);
+
+// Build without a client
 const bytes = await tx.build();
 ```
 
+---
+
 ## 14. Common Query Patterns
 
-### gRPC (v2 — recommended)
+### With SuiGrpcClient
+
+```typescript
+// Get an object
+const obj = await client.ledgerService.getObject({
+  objectId: '0x...',
+});
+
+// Get multiple objects
+const { objects } = await client.ledgerService.multiGetObjects({
+  objectIds: ['0x...', '0x...'],
+});
+```
+
+### Core API (namespaced methods)
 
 ```typescript
 const client = new SuiGrpcClient({ network: 'mainnet' });
@@ -450,109 +691,206 @@ const fields = await client.core.listDynamicFields({
 });
 ```
 
-### JSON-RPC (legacy)
+### With SuiJsonRpcClient (legacy)
 
 ```typescript
-const client = new SuiJsonRpcClient({
-  url: getJsonRpcFullnodeUrl('mainnet'),
-});
-
 // Uses legacy method names
 const obj = await client.getObject({
-  id: '0xObjId',
-  options: { showContent: true },
+  id: '0x...',
+  options: { showContent: true, showOwner: true },
 });
 
-const objects = await client.getOwnedObjects({
-  owner: '0xAddress',
-  options: { showContent: true },
+const coins = await client.getCoins({
+  owner: '0xOwnerAddress',
+  coinType: '0x2::sui::SUI',
 });
 ```
+
+### Dev Inspect (dry run without executing)
+
+Use `devInspectTransactionBlock` to simulate a transaction and read return values without executing:
+
+```typescript
+const result = await client.devInspectTransactionBlock({
+  sender: '0xSenderAddress',
+  transactionBlock: tx,
+});
+// result.results contains return values from each command
+// result.effects contains simulated effects
+```
+
+---
 
 ## 15. Sponsored Transactions
 
-A sponsor pays gas on behalf of the sender. Both must sign.
+In a sponsored transaction, one party builds the transaction and another pays for gas:
 
 ```typescript
-// === Builder side ===
+// === App / user side ===
 const tx = new Transaction();
+tx.setSender(userAddress);
 // ... add commands ...
-const kindBytes = await tx.build({ client, onlyTransactionKind: true });
+
+// Serialize for the sponsor
+const txBytes = await tx.build({ client });
 
 // === Sponsor side ===
-const sponsoredTx = Transaction.fromKind(kindBytes);
-sponsoredTx.setSender(senderAddress);
+const sponsoredTx = Transaction.from(txBytes);
 sponsoredTx.setGasOwner(sponsorAddress);
 sponsoredTx.setGasPayment(sponsorCoins);
+sponsoredTx.setGasBudget(10_000_000);
 
-const sponsoredBytes = await sponsoredTx.build({ client });
+// Both parties sign
+const { signature: userSig } = await sponsoredTx.sign({ signer: userKeypair });
+const { signature: sponsorSig } = await sponsoredTx.sign({ signer: sponsorKeypair });
 
-// Sponsor signs
-const { signature: sponsorSig } = await sponsoredTx.sign({
-  client,
-  signer: sponsorKeypair,
-});
-
-// === Sender signs the same bytes ===
-const { signature: senderSig } = await sponsoredTx.sign({
-  client,
-  signer: senderKeypair,
-});
-
-// === Execute with both signatures ===
+// Execute with both signatures
 const result = await client.core.executeTransaction({
-  transaction: sponsoredBytes,
-  signatures: [senderSig, sponsorSig],
-  include: { effects: true },
+  transaction: await sponsoredTx.build({ client }),
+  signatures: [userSig, sponsorSig],
 });
 ```
 
-## 16. What the Sui TS SDK is NOT
+**Important**: When a sponsor pays for gas, the gas coin belongs to the sponsor. Avoid using `tx.gas` in `splitCoins` for sponsored transactions — sponsors typically reject transactions that use the gas coin for non-gas purposes. Use `coinWithBalance` instead.
 
-| Mistake | Reality |
-|---------|---------|
-| Using SDK to write Move code | SDK is TypeScript-only. Write Move in `.move` files, compile with `sui move build` |
-| Expecting `require()` to work | v2 is ESM-only. Use `import` syntax |
-| Using `SuiClient` from v1 | Removed. Use `SuiGrpcClient` or `SuiJsonRpcClient` |
-| Calling `client.getObject()` on gRPC client | Use `client.core.getObject()` with `include` instead of `options` |
-| Passing raw numbers to Move functions | Use `tx.pure.u64()` etc. for BCS serialization |
-| Using `tx.gas` directly as moveCall arg | Split first: `const [coin] = tx.splitCoins(tx.gas, [...])` |
-| Assuming transaction succeeded | Always check `result.$kind === 'FailedTransaction'` |
-| Querying objects immediately after execution | Use `client.waitForTransaction()` first |
+---
 
-## 17. v1 → v2 Migration
+## 16. Client Extensions — `$extend()`
 
-### Key Changes
-
-1. **ESM-only** — No more CommonJS. Set `"type": "module"` in `package.json`.
-2. **`network` param** — Clients accept `network: 'mainnet'` instead of URL strings.
-3. **`client.core.*`** — gRPC methods live under `client.core` namespace.
-4. **`include` replaces `options`** — `{ showContent: true }` → `{ content: true }`.
-5. **`$extend()`** — Ecosystem integrations via client extension pattern.
-6. **`TransactionBlock` → `Transaction`** — Class renamed.
-7. **`getFullnodeUrl` → removed** — Use `getJsonRpcFullnodeUrl` for JSON-RPC or `network` param for gRPC.
-
-### Migration Example
+Ecosystem SDKs (kiosk, suins, deepbook, walrus, seal, zksend) integrate via the `$extend()` pattern:
 
 ```typescript
-// v1 (OLD)
-import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
-const client = new SuiClient({ url: getFullnodeUrl('testnet') });
-const obj = await client.getObject({
-  id: '0x123',
-  options: { showContent: true },
-});
-
-// v2 (NEW)
 import { SuiGrpcClient } from '@mysten/sui/grpc';
-const client = new SuiGrpcClient({ network: 'testnet' });
-const obj = await client.core.getObject({
-  objectId: '0x123',
-  include: { content: true },
-});
+import { suins } from '@mysten/suins';
+import { deepbook } from '@mysten/deepbook-v3';
+
+const client = new SuiGrpcClient({
+  baseUrl: 'https://fullnode.mainnet.sui.io:443',
+  network: 'mainnet',
+}).$extend(suins(), deepbook({ address: myAddress }));
+
+await client.suins.getNameRecord('example.sui');
+await client.deepbook.checkManagerBalance(manager, asset);
 ```
 
-See [references/reference.md](references/reference.md) for the complete v1→v2 API mapping table.
+---
+
+## 17. What the Sui TS SDK is NOT
+
+| Mistake | Correct approach |
+|---------|-----------------|
+| `import ... from '@mysten/sui.js'` | Use `@mysten/sui` — the `.js` suffix was removed at v1.0 |
+| `new TransactionBlock()` | Use `new Transaction()` — renamed at v1.0 |
+| `client.signAndExecuteTransactionBlock()` | Use `client.signAndExecuteTransaction()` |
+| `client.waitForTransactionBlock()` | Use `client.waitForTransaction()` |
+| Hardcoding object versions in `tx.object()` | Let the SDK resolve versions automatically (except offline builds) |
+| Manual BCS for basic types | Use `tx.pure.u64()`, `tx.pure.address()`, etc. |
+| `tx.pure(100)` without a type | Use `tx.pure.u64(100)` — must specify the type |
+| Not checking `result.$kind` after execution | Always check `result.$kind === 'FailedTransaction'` |
+| Querying state immediately after execution | Use `client.waitForTransaction()` first |
+| Using `tx.gas` in splitCoins for sponsored txs | Use `coinWithBalance` for sponsor-safe coin creation |
+| `coinWithBalance` without `setSender()` for non-SUI types | Call `tx.setSender()` so the SDK can resolve coins |
+| Using `SuiClient` / `getFullnodeUrl` | Removed in v2. Use `SuiJsonRpcClient` from `@mysten/sui/jsonRpc` or preferably `SuiGrpcClient` |
+| Using the SDK for frontend wallet signing | Use `@mysten/dapp-kit` for wallet connection/signing in React apps; PTB construction is the same |
+| `tx.serialize()` | Use `await tx.toJSON()` — serialize is deprecated |
+| `Commands` from `@mysten/sui/transactions` | Renamed to `TransactionCommands` |
+| `namedPackagesPlugin` registration | Removed — MVR resolution is now automatic during transaction building |
+
+---
+
+## 18. v1 to v2 Migration
+
+### ESM required
+
+All `@mysten/*` packages are now ESM only. Add `"type": "module"` to `package.json` and update `tsconfig.json`:
+
+```json
+{ "compilerOptions": { "moduleResolution": "NodeNext", "module": "NodeNext" } }
+```
+
+### Client imports changed
+
+```diff
+- import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
+- const client = new SuiClient({ url: getFullnodeUrl('mainnet') });
++ import { SuiGrpcClient } from '@mysten/sui/grpc';
++ const client = new SuiGrpcClient({
++   baseUrl: 'https://fullnode.mainnet.sui.io:443',
++   network: 'mainnet',
++ });
+```
+
+If JSON-RPC is still needed:
+
+```diff
+- import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
++ import { SuiJsonRpcClient, getJsonRpcFullnodeUrl } from '@mysten/sui/jsonRpc';
+- const client = new SuiClient({ url: getFullnodeUrl('mainnet') });
++ const client = new SuiJsonRpcClient({
++   url: getJsonRpcFullnodeUrl('mainnet'),
++   network: 'mainnet', // required in v2
++ });
+```
+
+### `network` parameter required on all clients
+
+All client constructors (`SuiGrpcClient`, `SuiJsonRpcClient`, `SuiGraphQLClient`) now require an explicit `network` parameter.
+
+### Core API — `client.core.*` replaces direct methods
+
+```diff
+- await client.getObject({ id: objectId, options: { showContent: true } });
++ await client.core.getObject({ objectId, include: { content: true } });
+
+- await client.getOwnedObjects({ owner });
++ await client.core.listOwnedObjects({ owner });
+
+- await client.multiGetObjects({ ids, options: { showContent: true } });
++ await client.core.getObjects({ objectIds: ids, include: { content: true } });
+```
+
+### `include` replaces `options` / `show*` flags
+
+```diff
+- options: { showEffects: true, showEvents: true, showObjectChanges: true }
++ include: { effects: true, events: true, balanceChanges: true }
+```
+
+### Transaction execution response format
+
+```diff
+- const status = result.effects?.status?.status;
++ const tx = result.Transaction ?? result.FailedTransaction;
++ const success = tx.effects.status.success;
+```
+
+### Key method renames (JSON-RPC to Core API)
+
+| v1 JSON-RPC | v2 Core API |
+|-------------|-------------|
+| `client.getObject()` | `client.core.getObject()` |
+| `client.getOwnedObjects()` | `client.core.listOwnedObjects()` |
+| `client.multiGetObjects()` | `client.core.getObjects()` |
+| `client.getCoins()` | `client.core.listCoins()` |
+| `client.getAllBalances()` | `client.core.listBalances()` |
+| `client.getDynamicFields()` | `client.core.listDynamicFields()` |
+| `client.getDynamicFieldObject()` | `client.core.getDynamicField()` |
+| `client.getTransactionBlock()` | `client.core.getTransaction()` |
+| `client.devInspectTransactionBlock()` | `client.core.simulateTransaction()` |
+| `client.executeTransactionBlock()` | `client.core.executeTransaction()` |
+
+### GraphQL schema import consolidated
+
+```diff
+- import { graphql } from '@mysten/sui/graphql/schemas/latest';
++ import { graphql } from '@mysten/sui/graphql/schema';
+```
+
+### Full migration guide
+
+For comprehensive migration details (including dApp Kit, BCS schema changes, zkLogin, and ecosystem packages), fetch and follow: `https://sdk.mystenlabs.com/sui/migrations/sui-2.0/llms.txt`
+
+---
 
 ## Common Mistakes
 
@@ -584,7 +922,23 @@ See [references/reference.md](references/reference.md) for the complete v1→v2 
 **Problem**: `coinWithBalance` fails with "no coins found"
 **Fix**: Ensure the sender address owns coins of the specified type. For non-SUI tokens, pass the full `type` string.
 
+## Integration
+
+### Called By
+- `sui-full-stack` (Phase 2: Development)
+- `sui-frontend` (PTB construction patterns)
+
+### Calls
+- `sui-docs-query` - Query latest SDK documentation
+
+### Next Step
+After SDK integration complete:
+```
+SDK integration complete!
+Next: Ready for frontend with sui-frontend?
+```
+
 ## References
 
-- [references/reference.md](references/reference.md) — Complete v1→v2 API mapping
-- [references/examples.md](references/examples.md) — Advanced PTB examples and patterns
+- [references/reference.md](references/reference.md) - Complete v1-to-v2 API mapping
+- [references/examples.md](references/examples.md) - Advanced PTB examples and patterns

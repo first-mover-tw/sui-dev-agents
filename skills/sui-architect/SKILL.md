@@ -26,11 +26,11 @@ sui-architect
 sui-full-stack  # → Phase 1: Architecture
 ```
 
-## SUI v1.65 Architecture Considerations (Protocol 110)
+## SUI v1.67 Architecture Considerations (Protocol 114)
 
 When designing architectures, account for these recent platform changes:
 
-- **Protocol Version 110** (testnet v1.65.1, February 2026)
+- **Protocol Version 114** (testnet v1.67.1, March 2026)
 - **Data Access:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, removed April 2026)
 - **Balance API Split:** `coinBalance` (fungible coins only) and `addressBalance` (all balance types)
 - **TxContext Flexible Positioning:** Entry functions no longer require `TxContext` as the last parameter.

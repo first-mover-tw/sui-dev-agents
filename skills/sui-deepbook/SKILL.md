@@ -22,8 +22,8 @@ Since SUI v1.47, **DeepBook is no longer included as an implicit dependency**. Y
 
 ```toml
 [dependencies]
-Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.65.1" }
-DeepBook = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/deepbook", rev = "testnet-v1.65.1" }
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.67.1" }
+DeepBook = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/deepbook", rev = "testnet-v1.67.1" }
 ```
 
 ## Use Cases
@@ -110,7 +110,7 @@ async function placeBuyOrder(
 ### Query Orderbook
 
 ```typescript
-// ✅ SuiClient in SDK v1.65+ uses gRPC internally — no manual migration needed
+// ✅ SuiClient in SDK v1.67+ uses gRPC internally — no manual migration needed
 async function getOrderbook(poolId: string) {
   const pool = await client.getObject({
     id: poolId,

@@ -21,7 +21,7 @@ When invoked, follow these steps:
 3. **Enhance Move.toml**:
    - Add description if provided
    - Set edition = "2024.beta"
-   - Add common dependencies (Sui framework at Protocol 110)
+   - Add common dependencies (Sui framework at Protocol 114)
    - Configure addresses section
 
 4. **Create additional structure**:

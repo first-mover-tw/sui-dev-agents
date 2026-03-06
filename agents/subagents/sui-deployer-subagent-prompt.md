@@ -4,7 +4,7 @@ Execute the **sui-deployer** skill for staged deployment.
 
 ## Platform Version
 
-SUI Protocol 110 (testnet v1.65.1, February 2026). CLI: `--no-tree-shaking` flag, publish/upgrade flag fix, compatibility verification default.
+SUI Protocol 114 (testnet v1.67.1, mainnet v1.66.2, March 2026). CLI: `--no-tree-shaking` flag, publish/upgrade flag fix, compatibility verification default, CLI auto-completion via `sui completion --generate`.
 
 ## Instructions
 

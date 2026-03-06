@@ -1,6 +1,6 @@
 # SUI Dev Agents - Architecture Overview
 
-**Version 2.3.0**
+**Version 2.4.0**
 
 Detailed architecture of the sui-dev-agents plugin, covering components, interactions, and design principles. Aligned with SUI SDK v2, dApp Kit v2, and Move 2024 Edition.
 
@@ -605,6 +605,13 @@ Gradual Learning
 
 ## Version History
 
+- **v2.4.0** (2026-03-06)
+  - Updated to SUI v1.67.1 (testnet) / v1.66.2 (mainnet), Protocol 114
+  - Rewrote sui-ts-sdk and sui-frontend skills aligned with official MystenLabs repo
+  - Updated sui-developer skill with gas meter, address aliases, CLI completion
+  - Updated all agent subagent prompts to Protocol 114
+  - Updated rules: api-migration.md, conventions.md
+
 - **v2.3.0** (2026-02-22)
   - Integrated MystenLabs sui-dev-skills as source of truth
   - Added sui-ts-sdk skill (TypeScript SDK v2 — PTB, queries, sponsored tx)
@@ -715,4 +722,4 @@ Gradual Learning
 
 ---
 
-**Architecture designed for Protocol 111, Move 2024 Edition, SUI SDK v2, dApp Kit v2, gRPC GA**
+**Architecture designed for Protocol 114, Move 2024 Edition, SUI SDK v2, dApp Kit v2, gRPC GA**

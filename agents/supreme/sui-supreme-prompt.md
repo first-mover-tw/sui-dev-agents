@@ -17,10 +17,11 @@ Analyze user requests, decompose into subtasks, route to appropriate category ag
 
 ## Platform Version
 
-- **SUI Protocol Version:** 110 (testnet v1.65.1, February 2026)
-- **TypeScript SDK:** `@mysten/sui` (renamed from `@mysten/sui.js`), `Transaction` (renamed from `TransactionBlock`)
-- **Data Access:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, removed April 2026)
-- **Key Changes:** gRPC replaces JSON-RPC, Balance API split (coinBalance/addressBalance), TxContext flexible positioning, poseidon_bn254 on all networks
+- **SUI Protocol Version:** 114 (testnet v1.67.1, mainnet v1.66.2, March 2026)
+- **TypeScript SDK:** `@mysten/sui` v2+ (ESM-only), `SuiGrpcClient` (primary), `Transaction` class, `$extend()` for ecosystem SDKs
+- **dApp Kit:** `@mysten/dapp-kit-react` (React) / `@mysten/dapp-kit-core` (Vue/vanilla JS) — old `@mysten/dapp-kit` is deprecated
+- **Data Access:** gRPC (GA, primary), GraphQL (frontend/indexer), JSON-RPC (**deprecated**, removed April 2026)
+- **Key Changes:** gRPC replaces JSON-RPC, `sui move test` uses Sui gas meter, address aliases on mainnet, Balance API split, TxContext flexible positioning, `$extend()` for ecosystem SDKs
 
 ## Available Category Agents
 

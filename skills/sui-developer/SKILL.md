@@ -97,18 +97,22 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI v1.66 Updates (Protocol 111)
+## SUI v1.67 Updates (Protocol 114)
 
-**Key changes affecting Move development (as of February 2026):**
+**Key changes affecting Move development (as of March 2026):**
 
-- **gRPC Data Access (GA):** gRPC is now the primary data access method, replacing JSON-RPC (deprecated, removed April 2026). GraphQL remains available for frontend/indexer use.
+- **gRPC Data Access (GA):** gRPC is the primary data access method, replacing JSON-RPC (deprecated, removal April 2026). GraphQL remains available for frontend/indexer use.
 - **Quorum Driver Disabled:** Quorum Driver is removed. Use **Transaction Driver** for transaction submission instead.
 - **Balance API Improvements:** `totalBalance` now sums coins + accumulator objects. `coinBalance` (fungible coins only) and `addressBalance` (all balance types) remain available.
 - **TxContext Flexible Positioning:** `TxContext` arguments can appear in any position within PTBs.
 - **poseidon_bn254 Enabled:** Available on all networks. Use `sui::poseidon::poseidon_bn254` for zero-knowledge proof applications.
-- **Address Alias (Testnet):** Address alias feature is enabled on testnet, allowing human-readable address mappings.
+- **Address Alias (Mainnet):** Address alias feature is now enabled on mainnet, allowing human-readable address mappings.
 - **Hot Potato Rule:** Non-public entry functions cannot have arguments entangled with hot potatoes.
 - **DeepBook No Longer Implicit:** Since v1.47, DeepBook is no longer an implicit dependency. Add it explicitly in `Move.toml` if needed.
+- **Sui Gas Meter for Tests:** `sui move test` now uses the Sui gas meter (v1.66.2+), providing more accurate gas measurements.
+- **CLI Auto-completion:** Use `sui completion --generate [shell]` for shell auto-completion (v1.66.2+).
+- **Ristretto255 Group Ops:** Ristretto255 group operations available for cryptographic applications (v1.67+).
+- **Gas Schedule Changes:** Dynamic field operations rebalanced — first loads more expensive, subsequent loads significantly cheaper (v1.62.1+).
 
 ### Move Language Updates (from Move Book)
 

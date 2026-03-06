@@ -149,6 +149,16 @@ Option macros: `do!`, `destroy_or!`
 - `///` for doc comments (no `/** */`)
 - `//` for non-obvious logic only
 
+## Testing Conventions
+
+- Do NOT prefix test functions with `test_` — `#[test]` attribute already signals intent
+- Merge attributes: `#[test, expected_failure(abort_code = EMyError)]`
+- Don't clean up in `expected_failure` tests — let them abort naturally
+- Use `tx_context::dummy()` for simple tests; only use `test_scenario` for multi-tx/multi-sender
+- Prefer `assert_eq!` over `assert!` for value comparisons (shows both sides on failure)
+- Never pass abort codes to `assert!` — conflicts with app error codes
+- Destroy objects with `sui::test_utils::destroy(obj)` — never write custom `destroy_for_testing`
+
 ## OTW Pattern (One-Time Witness)
 
 ```move

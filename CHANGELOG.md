@@ -5,6 +5,28 @@ All notable changes to the SUI Dev Agents plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-03-06
+
+### Changed
+
+#### Protocol & Version Updates
+- **SUI CLI:** >= 1.65 -> >= 1.67 (Protocol 114, testnet v1.67.1 / mainnet v1.66.2)
+- **plugin.json:** Version bump to 2.4.0
+
+#### Skills Updated (aligned with official MystenLabs sui-dev-skills)
+- **`skills/sui-ts-sdk/SKILL.md`:** Complete rewrite aligned with official skill — added gRPC service clients (`ledgerService`, `movePackageService`, `nameService`), `$extend()` pattern for ecosystem SDKs, `tx.pure.id()`, `tx.object.option()`, `TransactionCommands` rename, MVR built-in, full v1-to-v2 migration table with method renames
+- **`skills/sui-frontend/SKILL.md`:** Complete rewrite aligned with official skill — `createDAppKit` API now takes `networks` as string array + `createClient` callback, Web Components renamed to `mysten-dapp-kit-*`, `$connection` store, `connectWallet({ wallet })` / `disconnectWallet()`, `result.FailedTransaction` check pattern, Vue example with `@nanostores/vue`, connect modal web component
+- **`skills/sui-developer/SKILL.md`:** Updated to v1.67 — address aliases on mainnet, Sui gas meter for tests, CLI auto-completion, Ristretto255 group ops, gas schedule rebalancing
+
+#### Rules Updated
+- **`rules/common/api-migration.md`:** Fixed import paths (`@mysten/sui/rpc` -> `@mysten/sui/jsonRpc`), added `network` param requirement, `$extend()` pattern, dApp Kit migration table, expanded detection patterns
+- **`rules/sui-move/conventions.md`:** Added testing conventions section (test naming, assert_eq!, destroy pattern, tx_context::dummy vs test_scenario)
+
+#### Documentation
+- **`README.md`:** Version bump v2.4.0, CLI >= 1.67, added dApp Kit package names
+
+---
+
 ## [2.1.0] - 2026-02-11
 
 ### Added

@@ -1,6 +1,6 @@
 # SUI Dev Agents
 
-**v2.3.0** - Complete toolkit for building production-ready SUI blockchain applications with skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Now aligned with **SUI SDK v2**, **dApp Kit v2**, **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated April 2026). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
+**v2.4.0** - Complete toolkit for building production-ready SUI blockchain applications with skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Now aligned with **SUI CLI v1.67+**, **SUI SDK v2**, **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated April 2026). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
 
 ## 📦 Installation
 
@@ -19,7 +19,7 @@
 
 ### Prerequisites
 
-- **SUI CLI** >= 1.65 — `cargo install --locked --git https://github.com/MystenLabs/sui.git sui`
+- **SUI CLI** >= 1.67 — `cargo install --locked --git https://github.com/MystenLabs/sui.git sui`
 - **Claude Code** >= 1.0 — `npm install -g @anthropic-ai/claude-code`
 - **Node.js** >= 18, **Rust** (stable), **Git** >= 2.0
 - Recommended: [move-analyzer](https://github.com/MystenLabs/sui/tree/main/external-crates/move/crates/move-analyzer), [jq](https://jqlang.github.io/jq/)
