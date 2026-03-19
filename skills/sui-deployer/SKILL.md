@@ -28,11 +28,11 @@ sui-deployer deploy --network testnet --verify
 sui-deployer deploy --network mainnet
 ```
 
-## SUI v1.67 Deployment Updates (Protocol 114)
+## SUI v1.68 Deployment Updates (Protocol 117)
 
 **RPC Migration (CRITICAL):**
-- **JSON-RPC is deprecated** — will be removed **April 2026**
-- **gRPC is now GA** — use gRPC endpoints for deployment verification and monitoring
+- **JSON-RPC is deprecated** — will be removed **April 2026**. Quorum Driver for transaction submission is **fully disabled**.
+- **gRPC is the primary API** — use gRPC endpoints for deployment verification and monitoring. Transaction submission now exclusively via **Transaction Driver**.
 - If using custom RPC endpoints, ensure they expose gRPC (port 8443 TLS / 8080 plaintext)
 - `sui client` CLI already uses gRPC internally — no changes needed for CLI workflows
 
@@ -43,11 +43,12 @@ sui-deployer deploy --network mainnet
 | Testnet | `grpc.testnet.sui.io:443` |
 | Devnet  | `grpc.devnet.sui.io:443` |
 
-**CLI changes (v1.64-v1.67):**
+**CLI changes (v1.64-v1.68):**
 - **publish/upgrade flag fix:** Fixed `sui client publish | upgrade` handling of flags like `--dry-run`. Use flags correctly now.
 - **`--no-tree-shaking` flag:** New flag for `--dump-bytecode-as-base64`. Keeps all dependencies in the JSON output regardless of usage. By default, unused dependencies are removed on publication/upgrade.
 - **Compatibility verification:** Now enabled by default (was opt-in). Your deployments will automatically verify compatibility.
-- **Protocol Version 114** is current on testnet.
+- **`sui move build --dump`:** Now correctly outputs with 0 address (`v1.67.3+`).
+- **Protocol Version 117** is current on testnet, **115** on mainnet.
 
 ```bash
 # Publish with dry-run (now works correctly)

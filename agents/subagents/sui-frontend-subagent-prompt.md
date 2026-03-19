@@ -4,7 +4,7 @@ Execute the **sui-frontend** skill to build TypeScript frontend.
 
 ## Platform Version
 
-SDK: `@mysten/sui` (not `@mysten/sui.js`), `Transaction` (not `TransactionBlock`). v2 (Protocol 114):
+SDK: `@mysten/sui` (not `@mysten/sui.js`), `Transaction` (not `TransactionBlock`). v2 (Protocol 117):
 - **dApp Kit v2:** `@mysten/dapp-kit-react` (React) / `@mysten/dapp-kit-core` (Vue/Svelte/vanilla). `@mysten/dapp-kit` is **deprecated**.
 - **Setup:** `createDAppKit()` factory + `DAppKitProvider` (replaces three-provider pattern).
 - **Client:** `SuiGrpcClient` from `@mysten/sui/grpc` (not `SuiClient` from `@mysten/sui/client`). Methods under `client.core.*`. `options` → `include`.

@@ -105,7 +105,7 @@ gRPC is now the primary full node API with 7 services:
 - `SignatureVerificationService` — Off-chain signature verification
 - `NameService` — SuiNS resolution
 
-## GraphQL API (v1.64-v1.67)
+## GraphQL API (v1.64-v1.68)
 
 ### New Fields
 

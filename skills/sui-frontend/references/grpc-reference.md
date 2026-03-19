@@ -1,7 +1,7 @@
 # SUI gRPC API Reference
 
-> **Status:** GA (Generally Available) as of SUI v1.67
-> **JSON-RPC:** Deprecated, will be removed April 2026
+> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.68
+> **JSON-RPC:** Deprecated, Quorum Driver disabled, removal April 2026
 > **Default port:** 8443 (TLS) or 8080 (plaintext)
 
 ## Overview
@@ -188,7 +188,7 @@ If you use `@mysten/sui` SDK v2:
 - **Custom RPC middleware** that intercepts JSON-RPC payloads will need updating.
 - **Direct `fetch()` calls** to JSON-RPC must be migrated.
 
-## Data Access Architecture (v1.67+)
+## Data Access Architecture (v1.68+)
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
@@ -207,8 +207,10 @@ If you use `@mysten/sui` SDK v2:
 - **GraphQL** — Frontend queries, complex object graphs, Relay integration
 - **Indexer** — Historical analytics, custom aggregations, complex filters
 
-## Indexing Changes (v1.67)
+## Indexing Changes (v1.68)
 
 - Checkpoint data encoding changed from BCS to **zstd-compressed protobuf**
 - Custom indexers using raw checkpoint data must update their deserialization
 - Official indexer framework handles this automatically
+- **Adaptive Concurrency Control (v1.68.0):** `Processor::FANOUT` removed — use `fanout` field with `ConcurrencyConfig` enum. `ingest_concurrency` changed from integer to `ConcurrencyConfig` type.
+- **Ingestion client** now enforces single source configuration (`v1.67.3+`)

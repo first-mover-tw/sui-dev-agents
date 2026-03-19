@@ -5,6 +5,32 @@ All notable changes to the SUI Dev Agents plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-03-19
+
+### Changed
+
+#### Protocol & Version Updates
+- **SUI CLI:** >= 1.67 -> >= 1.68 (Protocol 117, testnet v1.68.0 / mainnet v1.67.3 Protocol 115)
+
+#### Skills Updated (aligned with SUI v1.68 release + MystenLabs sui-dev-skills)
+- **`skills/sui-developer/SKILL.md`:** Updated to v1.68 — Display V2 activation, Address Aliases on mainnet, Adaptive Concurrency Control, `#[error]` annotation, macro patterns (`do!`, `tabulate!`, `fold!`, `filter!`), positional struct keys, GraphQL simulation breaking changes
+- **`skills/sui-architect/SKILL.md`:** Updated to v1.68 / Protocol 117 — Display V2, Address Aliases mainnet, Adaptive Concurrency, Quorum Driver disabled
+- **`skills/sui-deployer/SKILL.md`:** Updated to v1.68 — Quorum Driver fully disabled, Transaction Driver exclusive, `sui move build --dump` fix, Protocol 117/115 refs
+- **`skills/sui-tester/SKILL.md`:** Updated to v1.68 — gRPC required (Quorum Driver disabled), `#[error]` annotation testing, GraphQL simulation events change
+- **`skills/sui-deepbook/SKILL.md`:** Version refs updated to testnet-v1.68.0, gRPC client guidance
+- **`skills/sui-suins/SKILL.md`:** Version header updated to v1.68
+- **`skills/sui-fullstack-integration/SKILL.md`:** Fixed SuiGrpcClient constructor (added `network` + `baseUrl` params)
+- **`skills/move-code-quality/SKILL.md`:** Added `#[error]` annotation rule, `public(package)` deprecation of `public(friend)`
+- **`skills/sui-frontend/references/grpc-reference.md`:** Updated to v1.68, Quorum Driver disabled note, Adaptive Concurrency indexing changes
+- **`skills/sui-frontend/references/reference.md`:** GraphQL API version range updated
+
+#### Key Theme: gRPC-First
+- JSON-RPC Quorum Driver is **fully disabled** — transaction submission exclusively via Transaction Driver
+- All skills now emphasize gRPC as the primary (not just recommended) API
+- JSON-RPC removal deadline remains April 2026
+
+---
+
 ## [2.4.0] - 2026-03-06
 
 ### Changed

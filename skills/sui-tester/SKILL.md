@@ -16,13 +16,15 @@ This skill provides comprehensive testing across all layers:
 - **Property-Based Tests** - Test invariants with random inputs
 - **Gas Benchmarks** - Measure and track gas consumption
 
-## SUI v1.67 Testing Updates (Protocol 114)
+## SUI v1.68 Testing Updates (Protocol 117)
 
 **Key changes affecting testing (March 2026):**
 - **Regex Test Filtering:** Test filtering uses regex. Use `sui move test --filter "regex_pattern"` for precise test selection.
 - **poseidon_bn254:** Available on all networks. Add tests for ZK-related functions using `sui::poseidon::poseidon_bn254`.
 - **TxContext Flexible Positioning:** `TxContext` can be in any argument position. Update integration tests if they assume last-position TxContext.
-- **gRPC Data Access:** Integration tests should use gRPC client (GA) instead of JSON-RPC (deprecated, removed April 2026).
+- **gRPC Data Access:** Integration tests **must** use gRPC client — JSON-RPC Quorum Driver is disabled, removal April 2026.
+- **`#[error]` Annotation:** Use `#[error]` on error constants for human-readable abort messages. Update `#[expected_failure]` tests to reference constant names, not hardcoded values.
+- **GraphQL Simulation:** `events` field removed from `simulateResult`. Access events via `effects.events()` in dry-run tests.
 
 ## Quick Start
 

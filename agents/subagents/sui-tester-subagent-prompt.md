@@ -4,7 +4,7 @@ Execute the **sui-tester** skill for comprehensive testing.
 
 ## Platform Version
 
-SUI v1.67.1 (Protocol 114, March 2026): Regex test filtering (`--filter "pattern"`), `sui move test` uses Sui gas meter, poseidon_bn254 available, gRPC data access (GA), address aliases on mainnet.
+SUI v1.68.0 (Protocol 117, March 2026): Regex test filtering (`--filter "pattern"`), `sui move test` uses Sui gas meter, poseidon_bn254 available, gRPC data access (GA), address aliases on mainnet.
 
 ## Instructions
 

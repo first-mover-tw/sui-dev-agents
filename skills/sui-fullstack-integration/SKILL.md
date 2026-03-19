@@ -105,7 +105,7 @@ project/
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { kiosk } from '@mysten/kiosk';
 
-const client = new SuiGrpcClient({ url: '...' })
+const client = new SuiGrpcClient({ network: 'mainnet', baseUrl: 'https://fullnode.mainnet.sui.io:443' })
   .$extend(kiosk());
 ```
 

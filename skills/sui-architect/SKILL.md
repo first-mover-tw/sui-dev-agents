@@ -26,16 +26,18 @@ sui-architect
 sui-full-stack  # → Phase 1: Architecture
 ```
 
-## SUI v1.67 Architecture Considerations (Protocol 114)
+## SUI v1.68 Architecture Considerations (Protocol 117)
 
 When designing architectures, account for these recent platform changes:
 
-- **Protocol Version 114** (testnet v1.67.1, March 2026)
-- **Data Access:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, removed April 2026)
+- **Protocol Version 117** (testnet v1.68.0, mainnet v1.67.3 / Protocol 115, March 2026)
+- **Data Access:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, Quorum Driver disabled, removal April 2026)
+- **Display V2 (Activated):** Display Registry (`0xd`) live on all networks — prioritized over legacy Display v1. Plan new projects around Display V2.
+- **Address Aliases (Mainnet):** Human-readable address mappings now live on mainnet.
+- **Adaptive Concurrency:** Indexing framework auto-scales workers; `Processor::FANOUT` removed → use `ConcurrencyConfig`.
 - **Balance API Split:** `coinBalance` (fungible coins only) and `addressBalance` (all balance types)
 - **TxContext Flexible Positioning:** Entry functions no longer require `TxContext` as the last parameter.
 - **poseidon_bn254:** Available on all networks for zero-knowledge proof applications.
-- **Address Alias (Testnet):** Human-readable address mappings available on testnet. Plan for mainnet availability.
 - **Entry Function Changes:** Signature check disabled; non-public entry functions cannot have hot-potato-entangled arguments.
 - **DeepBook Explicit Dependency:** Since v1.47, DeepBook must be added explicitly to `Move.toml`.
 - **SDK Naming:** `@mysten/sui` (not `@mysten/sui.js`), `Transaction` (not `TransactionBlock`)

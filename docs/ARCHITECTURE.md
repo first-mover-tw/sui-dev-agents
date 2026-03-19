@@ -1,6 +1,6 @@
 # SUI Dev Agents - Architecture Overview
 
-**Version 2.4.0**
+**Version 2.5.0**
 
 Detailed architecture of the sui-dev-agents plugin, covering components, interactions, and design principles. Aligned with SUI SDK v2, dApp Kit v2, and Move 2024 Edition.
 
@@ -722,4 +722,4 @@ Gradual Learning
 
 ---
 
-**Architecture designed for Protocol 114, Move 2024 Edition, SUI SDK v2, dApp Kit v2, gRPC GA**
+**Architecture designed for Protocol 117, Move 2024 Edition, SUI SDK v2, dApp Kit v2, gRPC GA**

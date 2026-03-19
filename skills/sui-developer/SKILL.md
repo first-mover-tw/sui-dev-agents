@@ -97,22 +97,38 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI v1.67 Updates (Protocol 114)
+## SUI v1.68 Updates (Protocol 117)
 
 **Key changes affecting Move development (as of March 2026):**
 
-- **gRPC Data Access (GA):** gRPC is the primary data access method, replacing JSON-RPC (deprecated, removal April 2026). GraphQL remains available for frontend/indexer use.
-- **Quorum Driver Disabled:** Quorum Driver is removed. Use **Transaction Driver** for transaction submission instead.
-- **Balance API Improvements:** `totalBalance` now sums coins + accumulator objects. `coinBalance` (fungible coins only) and `addressBalance` (all balance types) remain available.
+### Platform & Runtime
+
+- **gRPC Data Access (GA):** gRPC is the primary data access method. JSON-RPC is deprecated (removal April 2026) — Quorum Driver for transaction submission is **fully disabled**. Use **Transaction Driver** exclusively.
+- **Display V2 (Activated):** Display Registry (system object `0xd`) is live on all networks. JSON-RPC and GraphQL now prioritize Display V2 lookups over legacy Display v1. Use `sui::display::DisplayRegistry` for new projects.
+- **Address Aliases (Mainnet):** Human-readable address mappings now enabled on mainnet (`v1.68.0+`).
+- **Adaptive Concurrency Control:** Indexing framework replaces fixed worker counts with automatic scaling. `Processor::FANOUT` is **removed** — use `ConcurrencyConfig` enum instead.
+- **Metadata Hardening:** Sui System metadata validation tightened (`v1.68.0`).
+
+### Move Runtime
+
 - **TxContext Flexible Positioning:** `TxContext` arguments can appear in any position within PTBs.
 - **poseidon_bn254 Enabled:** Available on all networks. Use `sui::poseidon::poseidon_bn254` for zero-knowledge proof applications.
-- **Address Alias (Mainnet):** Address alias feature is now enabled on mainnet, allowing human-readable address mappings.
 - **Hot Potato Rule:** Non-public entry functions cannot have arguments entangled with hot potatoes.
+- **Ristretto255 Group Ops:** Ristretto255 group operations available for cryptographic applications (`v1.67+`).
+- **`#[error]` Annotation:** Annotate error constants with `#[error]` for human-readable abort messages. The CLI decodes these automatically at runtime.
+- **Gas Schedule Changes:** Dynamic field operations rebalanced — first loads more expensive, subsequent loads significantly cheaper (`v1.62.1+`).
+
+### Tooling
+
 - **DeepBook No Longer Implicit:** Since v1.47, DeepBook is no longer an implicit dependency. Add it explicitly in `Move.toml` if needed.
-- **Sui Gas Meter for Tests:** `sui move test` now uses the Sui gas meter (v1.66.2+), providing more accurate gas measurements.
-- **CLI Auto-completion:** Use `sui completion --generate [shell]` for shell auto-completion (v1.66.2+).
-- **Ristretto255 Group Ops:** Ristretto255 group operations available for cryptographic applications (v1.67+).
-- **Gas Schedule Changes:** Dynamic field operations rebalanced — first loads more expensive, subsequent loads significantly cheaper (v1.62.1+).
+- **Sui Gas Meter for Tests:** `sui move test` now uses the Sui gas meter (`v1.66.2+`), providing more accurate gas measurements.
+- **CLI Auto-completion:** Use `sui completion --generate [shell]` for shell auto-completion (`v1.66.2+`).
+- **Regex Test Filtering:** Test filtering now uses regex — use `sui move test --filter "regex_pattern"`.
+
+### GraphQL Breaking Changes (v1.67.3+)
+
+- **Simulation:** `events` field removed from `simulateResult` and `ExecutionResult`. Access events via `effects.events()` instead.
+- **Error field:** `error` field removed from `ExecutionResult`; use `effects.status` for error information.
 
 ### Move Language Updates (from Move Book)
 
@@ -122,7 +138,8 @@ See [scripts/](scripts/) for implementation details.
 - **Type Reflection v2:** Enhanced type reflection capabilities for advanced metaprogramming
 - **BCS Improvements:** Better BCS serialization documentation and patterns
 - **Lambda Type Annotations:** Type annotations are now supported on lambdas
-- **Regex Test Filtering:** Test filtering now uses regex (replacing substring matching) - use `sui move test --filter "regex_pattern"`
+- **Macro Patterns:** Prefer `do!`, `tabulate!`, `fold!`, `filter!`, `destroy!` macros over manual loops for vector/option operations
+- **Positional Struct Keys:** Use `public struct MyKey() has copy, drop, store;` for dynamic field keys
 
 ## Core Features
 

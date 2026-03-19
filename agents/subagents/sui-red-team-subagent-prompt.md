@@ -4,7 +4,7 @@ Execute the **sui-red-team** skill for adversarial security testing of Move cont
 
 ## Platform Version
 
-SUI v1.67.1 (Protocol 114, March 2026): Regex test filtering (`--filter "pattern"`), `sui move test` uses Sui gas meter, poseidon_bn254 available, gRPC data access (GA), gas schedule rebalanced for dynamic fields.
+SUI v1.68.0 (Protocol 117, March 2026): Regex test filtering (`--filter "pattern"`), `sui move test` uses Sui gas meter, poseidon_bn254 available, gRPC data access (GA), gas schedule rebalanced for dynamic fields.
 
 ## Instructions
 

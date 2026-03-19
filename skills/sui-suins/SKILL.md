@@ -15,7 +15,7 @@ SuiNS provides:
 - Name ownership and trading
 - Subdomains support
 
-## SUI v1.67 SuiNS API Changes
+## SUI v1.68 SuiNS API Changes
 
 **GraphQL Breaking Changes:**
 - `Query.suinsName(name: ...)` → `Query.address(name: ...)` for resolving SuiNS names

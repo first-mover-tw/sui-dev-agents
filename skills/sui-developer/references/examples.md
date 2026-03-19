@@ -381,7 +381,7 @@ export function buy_from_listing(
 }
 
 // Event subscription helpers
-// ✅ subscribeEvent in SDK v1.67+ uses gRPC streaming internally (replaces WebSocket)
+// ✅ subscribeEvent in SDK v2 uses gRPC streaming internally (replaces WebSocket)
 
 export function subscribeToListingCreated(
   client: SuiClient,

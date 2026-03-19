@@ -80,6 +80,11 @@ Analyze code across these **11 categories with 50+ specific rules**:
 - ✅ GOOD: `const ENotAuthorized: u64 = 0;`
 - ❌ BAD: `const NOT_AUTHORIZED: u64 = 0;` (all-caps reserved for regular constants)
 
+**Use `#[error]` Annotation for Human-Readable Messages**
+- ✅ GOOD: `#[error] const ENotAuthorized: u64 = 0;` (CLI decodes to readable message at runtime)
+- ❌ BAD: `const ENotAuthorized: u64 = 0;` (abort shows raw code only)
+- **Note:** Don't hardcode error code values in off-chain tooling — reference constant names instead
+
 **Regular Constants in ALL_CAPS**
 - ✅ GOOD: `const MY_CONSTANT: vector<u8> = b"value";`
 - ❌ BAD: `const MyConstant: vector<u8> = b"value";` (PascalCase suggests error)
@@ -107,6 +112,11 @@ Analyze code across these **11 categories with 50+ specific rules**:
 ---
 
 #### 5. Functions
+
+**Use `public(package)` Not `public(friend)`**
+- ✅ GOOD: `public(package) fun internal_helper() { ... }`
+- ❌ DEPRECATED: `public(friend) fun internal_helper() { ... }`
+- **Note:** `public(friend)` is deprecated in Move 2024 — use `public(package)` for same-package visibility
 
 **No Public Entry - Use Public or Entry**
 - ✅ GOOD: `public fun do_something(): T { ... }` (composable, returns value)
