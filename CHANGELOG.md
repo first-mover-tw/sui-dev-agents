@@ -5,6 +5,28 @@ All notable changes to the SUI Dev Agents plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-03-25
+
+### Changed
+
+#### Protocol & Version Updates
+- **SUI CLI:** >= 1.67 -> >= 1.68 (Protocol 118, testnet v1.68.1 / mainnet v1.67.3 Protocol 115)
+- Fixed residual version mismatches from v2.5.0 (protocol-version-check.sh, supreme prompt, docs)
+
+#### Skills Updated (aligned with SUI v1.68.1 + MystenLabs sui-dev-skills)
+- **`skills/sui-developer/SKILL.md`:** Updated to Protocol 118 — Display Registry in APIs, MoveValue.asVector, SignatureScheme union, chainIdentifier full digest
+- **`skills/sui-developer/references/reference.md`:** Added Pattern 11 (Witness & Capability Authorization) and Pattern 12 (PTB-Composable Object Returns / Hot Potato)
+- **`skills/sui-ts-sdk/SKILL.md`:** Added §7.1 PTB Composability Patterns — multi-step swap/stake and flash loan TypeScript examples
+- **`skills/move-code-quality/SKILL.md`:** Added Witness struct naming rule, object return composability rule, hot potato enforcement rule
+
+#### Key Theme: Composability & Authorization Patterns
+- Witness + Capability dual authorization pattern for production-grade access control
+- PTB-composable object returns — functions return objects instead of transferring, enabling PTB chaining
+- Hot potato pattern — structs with no abilities enforce atomic multi-step operations
+- TypeScript PTB examples showing Move composability from the frontend
+
+---
+
 ## [2.5.0] - 2026-03-19
 
 ### Changed

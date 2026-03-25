@@ -304,6 +304,215 @@ public fun burn_coin(coin: Coin<SUI>) {
 }
 ```
 
+### Pattern 11: Witness & Capability Authorization
+
+Use `Witness` types for type-level proof (proving the caller is a specific module) combined with `Cap` objects for runtime permission control. This dual-layer approach is widely used by production protocols for maximum security.
+
+**Witness Pattern — Type-Level Proof:**
+```move
+module example::lending;
+
+/// Witness proves the caller is this module.
+/// Created only inside this module — cannot be forged.
+public struct Witness has drop {}
+
+/// External protocol calls this to register our lending pool.
+/// The Witness proves we are the lending module, not an impersonator.
+public fun register_pool(registry: &mut Registry) {
+    registry::add_pool(Witness {}, pool_config());
+}
+```
+
+**Witness + Capability — Dual Authorization:**
+```move
+module example::vault;
+
+/// Type-level witness — proves module identity
+public struct Witness has drop {}
+
+/// Runtime capability — proves admin permission
+public struct VaultAdminCap has key, store { id: UID }
+
+/// Multi-tier capability hierarchy
+public struct VaultOperatorCap has key, store {
+    id: UID,
+    max_withdrawal: u64,  // Operator has limited permissions
+}
+
+fun init(ctx: &mut TxContext) {
+    transfer::transfer(
+        VaultAdminCap { id: object::new(ctx) },
+        ctx.sender()
+    );
+}
+
+/// Admin-only: create operator capabilities with bounded permissions
+public fun create_operator(
+    _: &VaultAdminCap,
+    max_withdrawal: u64,
+    recipient: address,
+    ctx: &mut TxContext,
+) {
+    transfer::transfer(
+        VaultOperatorCap { id: object::new(ctx), max_withdrawal },
+        recipient
+    );
+}
+
+/// Operator can withdraw up to their limit
+public fun operator_withdraw(
+    vault: &mut Vault,
+    cap: &VaultOperatorCap,
+    amount: u64,
+    ctx: &mut TxContext,
+): Coin<SUI> {
+    assert!(amount <= cap.max_withdrawal, EExceedsOperatorLimit);
+    coin::take(&mut vault.balance, amount, ctx)
+}
+
+/// Cross-module integration: witness proves identity, cap proves permission
+public fun register_with_protocol(
+    registry: &mut ProtocolRegistry,
+    _admin: &VaultAdminCap,
+) {
+    // Witness proves we are the vault module
+    // AdminCap proves the caller has admin permission
+    protocol::register<Witness>(registry, Witness {});
+}
+```
+
+**When to use which:**
+
+| Pattern | Use Case |
+|---------|----------|
+| `Cap` only | Single-module admin control (most common) |
+| `Witness` only | Cross-module type proof (e.g., registering with a registry) |
+| `Witness` + `Cap` | Cross-module integration with permissioned access |
+| Multi-tier `Cap` | Role-based access (admin > operator > viewer) |
+
+**Key rules:**
+- Witness structs: only `drop` ability, no fields, created only inside their module
+- Cap structs: `key + store` abilities, created in `init` or admin functions
+- Never store Caps in shared objects — they should be owned by addresses
+- Prefer Cap over `ctx.sender()` checks — Caps are composable with other contracts
+
+### Pattern 12: PTB-Composable Object Returns (Hot Potato)
+
+Design functions to **return objects** instead of transferring or destructuring them. This enables callers to compose operations in a PTB, while hot potato patterns enforce that certain steps must be completed atomically.
+
+**Anti-pattern: Transfer inside core logic**
+```move
+// ❌ Not composable — caller can't chain the result
+public fun swap<X, Y>(
+    pool: &mut Pool<X, Y>,
+    coin_in: Coin<X>,
+    ctx: &mut TxContext,
+) {
+    let coin_out = internal_swap(pool, coin_in);
+    transfer::public_transfer(coin_out, ctx.sender()); // ❌ locks the result
+}
+```
+
+**Composable pattern: Return objects**
+```move
+// ✅ Composable — caller decides what to do with the result
+public fun swap<X, Y>(
+    pool: &mut Pool<X, Y>,
+    coin_in: Coin<X>,
+): Coin<Y> {
+    // Return the coin — let the PTB chain it into the next operation
+    internal_swap(pool, coin_in)
+}
+
+// ✅ Also return excess/remainder coins
+public fun swap_exact_out<X, Y>(
+    pool: &mut Pool<X, Y>,
+    coin_in: Coin<X>,
+    exact_out: u64,
+): (Coin<Y>, Coin<X>) {
+    // Returns both output coin AND remaining input coin
+    let (out, remainder) = internal_swap_exact(pool, coin_in, exact_out);
+    (out, remainder)  // Caller handles both
+}
+```
+
+**Hot Potato pattern: Enforce atomic completion**
+```move
+/// Hot potato — no abilities, MUST be consumed in the same PTB
+public struct FlashLoanReceipt {
+    pool_id: ID,
+    amount: u64,
+}
+
+/// Step 1: Borrow — returns coins AND a receipt that must be repaid
+public fun flash_borrow(
+    pool: &mut Pool,
+    amount: u64,
+    ctx: &mut TxContext,
+): (Coin<SUI>, FlashLoanReceipt) {
+    let coin = coin::take(&mut pool.balance, amount, ctx);
+    let receipt = FlashLoanReceipt {
+        pool_id: object::id(pool),
+        amount,
+    };
+    (coin, receipt)  // Both must be handled in the same PTB
+}
+
+/// Step 2: Repay — consumes the hot potato
+public fun flash_repay(
+    pool: &mut Pool,
+    payment: Coin<SUI>,
+    receipt: FlashLoanReceipt,
+) {
+    let FlashLoanReceipt { pool_id, amount } = receipt;
+    assert!(object::id(pool) == pool_id, EWrongPool);
+    assert!(payment.value() >= amount, EInsufficientRepayment);
+    pool.balance.join(payment.into_balance());
+    // receipt is destructured and consumed — hot potato resolved
+}
+```
+
+**Multi-step composable flow with constraints:**
+```move
+/// Hot potato enforces that configure() is called before use
+public struct SetupReceipt {
+    config_applied: bool,
+}
+
+/// Step 1: Create a session — returns hot potato
+public fun begin_session(app: &mut App): SetupReceipt {
+    SetupReceipt { config_applied: false }
+}
+
+/// Step 2: Configure — updates the hot potato
+public fun configure_session(
+    receipt: SetupReceipt,
+    params: vector<u8>,
+): SetupReceipt {
+    let SetupReceipt { .. } = receipt;
+    // Apply configuration...
+    SetupReceipt { config_applied: true }
+}
+
+/// Step 3: Execute — consumes the hot potato (must be configured)
+public fun execute_session(
+    app: &mut App,
+    receipt: SetupReceipt,
+): ActionResult {
+    let SetupReceipt { config_applied } = receipt;
+    assert!(config_applied, ENotConfigured);
+    // Execute and return result object
+    create_result(app)
+}
+```
+
+**Composability rules:**
+1. **Return, don't transfer** — let callers decide where objects go
+2. **Return excess** — even zero-value remainders; let callers handle them
+3. **Hot potatoes for constraints** — structs with no abilities enforce PTB-atomic steps
+4. **No `entry` on composable functions** — use `public` so other packages can call them
+5. **entry for final endpoints only** — use `entry` (without `public`) when you want a PTB-only endpoint that wraps composable functions with transfer logic
+
 ---
 
 ## Complete Security Checklist

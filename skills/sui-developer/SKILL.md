@@ -97,7 +97,7 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI v1.68 Updates (Protocol 117)
+## SUI v1.68.1 Updates (Protocol 118)
 
 **Key changes affecting Move development (as of March 2026):**
 
@@ -107,6 +107,9 @@ See [scripts/](scripts/) for implementation details.
 - **Display V2 (Activated):** Display Registry (system object `0xd`) is live on all networks. JSON-RPC and GraphQL now prioritize Display V2 lookups over legacy Display v1. Use `sui::display::DisplayRegistry` for new projects.
 - **Address Aliases (Mainnet):** Human-readable address mappings now enabled on mainnet (`v1.68.0+`).
 - **Adaptive Concurrency Control:** Indexing framework replaces fixed worker counts with automatic scaling. `Processor::FANOUT` is **removed** — use `ConcurrencyConfig` enum instead.
+- **Display Registry in APIs:** JSON-RPC (`showDisplay`) and GraphQL now prioritize Display Registry (V2) over legacy Display v1. New `MoveValue.asVector` for paginating vector data in GraphQL.
+- **SignatureScheme Union:** GraphQL introduces `SignatureScheme` union type for `UserSignature`, replacing flat fields.
+- **chainIdentifier Full Digest:** `chainIdentifier` now returns full Base58-encoded 32-byte digest (previously truncated).
 - **Metadata Hardening:** Sui System metadata validation tightened (`v1.68.0`).
 
 ### Move Runtime

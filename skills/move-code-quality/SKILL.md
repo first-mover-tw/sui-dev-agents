@@ -109,6 +109,11 @@ Analyze code across these **11 categories with 50+ specific rules**:
 - ✅ CANONICAL: `public struct DynamicFieldKey() has copy, drop, store;`
 - ⚠️ ACCEPTABLE: `public struct DynamicField has copy, drop, store {}`
 
+**Witness Structs Have Only `drop`**
+- ✅ GOOD: `public struct Witness has drop {}`
+- ❌ BAD: `public struct Witness has key, store { id: UID }` (witness is not an object)
+- **Rule**: Witness types prove module identity — they need only `drop`, no fields, and should only be instantiated inside their defining module
+
 ---
 
 #### 5. Functions
@@ -128,6 +133,16 @@ Analyze code across these **11 categories with 50+ specific rules**:
 - ✅ GOOD: `public fun mint(ctx: &mut TxContext): NFT { ... }`
 - ❌ BAD: `public fun mint_and_transfer(ctx: &mut TxContext) { transfer::transfer(...) }` (not composable)
 - **Benefit**: Returning values enables Programmable Transaction Block chaining
+
+**Return Objects for PTB Composability**
+- ✅ GOOD: `public fun swap(pool: &mut Pool, coin_in: Coin<X>): Coin<Y> { ... }`
+- ❌ BAD: `public fun swap(pool: &mut Pool, coin_in: Coin<X>, ctx: &mut TxContext) { transfer::public_transfer(coin_out, ctx.sender()); }`
+- **Rule**: Core logic should return objects, not transfer them. This enables PTB chaining where the next operation receives the output directly.
+
+**Hot Potatoes Enforce Atomic Steps**
+- ✅ GOOD: `public struct Receipt {}` (no abilities — must be consumed)
+- ❌ BAD: `public struct Receipt has drop {}` (can be silently discarded, defeating the constraint)
+- **Rule**: Hot potato structs have NO abilities. They force the caller to call a consuming function in the same PTB.
 
 **Objects Go First (Except Clock)**
 - ✅ GOOD parameter order:

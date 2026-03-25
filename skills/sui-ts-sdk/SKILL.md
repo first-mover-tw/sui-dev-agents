@@ -374,6 +374,58 @@ const [coinOut, receipt] = tx.moveCall({
 // coinOut is the first return value, receipt is the second
 ```
 
+### 7.1 PTB Composability with Move Object Returns
+
+When Move functions return objects (Pattern 12 in sui-developer), chain them in PTBs:
+
+**Multi-step swap + stake in one PTB:**
+```typescript
+const tx = new Transaction();
+
+// Step 1: Swap token A for token B (returns Coin<B>)
+const [coinB] = tx.moveCall({
+  target: '0xdex::pool::swap',
+  arguments: [tx.object(poolId), tx.splitCoins(tx.gas, [1_000_000])[0]],
+  typeArguments: ['0x2::sui::SUI', '0xtoken::usdc::USDC'],
+});
+
+// Step 2: Feed coinB directly into staking (composable — no intermediate transfer)
+const [receipt] = tx.moveCall({
+  target: '0xstaking::farm::stake',
+  arguments: [tx.object(farmId), coinB],
+  typeArguments: ['0xtoken::usdc::USDC'],
+});
+
+// Step 3: Transfer the staking receipt to sender
+tx.transferObjects([receipt], myAddress);
+```
+
+**Flash loan pattern in PTB (hot potato):**
+```typescript
+const tx = new Transaction();
+
+// Step 1: Borrow — returns [coin, receipt]
+const [coin, receipt] = tx.moveCall({
+  target: '0xlending::pool::flash_borrow',
+  arguments: [tx.object(poolId), tx.pure.u64(1_000_000n)],
+});
+
+// Step 2: Use the borrowed coin (e.g., arbitrage swap)
+const [profit] = tx.moveCall({
+  target: '0xdex::pool::swap',
+  arguments: [tx.object(dexPoolId), coin],
+  typeArguments: [typeA, typeB],
+});
+
+// Step 3: Repay — consumes the hot potato receipt (MUST happen in same PTB)
+tx.moveCall({
+  target: '0xlending::pool::flash_repay',
+  arguments: [tx.object(poolId), profit, receipt],
+});
+```
+
+The key insight: Move functions that return objects (instead of transferring them) enable this PTB chaining. The hot potato `receipt` **must** be consumed in the same transaction — the VM enforces this.
+
 ---
 
 ## 8. Gas Coin

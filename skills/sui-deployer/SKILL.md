@@ -28,7 +28,7 @@ sui-deployer deploy --network testnet --verify
 sui-deployer deploy --network mainnet
 ```
 
-## SUI v1.68 Deployment Updates (Protocol 117)
+## SUI v1.68.1 Deployment Updates (Protocol 118)
 
 **RPC Migration (CRITICAL):**
 - **JSON-RPC is deprecated** — will be removed **April 2026**. Quorum Driver for transaction submission is **fully disabled**.
