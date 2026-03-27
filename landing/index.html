@@ -303,6 +303,282 @@
         padding-block: 3rem;
       }
     }
+
+    /* =============================================
+       Task 2 — Pain Point → Solution Section
+       ============================================= */
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .pain-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+    }
+
+    .pain-icon {
+      font-size: 1.75rem;
+      margin-bottom: .75rem;
+    }
+
+    .pain-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #EF4444;
+      margin-bottom: .5rem;
+    }
+
+    .solution-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .solution-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--green);
+      margin-bottom: .5rem;
+    }
+
+    .pain-card p {
+      font-size: .9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .pain-card code {
+      font-family: var(--mono);
+      background: var(--sui-blue-light);
+      color: var(--sui-blue-dark);
+      border-radius: 4px;
+      padding: .1em .35em;
+      font-size: .85em;
+    }
+
+    @media (max-width: 768px) {
+      .pain-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* =============================================
+       Task 3 — Feature Showcase
+       ============================================= */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+      font-size: 1.75rem;
+      margin-bottom: .75rem;
+    }
+
+    .feature-count {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--sui-blue);
+      line-height: 1.1;
+      margin-bottom: .35rem;
+    }
+
+    .feature-card h3 {
+      margin-bottom: .5rem;
+    }
+
+    .feature-card p {
+      font-size: .875rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* =============================================
+       Task 4 — Workflow Demo / Timeline
+       ============================================= */
+    .section-header code {
+      font-family: var(--mono);
+      background: var(--sui-blue-light);
+      color: var(--sui-blue-dark);
+      border-radius: 4px;
+      padding: .1em .4em;
+      font-size: .9em;
+    }
+
+    .timeline {
+      position: relative;
+      max-width: 720px;
+      margin-inline: auto;
+    }
+
+    .timeline-track {
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 48px;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-node {
+      position: absolute;
+      left: 8px;
+      top: .2rem;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--sui-blue-light);
+      border: 2px solid var(--sui-blue);
+      transition: transform .2s, background .2s;
+      cursor: default;
+    }
+
+    .timeline-item:hover .timeline-node {
+      transform: scale(1.3);
+      background: var(--sui-blue);
+    }
+
+    .timeline-content {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      transition: box-shadow .2s;
+    }
+
+    .timeline-item:hover .timeline-content {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .timeline-phase {
+      font-family: var(--mono);
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--sui-blue);
+      margin-bottom: .3rem;
+    }
+
+    .timeline-content h3 {
+      margin-bottom: .3rem;
+      font-size: 1rem;
+    }
+
+    .timeline-content p {
+      font-size: .875rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* =============================================
+       Task 5 — Comparison Table
+       ============================================= */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: .85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .compare-table thead th {
+      font-weight: 600;
+      background: var(--bg-alt);
+    }
+
+    .th-sub {
+      font-weight: 400;
+      font-size: .75rem;
+      color: var(--text-secondary);
+      display: block;
+    }
+
+    .compare-table .center {
+      text-align: center;
+    }
+
+    .highlight-col {
+      background: rgba(77, 162, 255, 0.05);
+    }
+
+    .compare-table tbody tr:hover td {
+      background: var(--bg-alt);
+    }
+
+    /* =============================================
+       Task 6 — Ecosystem Integrations Grid
+       ============================================= */
+    .eco-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .eco-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .eco-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .eco-icon {
+      font-size: 1.75rem;
+      margin-bottom: .75rem;
+    }
+
+    .eco-card h3 {
+      margin-bottom: .4rem;
+    }
+
+    .eco-card p {
+      font-size: .875rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
   </style>
 </head>
 <body>
@@ -354,6 +630,83 @@
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- =============================================
+       Pain Point → Solution
+       ============================================= -->
+  <section id="pain-points">
+    <div class="container">
+      <div class="section-header">
+        <h2>SUI Development Is Complex. It Doesn't Have to Be.</h2>
+      </div>
+      <div class="pain-grid" id="pain-grid">
+        <!-- built via JS below -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       Feature Showcase
+       ============================================= -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>51+ Tools, 7 Categories</h2>
+        <p class="subtitle">Everything you need for production-grade SUI development, in one plugin.</p>
+      </div>
+      <div class="feature-grid" id="feature-grid">
+        <!-- built via JS below -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       Workflow Demo
+       ============================================= -->
+  <section id="workflow">
+    <div class="container">
+      <div class="section-header" id="workflow-header">
+        <h2>Full-Stack in One Command</h2>
+        <!-- subtitle with inline code built via JS below -->
+      </div>
+      <div class="timeline" id="timeline-wrap">
+        <div class="timeline-track"></div>
+        <!-- items built via JS below -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       Comparison Table
+       ============================================= -->
+  <section id="comparison">
+    <div class="container">
+      <div class="section-header">
+        <h2>Builds on the Official Foundation</h2>
+        <p class="subtitle">sui-dev-agents extends MystenLabs' sui-dev-skills with production tooling.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="compare-table" id="compare-table">
+          <!-- built via JS below -->
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       Ecosystem Integrations
+       ============================================= -->
+  <section id="ecosystem">
+    <div class="container">
+      <div class="section-header">
+        <h2>Ecosystem Ready</h2>
+        <p class="subtitle">Dedicated skills for 8 major SUI protocols — best practices built in.</p>
+      </div>
+      <div class="eco-grid" id="eco-grid">
+        <!-- built via JS below -->
+      </div>
     </div>
   </section>
 
@@ -428,6 +781,278 @@
 
       renderPrompt();
       setTimeout(addLine, 800);
+    }());
+
+    /* =============================================
+       Task 2 — Pain Point → Solution cards
+       ============================================= */
+    (function () {
+      var items = [
+        {
+          icon: '🔄',
+          pain: 'Manual deployment across devnet/testnet/mainnet is error-prone and requires constant context switching.',
+          solution: 'staged rollout with automatic safety checks',
+          cmd: '/sui-deployer'
+        },
+        {
+          icon: '🛡️',
+          pain: 'Security audits require expensive external reviews that slow down your release cycle.',
+          solution: '10-vector adversarial testing built in, available instantly',
+          cmd: '/sui-red-team'
+        },
+        {
+          icon: '🧩',
+          pain: 'Ecosystem integrations each require deep research into rapidly-changing protocol documentation.',
+          solution: '8 dedicated ecosystem skills with current best practices, no research required',
+          cmd: null
+        }
+      ];
+
+      var grid = document.getElementById('pain-grid');
+      items.forEach(function (item) {
+        var card = document.createElement('div');
+        card.className = 'pain-card';
+
+        var icon = document.createElement('div');
+        icon.className = 'pain-icon';
+        icon.textContent = item.icon;
+
+        var painLabel = document.createElement('div');
+        painLabel.className = 'pain-label';
+        painLabel.textContent = 'Without';
+
+        var painP = document.createElement('p');
+        painP.textContent = item.pain;
+
+        var divider = document.createElement('hr');
+        divider.className = 'solution-divider';
+
+        var solLabel = document.createElement('div');
+        solLabel.className = 'solution-label';
+        solLabel.textContent = 'With sui-dev-agents';
+
+        var solP = document.createElement('p');
+        if (item.cmd) {
+          var code = document.createElement('code');
+          code.textContent = item.cmd;
+          solP.appendChild(code);
+          solP.appendChild(document.createTextNode(' ' + item.solution));
+        } else {
+          solP.textContent = item.solution;
+        }
+
+        card.appendChild(icon);
+        card.appendChild(painLabel);
+        card.appendChild(painP);
+        card.appendChild(divider);
+        card.appendChild(solLabel);
+        card.appendChild(solP);
+        grid.appendChild(card);
+      });
+    }());
+
+    /* =============================================
+       Task 3 — Feature Showcase cards
+       ============================================= */
+    (function () {
+      var features = [
+        { icon: '⚡', count: '23', name: 'Skills',    desc: 'Interactive workflows from architecture to deployment' },
+        { icon: '▶',  count: '9',  name: 'Commands',  desc: 'Fast single-action operations — build, test, deploy, audit' },
+        { icon: '🤖', count: '19', name: 'Agents',    desc: 'Hierarchical orchestrators for complex multi-step tasks' },
+        { icon: '🔌', count: '14', name: 'MCP Tools', desc: 'On-chain queries and wallet operations via gRPC' },
+        { icon: '🪝', count: '8',  name: 'Hooks',     desc: 'Automatic checks — gas, security, syntax, deprecation' },
+        { icon: '📏', count: '5',  name: 'Rules',     desc: 'Portable coding conventions for Move and TypeScript' },
+        { icon: '📦', count: '3',  name: 'Starters',  desc: 'Complete templates — NFT, DeFi, DAO' }
+      ];
+
+      var grid = document.getElementById('feature-grid');
+      features.forEach(function (f) {
+        var card = document.createElement('div');
+        card.className = 'feature-card';
+
+        var iconEl = document.createElement('div');
+        iconEl.className = 'feature-icon';
+        iconEl.textContent = f.icon;
+
+        var countEl = document.createElement('div');
+        countEl.className = 'feature-count';
+        countEl.textContent = f.count;
+
+        var h3 = document.createElement('h3');
+        h3.textContent = f.name;
+
+        var p = document.createElement('p');
+        p.textContent = f.desc;
+
+        card.appendChild(iconEl);
+        card.appendChild(countEl);
+        card.appendChild(h3);
+        card.appendChild(p);
+        grid.appendChild(card);
+      });
+    }());
+
+    /* =============================================
+       Task 4 — Workflow Demo timeline
+       ============================================= */
+    (function () {
+      // Build subtitle with inline <code>
+      var header = document.getElementById('workflow-header');
+      var subtitle = document.createElement('p');
+      subtitle.className = 'subtitle';
+      var code = document.createElement('code');
+      code.textContent = '/sui-full-stack';
+      subtitle.appendChild(code);
+      subtitle.appendChild(document.createTextNode(' orchestrates 8 phases from git init to production docs.'));
+      header.appendChild(subtitle);
+
+      var phases = [
+        { phase: 'Phase 0', name: 'Git Setup',       desc: 'Initialise repo, configure remotes, set up branching strategy' },
+        { phase: 'Phase 1', name: 'Architecture',     desc: 'Generate specification, define object model and access control' },
+        { phase: 'Phase 2', name: 'Move Contracts',   desc: 'Implement modules with Witness, Capability, and composability patterns' },
+        { phase: 'Phase 3', name: 'Frontend',         desc: 'React/Next.js with dApp Kit v2, wallet connection, and transaction UI' },
+        { phase: 'Phase 4', name: 'Integration',      desc: 'Type generation, event listeners, end-to-end data flow' },
+        { phase: 'Phase 5', name: 'Testing',          desc: 'Unit, integration, E2E tests with gas benchmarks and coverage' },
+        { phase: 'Phase 6', name: 'Deployment',       desc: 'Staged rollout: devnet → testnet → mainnet with safety checks' },
+        { phase: 'Phase 7', name: 'Documentation',    desc: 'API docs, architecture diagrams, deployment runbook' }
+      ];
+
+      var wrap = document.getElementById('timeline-wrap');
+      phases.forEach(function (ph) {
+        var item = document.createElement('div');
+        item.className = 'timeline-item';
+
+        var node = document.createElement('div');
+        node.className = 'timeline-node';
+
+        var content = document.createElement('div');
+        content.className = 'timeline-content';
+
+        var phaseLabel = document.createElement('div');
+        phaseLabel.className = 'timeline-phase';
+        phaseLabel.textContent = ph.phase;
+
+        var h3 = document.createElement('h3');
+        h3.textContent = ph.name;
+
+        var p = document.createElement('p');
+        p.textContent = ph.desc;
+
+        content.appendChild(phaseLabel);
+        content.appendChild(h3);
+        content.appendChild(p);
+        item.appendChild(node);
+        item.appendChild(content);
+        wrap.appendChild(item);
+      });
+    }());
+
+    /* =============================================
+       Task 5 — Comparison Table
+       ============================================= */
+    (function () {
+      var rows = [
+        { cap: 'Move coding conventions & skills',        official: true,  thisPlugin: true  },
+        { cap: 'MCP Server (14 on-chain tools)',          official: false, thisPlugin: true  },
+        { cap: 'Hierarchical Agent System (19 agents)',   official: false, thisPlugin: true  },
+        { cap: 'Automatic Hooks (8 event-driven checks)', official: false, thisPlugin: true  },
+        { cap: 'Ecosystem Integrations (8 protocols)',    official: false, thisPlugin: true  },
+        { cap: 'Starter Templates (NFT / DeFi / DAO)',    official: false, thisPlugin: true  },
+        { cap: 'Red-Team Security Testing',               official: false, thisPlugin: true  },
+        { cap: 'Multi-Platform Support (14 AI tools)',    official: false, thisPlugin: true  },
+        { cap: 'Full-Stack Orchestrator (8 phases)',      official: false, thisPlugin: true  }
+      ];
+
+      var table = document.getElementById('compare-table');
+
+      // thead
+      var thead = document.createElement('thead');
+      var headerRow = document.createElement('tr');
+
+      var thCap = document.createElement('th');
+      thCap.textContent = 'Capability';
+
+      var thOff = document.createElement('th');
+      thOff.className = 'center';
+      thOff.textContent = 'sui-dev-skills';
+      var subOff = document.createElement('span');
+      subOff.className = 'th-sub';
+      subOff.textContent = '(official)';
+      thOff.appendChild(subOff);
+
+      var thThis = document.createElement('th');
+      thThis.className = 'center highlight-col';
+      thThis.textContent = 'sui-dev-agents';
+      var subThis = document.createElement('span');
+      subThis.className = 'th-sub';
+      subThis.textContent = '(this plugin)';
+      thThis.appendChild(subThis);
+
+      headerRow.appendChild(thCap);
+      headerRow.appendChild(thOff);
+      headerRow.appendChild(thThis);
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // tbody
+      var tbody = document.createElement('tbody');
+      rows.forEach(function (row) {
+        var tr = document.createElement('tr');
+
+        var tdCap = document.createElement('td');
+        tdCap.textContent = row.cap;
+
+        var tdOff = document.createElement('td');
+        tdOff.className = 'center';
+        tdOff.textContent = row.official ? '✓' : '—';
+
+        var tdThis = document.createElement('td');
+        tdThis.className = 'center highlight-col';
+        tdThis.textContent = row.thisPlugin ? '✓' : '—';
+
+        tr.appendChild(tdCap);
+        tr.appendChild(tdOff);
+        tr.appendChild(tdThis);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+    }());
+
+    /* =============================================
+       Task 6 — Ecosystem Integrations
+       ============================================= */
+    (function () {
+      var cards = [
+        { icon: '🏪', name: 'Kiosk',    desc: 'NFT marketplace with Transfer Policy and Display standard' },
+        { icon: '🔐', name: 'zkLogin',  desc: 'Zero-knowledge authentication with OAuth providers' },
+        { icon: '🔑', name: 'Passkey',  desc: 'WebAuthn integration for passwordless wallet access' },
+        { icon: '📊', name: 'DeepBook', desc: 'Decentralised exchange — order book, pools, and swaps' },
+        { icon: '🐋', name: 'Walrus',   desc: 'Decentralised storage for blobs and static sites' },
+        { icon: '🏷️', name: 'SuiNS',   desc: 'SUI Name Service — human-readable addresses' },
+        { icon: '🔏', name: 'Seal',     desc: 'Sealed bid auctions and threshold encryption' },
+        { icon: '🌊', name: 'Nautilus', desc: 'Cross-chain bridge and off-chain compute integration' }
+      ];
+
+      var grid = document.getElementById('eco-grid');
+      cards.forEach(function (c) {
+        var card = document.createElement('div');
+        card.className = 'eco-card';
+
+        var icon = document.createElement('div');
+        icon.className = 'eco-icon';
+        icon.textContent = c.icon;
+
+        var h3 = document.createElement('h3');
+        h3.textContent = c.name;
+
+        var p = document.createElement('p');
+        p.textContent = c.desc;
+
+        card.appendChild(icon);
+        card.appendChild(h3);
+        card.appendChild(p);
+        grid.appendChild(card);
+      });
     }());
   </script>
 
