@@ -5,5 +5,7 @@ mcp-server/dist/
 *.coverage_map.mvcov
 .trace
 .claude/
+.superpowers/
+docs/superpowers/
 deepbook-code-tab.png
 progress.md
