@@ -712,8 +712,20 @@
       flex: 1;
     }
 
+    .step-hint {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 500;
+      font-family: var(--mono);
+      color: var(--sui-blue);
+      background: var(--sui-blue-light);
+      padding: .2rem .6rem;
+      border-radius: 4px;
+      margin-bottom: .5rem;
+    }
+
     .step-content h3 {
-      margin-bottom: .6rem;
+      margin-bottom: .4rem;
     }
 
     .code-block {
@@ -1548,17 +1560,20 @@
         {
           num: '1',
           title: 'Install the plugin',
-          cmd: '/install plugin first-mover-tw/sui-dev-agents'
+          cmd: '/install plugin first-mover-tw/sui-dev-agents',
+          hint: 'Run inside Claude Code'
         },
         {
           num: '2',
           title: 'Set up coding rules',
-          cmd: 'bash ~/.claude/plugins/sui-dev-agents/scripts/install-rules.sh'
+          cmd: 'bash ~/.claude/plugins/sui-dev-agents/scripts/install-rules.sh',
+          hint: 'Run in your terminal'
         },
         {
           num: '3',
           title: 'Start building',
-          cmd: '/sui-full-stack'
+          cmd: '/sui-full-stack',
+          hint: 'Run inside Claude Code'
         }
       ];
 
@@ -1577,6 +1592,10 @@
         var h3 = document.createElement('h3');
         h3.textContent = s.title;
 
+        var hint = document.createElement('div');
+        hint.className = 'step-hint';
+        hint.textContent = s.hint;
+
         var block = document.createElement('div');
         block.className = 'code-block';
 
@@ -1593,6 +1612,7 @@
         block.appendChild(pre);
         block.appendChild(btn);
         content.appendChild(h3);
+        content.appendChild(hint);
         content.appendChild(block);
         step.appendChild(num);
         step.appendChild(content);
