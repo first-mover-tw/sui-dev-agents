@@ -579,9 +579,348 @@
       color: var(--text-secondary);
       line-height: 1.55;
     }
+
+    /* =============================================
+       Task 7 — Architecture Diagram
+       ============================================= */
+    .arch-tree {
+      max-width: 800px;
+      margin-inline: auto;
+      text-align: center;
+    }
+
+    .arch-root {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+
+    .arch-node {
+      font-family: var(--mono);
+      font-size: .82rem;
+      display: inline-block;
+      padding: .45rem .9rem;
+      border-radius: 8px;
+    }
+
+    .arch-supreme {
+      background: var(--sui-blue);
+      color: #fff;
+      font-size: .95rem;
+      padding: .65rem 1.5rem;
+    }
+
+    .arch-category {
+      background: var(--bg-dark);
+      color: var(--text-light);
+    }
+
+    .arch-tag {
+      font-size: .65rem;
+      color: var(--sui-blue);
+      margin-left: .5rem;
+    }
+
+    .arch-children {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+      position: relative;
+    }
+
+    .arch-branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .6rem;
+      position: relative;
+      padding-top: 1.25rem;
+    }
+
+    .arch-branch::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 1.25rem;
+      width: 2px;
+      border-left: 2px dashed var(--border);
+    }
+
+    .arch-leaves {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      justify-content: center;
+    }
+
+    .arch-leaf {
+      font-family: var(--mono);
+      font-size: .68rem;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .2rem .45rem;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      .arch-children {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .arch-children {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* =============================================
+       Task 8 — Quick Start
+       ============================================= */
+    .steps {
+      max-width: 640px;
+      margin-inline: auto;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--sui-blue);
+      color: #fff;
+      font-weight: 700;
+      font-size: .95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-content h3 {
+      margin-bottom: .6rem;
+    }
+
+    .code-block {
+      background: var(--bg-dark);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      position: relative;
+    }
+
+    .code-block code {
+      font-family: var(--mono);
+      font-size: .85rem;
+      color: var(--text-light);
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: .5rem;
+      right: .5rem;
+      background: rgba(255,255,255,.1);
+      border: none;
+      border-radius: 4px;
+      color: var(--text-light);
+      font-size: .72rem;
+      padding: .25rem .55rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,.2);
+    }
+
+    /* =============================================
+       Task 9 — Platform Support
+       ============================================= */
+    .platform-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .75rem;
+    }
+
+    .platform-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .6rem 1.1rem;
+      font-size: .85rem;
+      transition: border-color .2s;
+    }
+
+    .platform-card:hover {
+      border-color: var(--sui-blue);
+    }
+
+    .platform-full {
+      border-color: var(--sui-blue);
+      background: var(--sui-blue-light);
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      padding: .85rem 1.25rem;
+    }
+
+    .platform-badge {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--sui-blue);
+    }
+
+    .platform-desc {
+      font-size: .7rem;
+      color: var(--text-secondary);
+    }
+
+    /* =============================================
+       Task 9 — Footer
+       ============================================= */
+    .footer {
+      padding-block: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-version {
+      font-size: .8rem;
+      color: var(--text-secondary);
+      margin-left: .75rem;
+    }
+
+    .footer-link {
+      font-size: .85rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    .footer-link:hover {
+      color: var(--sui-blue);
+    }
+
+    .walrus-link {
+      color: var(--green);
+    }
+
+    .walrus-link:hover {
+      color: #4CAF50;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .85rem;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      .footer-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    /* =============================================
+       Task 10 — Sticky Nav
+       ============================================= */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding-block: .75rem;
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .nav-brand:hover {
+      color: var(--sui-blue);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .nav-links a {
+      font-size: .85rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--sui-blue);
+    }
+
+    .btn-sm {
+      padding: .45rem 1rem;
+      font-size: .8rem;
+    }
   </style>
 </head>
 <body>
+
+  <!-- =============================================
+       Nav
+       ============================================= -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="nav-brand" href="#">sui-dev-agents</a>
+      <div class="nav-links">
+        <a href="#quickstart">Quick Start</a>
+        <a
+          class="btn btn-primary btn-sm"
+          href="https://github.com/first-mover-tw/sui-dev-agents"
+          target="_blank"
+          rel="noopener noreferrer"
+        >GitHub</a>
+      </div>
+    </div>
+  </nav>
 
   <!-- =============================================
        Hero
@@ -709,6 +1048,82 @@
       </div>
     </div>
   </section>
+
+  <!-- =============================================
+       Architecture Diagram
+       ============================================= -->
+  <section id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <h2>Hierarchical Agent Orchestration</h2>
+        <p class="subtitle">19 agents organised in a hierarchy — the supreme orchestrator delegates to specialised category agents and subagents.</p>
+      </div>
+      <div class="arch-tree">
+        <div class="arch-root">
+          <div class="arch-node arch-supreme">sui-supreme</div>
+        </div>
+        <div class="arch-children" id="arch-children">
+          <!-- built via JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       Quick Start
+       ============================================= -->
+  <section id="quickstart">
+    <div class="container">
+      <div class="section-header">
+        <h2>Get Started in 3 Steps</h2>
+      </div>
+      <div class="steps" id="steps-container">
+        <!-- built via JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       Platform Support
+       ============================================= -->
+  <section id="platforms">
+    <div class="container">
+      <div class="section-header">
+        <h2>Works With Your Tools</h2>
+        <p class="subtitle">Full plugin support for Claude Code. Portable rules for 13 other AI development tools.</p>
+      </div>
+      <div class="platform-grid" id="platform-grid">
+        <!-- built via JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       Footer
+       ============================================= -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>sui-dev-agents</strong>
+        <span class="footer-version">v2.6.0 &middot; Protocol 118 &middot; MIT Licence</span>
+      </div>
+      <div class="footer-right">
+        <a
+          class="footer-link"
+          href="https://github.com/first-mover-tw/sui-dev-agents"
+          target="_blank"
+          rel="noopener noreferrer"
+        >GitHub</a>
+        <span>&middot;</span>
+        <a
+          class="footer-link walrus-link"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Also on Walrus</a>
+      </div>
+    </div>
+  </footer>
 
   <!-- =============================================
        Terminal Typing Animation
@@ -1051,6 +1466,180 @@
         card.appendChild(icon);
         card.appendChild(h3);
         card.appendChild(p);
+        grid.appendChild(card);
+      });
+    }());
+
+    /* =============================================
+       Task 7 — Architecture Diagram
+       ============================================= */
+    (function () {
+      var branches = [
+        {
+          name: 'sui-core-agent',
+          tag: 'Full-Stack',
+          leaves: []
+        },
+        {
+          name: 'sui-infrastructure-agent',
+          tag: 'Infra',
+          leaves: ['docs-query', 'security-guard']
+        },
+        {
+          name: 'sui-development-agent',
+          tag: 'Dev',
+          leaves: ['architect', 'developer', 'frontend', 'deployer', 'tester', 'red-team', 'integration']
+        },
+        {
+          name: 'sui-ecosystem-agent',
+          tag: 'Ecosystem',
+          leaves: ['kiosk', 'zklogin', 'passkey', 'deepbook', 'walrus']
+        }
+      ];
+
+      var container = document.getElementById('arch-children');
+      branches.forEach(function (b) {
+        var branch = document.createElement('div');
+        branch.className = 'arch-branch';
+
+        var nodeWrap = document.createElement('div');
+        var node = document.createElement('span');
+        node.className = 'arch-node arch-category';
+        node.textContent = b.name;
+
+        var tag = document.createElement('span');
+        tag.className = 'arch-tag';
+        tag.textContent = b.tag;
+        node.appendChild(tag);
+        nodeWrap.appendChild(node);
+        branch.appendChild(nodeWrap);
+
+        if (b.leaves.length > 0) {
+          var leavesWrap = document.createElement('div');
+          leavesWrap.className = 'arch-leaves';
+          b.leaves.forEach(function (l) {
+            var leaf = document.createElement('span');
+            leaf.className = 'arch-leaf';
+            leaf.textContent = l;
+            leavesWrap.appendChild(leaf);
+          });
+          branch.appendChild(leavesWrap);
+        }
+
+        container.appendChild(branch);
+      });
+    }());
+
+    /* =============================================
+       Task 8 — Quick Start
+       ============================================= */
+    function copyCode(btn) {
+      var code = btn.parentElement.querySelector('code');
+      if (!code) return;
+      navigator.clipboard.writeText(code.textContent).then(function () {
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+      });
+    }
+
+    (function () {
+      var steps = [
+        {
+          num: '1',
+          title: 'Install the plugin',
+          cmd: '/install plugin first-mover-tw/sui-dev-agents'
+        },
+        {
+          num: '2',
+          title: 'Set up coding rules',
+          cmd: 'bash ~/.claude/plugins/sui-dev-agents/scripts/install-rules.sh'
+        },
+        {
+          num: '3',
+          title: 'Start building',
+          cmd: '/sui-full-stack'
+        }
+      ];
+
+      var container = document.getElementById('steps-container');
+      steps.forEach(function (s) {
+        var step = document.createElement('div');
+        step.className = 'step';
+
+        var num = document.createElement('div');
+        num.className = 'step-number';
+        num.textContent = s.num;
+
+        var content = document.createElement('div');
+        content.className = 'step-content';
+
+        var h3 = document.createElement('h3');
+        h3.textContent = s.title;
+
+        var block = document.createElement('div');
+        block.className = 'code-block';
+
+        var pre = document.createElement('pre');
+        var code = document.createElement('code');
+        code.textContent = s.cmd;
+        pre.appendChild(code);
+
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('onclick', 'copyCode(this)');
+
+        block.appendChild(pre);
+        block.appendChild(btn);
+        content.appendChild(h3);
+        content.appendChild(block);
+        step.appendChild(num);
+        step.appendChild(content);
+        container.appendChild(step);
+      });
+    }());
+
+    /* =============================================
+       Task 9 — Platform Support
+       ============================================= */
+    (function () {
+      var grid = document.getElementById('platform-grid');
+
+      // Full plugin card
+      var fullCard = document.createElement('div');
+      fullCard.className = 'platform-card platform-full';
+
+      var badge = document.createElement('span');
+      badge.className = 'platform-badge';
+      badge.textContent = 'Full Plugin';
+
+      var name = document.createElement('strong');
+      name.textContent = 'Claude Code';
+
+      var desc = document.createElement('span');
+      desc.className = 'platform-desc';
+      desc.textContent = 'Skills, commands, agents, MCP, hooks, rules';
+
+      fullCard.appendChild(badge);
+      fullCard.appendChild(name);
+      fullCard.appendChild(desc);
+      grid.appendChild(fullCard);
+
+      // Other platforms
+      var platforms = [
+        'Cursor', 'Windsurf', 'GitHub Copilot', 'Cline', 'Zed',
+        'Continue', 'Gemini CLI', 'Codex CLI', 'Aider',
+        'Augment Code', 'Amazon Q', 'OpenCode', 'Antigravity'
+      ];
+
+      platforms.forEach(function (p) {
+        var card = document.createElement('div');
+        card.className = 'platform-card';
+
+        var strong = document.createElement('strong');
+        strong.textContent = p;
+
+        card.appendChild(strong);
         grid.appendChild(card);
       });
     }());
