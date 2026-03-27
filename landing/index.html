@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sui-dev-agents — AI-Powered SUI Development</title>
+  <meta name="description" content="51+ AI tools covering the full SUI development lifecycle — smart contracts, security audits, frontend integration, and staged deployment. Aligned with SUI CLI v1.68+ and Protocol 118." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =============================================
+       CSS Custom Properties
+       ============================================= */
+    :root {
+      --sui-blue:       #4DA2FF;
+      --sui-blue-light: #E8F2FF;
+      --sui-blue-dark:  #2B7AE0;
+      --green:          #6FBF73;
+      --gold:           #FFD700;
+      --bg:             #FFF;
+      --bg-alt:         #F8F9FC;
+      --bg-dark:        #0F1729;
+      --text:           #1A1A2E;
+      --text-secondary: #6B7280;
+      --text-light:     #E0E0E0;
+      --border:         #E5E7EB;
+      --radius:         12px;
+      --shadow:         0 1px 4px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.06);
+      --shadow-lg:      0 8px 24px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+      --max-w:          1120px;
+      --font:           'Inter', system-ui, sans-serif;
+      --mono:           'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    /* =============================================
+       CSS Reset
+       ============================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* =============================================
+       Layout Utilities
+       ============================================= */
+    .container {
+      max-width: var(--max-w);
+      margin-inline: auto;
+      padding-inline: 1.5rem;
+    }
+
+    section {
+      padding-block: 5rem;
+    }
+
+    section:nth-of-type(even) {
+      background: var(--bg-alt);
+    }
+
+    /* =============================================
+       Typography
+       ============================================= */
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.015em;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 54ch;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+      margin-bottom: .75rem;
+    }
+
+    .section-header .subtitle {
+      margin-inline: auto;
+    }
+
+    /* =============================================
+       Buttons
+       ============================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .7rem 1.4rem;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: .95rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s, transform .1s;
+      border: 2px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--sui-blue);
+      color: #fff;
+      border-color: var(--sui-blue);
+    }
+
+    .btn-primary:hover {
+      background: var(--sui-blue-dark);
+      border-color: var(--sui-blue-dark);
+      box-shadow: 0 4px 14px rgba(77,162,255,.35);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--sui-blue);
+      color: var(--sui-blue);
+    }
+
+    /* =============================================
+       Hero Section
+       ============================================= */
+    .hero {
+      padding-top: 6rem;
+      padding-bottom: 5rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--sui-blue-light);
+      color: var(--sui-blue);
+      font-size: .8rem;
+      font-weight: 600;
+      padding: .3rem .85rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+      letter-spacing: .01em;
+    }
+
+    .hero-text h1 {
+      margin-bottom: 1.1rem;
+    }
+
+    .hero-text .subtitle {
+      margin-bottom: 2rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: .85rem;
+      flex-wrap: wrap;
+    }
+
+    /* =============================================
+       Terminal Widget
+       ============================================= */
+    .hero-terminal {
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .terminal-bar {
+      background: #1E293B;
+      padding: .65rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: .35rem;
+      flex-shrink: 0;
+    }
+
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .terminal-title {
+      font-family: var(--mono);
+      font-size: .78rem;
+      color: #94A3B8;
+      margin-left: .35rem;
+    }
+
+    .terminal-body {
+      background: var(--bg-dark);
+      font-family: var(--mono);
+      font-size: .85rem;
+      padding: 1.25rem 1.5rem;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+
+    .terminal-line {
+      display: flex;
+      gap: .75rem;
+      align-items: baseline;
+    }
+
+    .terminal-label {
+      color: var(--text-light);
+      min-width: 14ch;
+      flex-shrink: 0;
+    }
+
+    .terminal-desc {
+      color: #94A3B8;
+      flex: 1;
+    }
+
+    .terminal-status {
+      flex-shrink: 0;
+    }
+
+    /* =============================================
+       Terminal Colour Utilities
+       ============================================= */
+    .t-green  { color: var(--green); }
+    .t-blue   { color: var(--sui-blue); }
+    .t-white  { color: var(--text-light); }
+    .t-dim    { color: #555; }
+    .t-gold   { color: var(--gold); }
+
+    /* =============================================
+       Responsive — 768px breakpoint
+       ============================================= */
+    @media (max-width: 768px) {
+      .hero {
+        padding-top: 3.5rem;
+        padding-bottom: 3rem;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .hero-terminal {
+        order: -1;
+      }
+
+      section {
+        padding-block: 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       Hero
+       ============================================= -->
+  <section class="hero">
+    <div class="container hero-grid">
+
+      <!-- Left: copy -->
+      <div class="hero-text">
+        <span class="hero-badge">Open Source · MIT Licence · v2.6.0</span>
+        <h1>AI-Powered SUI Development, From Architecture to Mainnet</h1>
+        <p class="subtitle">
+          51+ tools covering the full lifecycle — smart contracts, security audits,
+          frontend integration, and staged deployment. Aligned with SUI CLI v1.68+
+          and Protocol 118.
+        </p>
+        <div class="hero-cta">
+          <a
+            class="btn btn-primary"
+            href="https://github.com/first-mover-tw/sui-dev-agents"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <!-- GitHub icon -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+            </svg>
+            Install Plugin
+          </a>
+          <a class="btn btn-secondary" href="#quickstart">Quick Start</a>
+        </div>
+      </div>
+
+      <!-- Right: terminal -->
+      <div class="hero-terminal">
+        <div class="terminal-bar">
+          <div class="terminal-dots">
+            <div class="terminal-dot" style="background:#FF5F57;"></div>
+            <div class="terminal-dot" style="background:#FFBD2E;"></div>
+            <div class="terminal-dot" style="background:#28C840;"></div>
+          </div>
+          <span class="terminal-title">claude — sui-dev-agents</span>
+        </div>
+        <div class="terminal-body" id="terminal">
+          <!-- Initial prompt line — built via safe DOM methods in script -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =============================================
+       Terminal Typing Animation
+       ============================================= -->
+  <script>
+    (function () {
+      var phases = [
+        { label: 'Git Setup',     desc: 'repo initialised + .gitignore',          status: '✓', statusClass: 't-green' },
+        { label: 'Architecture',  desc: 'Move module structure planned',           status: '✓', statusClass: 't-green' },
+        { label: 'Move Contracts',desc: 'token.move + marketplace.move compiled',  status: '✓', statusClass: 't-green' },
+        { label: 'Frontend',      desc: 'React + @mysten/dapp-kit scaffolded',     status: '✓', statusClass: 't-green' },
+        { label: 'Integration',   desc: 'wallet adapter + RPC hooks wired',        status: '✓', statusClass: 't-green' },
+        { label: 'Testing',       desc: 'sui move test — 24/24 passing',           status: '▸', statusClass: 't-gold'  },
+        { label: 'Deployment',    desc: 'staging → mainnet pipeline queued',       status: '…', statusClass: 't-dim'   },
+        { label: 'Documentation', desc: 'auto-generating from source annotations', status: '…', statusClass: 't-dim'   },
+      ];
+
+      var terminal = document.getElementById('terminal');
+      var index = 0;
+
+      // Render the initial prompt line
+      function renderPrompt() {
+        var line = document.createElement('div');
+        line.className = 'terminal-line';
+
+        var prompt = document.createElement('span');
+        prompt.className = 't-green';
+        prompt.textContent = '$';
+
+        var cmd = document.createElement('span');
+        cmd.className = 't-white';
+        cmd.textContent = ' /sui-full-stack';
+
+        line.appendChild(prompt);
+        line.appendChild(cmd);
+        terminal.appendChild(line);
+      }
+
+      function addLine() {
+        if (index >= phases.length) return;
+
+        var phase = phases[index];
+        index++;
+
+        var line = document.createElement('div');
+        line.className = 'terminal-line';
+
+        var labelSpan = document.createElement('span');
+        labelSpan.className = 'terminal-label t-blue';
+        labelSpan.textContent = phase.label;
+
+        var descSpan = document.createElement('span');
+        descSpan.className = 'terminal-desc';
+        descSpan.textContent = phase.desc;
+
+        var statusSpan = document.createElement('span');
+        statusSpan.className = 'terminal-status ' + phase.statusClass;
+        statusSpan.textContent = phase.status;
+
+        line.appendChild(labelSpan);
+        line.appendChild(descSpan);
+        line.appendChild(statusSpan);
+        terminal.appendChild(line);
+
+        // Scroll to bottom
+        terminal.scrollTop = terminal.scrollHeight;
+
+        setTimeout(addLine, 350);
+      }
+
+      renderPrompt();
+      setTimeout(addLine, 800);
+    }());
+  </script>
+
+</body>
+</html>
