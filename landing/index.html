@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sui-dev-agents — AI-Powered SUI Development</title>
   <meta name="description" content="51+ AI tools covering the full SUI development lifecycle — smart contracts, security audits, frontend integration, and staged deployment. Aligned with SUI CLI v1.68+ and Protocol 118." />
+  <meta name="theme-color" content="#4DA2FF" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1587,7 +1588,7 @@
         var btn = document.createElement('button');
         btn.className = 'copy-btn';
         btn.textContent = 'Copy';
-        btn.setAttribute('onclick', 'copyCode(this)');
+        btn.addEventListener('click', function () { copyCode(this); });
 
         block.appendChild(pre);
         block.appendChild(btn);
