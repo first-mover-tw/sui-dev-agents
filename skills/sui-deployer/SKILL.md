@@ -1,6 +1,6 @@
 ---
 name: sui-deployer
-description: Use when deploying Move packages across networks (devnet/testnet/mainnet), orchestrating staged rollouts, or verifying deployed contracts. Triggers on deployment tasks, network migration, or release management.
+description: Use when deploying or upgrading Move packages to devnet/testnet/mainnet, managing UpgradeCaps, or planning deployment strategy. Triggers on "deploy", "publish", "upgrade package", "sui client publish", "mainnet release", "staged rollout", or any deployment/release task. Also use when the user asks about package versioning or upgrade compatibility.
 ---
 
 # SUI Deployer

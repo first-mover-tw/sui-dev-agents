@@ -1,6 +1,6 @@
 ---
 name: sui-zklogin
-description: Use when implementing OAuth login with zero-knowledge proofs, integrating Google/Facebook/Twitch authentication, or enabling privacy-preserving login on SUI. Triggers on zkLogin integration, OAuth authentication, or privacy-focused auth requirements.
+description: Use when implementing zkLogin on SUI — OAuth login (Google, Facebook, Apple, Twitch) with zero-knowledge proofs for privacy-preserving authentication. Triggers on "zkLogin", "social login on SUI", "Google login", "OAuth", "ephemeral keypair", "JWT proof", or any authentication flow that derives a SUI address from an OAuth provider. Also use when the user mentions "login without wallet extension".
 ---
 
 # SUI zkLogin Integration

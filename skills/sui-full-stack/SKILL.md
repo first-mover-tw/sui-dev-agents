@@ -1,6 +1,6 @@
 ---
 name: sui-full-stack
-description: Use when starting full-stack SUI projects requiring end-to-end orchestration from architecture to deployment. Triggers on new project initialization, complete workflow guidance needs, or multi-phase development tasks.
+description: Use when starting a new SUI project from scratch or need end-to-end workflow orchestration (architecture → contracts → frontend → testing → deployment). This is the PROJECT ORCHESTRATOR that routes to specialized skills per phase. Triggers on "new project", "start from scratch", "full workflow", "what's the next step", or any multi-phase SUI development task. Do NOT use for Move↔TypeScript integration tasks (type generation, event handling) — that's sui-fullstack-integration.
 ---
 
 # SUI Full-Stack Development

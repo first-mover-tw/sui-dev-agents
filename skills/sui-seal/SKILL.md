@@ -1,194 +1,223 @@
 ---
 name: sui-seal
-description: Use when implementing sealed-bid auctions, building private bidding systems, or creating reveal mechanisms on SUI. Triggers on auction implementation, private bidding requirements, or sealed bid patterns.
+description: Use when implementing data encryption, access control, or secrets management on SUI using the Seal protocol. Triggers on threshold encryption, data privacy, token-gated content, encrypted storage, decryption policies, or any scenario requiring on-chain access control for off-chain data. Also use when the user mentions Seal, encrypted NFT content, pay-to-decrypt, or privacy-preserving data sharing.
 ---
 
-# SUI Seal Integration
+# SUI Seal — Decentralized Secrets Management
 
-**Sealed-bid auctions with privacy and fairness guarantees.**
+**On-chain access policies + threshold encryption + decentralized key servers.**
 
-## Overview
+## What Seal Does
 
-Seal provides:
-- Private bidding (bids hidden until reveal)
-- Commit-reveal mechanism
-- Fair auction settlement
-- Front-running protection
+Seal is a Decentralized Secrets Management (DSM) platform on SUI:
 
-## Use Cases
+1. **Encrypt** data client-side using Seal SDK
+2. **Define access policies** in Move smart contracts (who can decrypt, when, under what conditions)
+3. **Threshold decrypt** — key servers release key shares only when the on-chain policy approves
+4. **Storage agnostic** — encrypted blobs can live on Walrus, IPFS, S3, or anywhere
 
-- High-value NFT auctions
-- Fair token sales
-- Resource allocation
-- Any scenario requiring bid privacy
+Security guarantees:
+- Privacy holds as long as fewer than `t` of `n` key servers are compromised
+- Liveness holds as long as at least `t` key servers are available
 
-## Quick Start
+## Core Concepts
 
-### Create Sealed Auction
+| Concept | Description |
+|---------|-------------|
+| **Identity-Based Encryption (IBE)** | Data encrypted to an identity derived from on-chain policy |
+| **Threshold Key Servers** | Distributed key management — no single point of failure |
+| **Session Keys** | Time-limited decryption credentials created per user session |
+| **Access Policy (Move)** | On-chain smart contract that gates decryption approval |
+| **Envelope Encryption** | Supports key rotation without re-encrypting data |
 
-```move
-use seal::auction;
+## Usage Flow
 
-public fun create_auction<T: key + store>(
-    item: T,
-    reserve_price: u64,
-    duration: u64,
-    ctx: &mut TxContext
-): ID {
-    auction::create<T>(
-        item,
-        reserve_price,
-        duration,
-        ctx
-    )
-}
+```
+1. App encrypts data with Seal SDK (client-side)
+   ↓
+2. Encrypted blob stored (Walrus, IPFS, etc.)
+   ↓
+3. User requests decryption
+   ↓
+4. Seal SDK creates SessionKey → sends to key servers
+   ↓
+5. Key servers check on-chain Move policy
+   ↓
+6. If approved → key shares returned → client decrypts
 ```
 
-### Submit Sealed Bid
+## TypeScript SDK
 
-```move
-public fun submit_bid(
-    auction_id: ID,
-    bid_commitment: vector<u8>,  // Hash of (bid_amount + secret)
-    ctx: &mut TxContext
-) {
-    auction::commit_bid(
-        auction_id,
-        bid_commitment,
-        ctx
-    );
-}
-```
-
-### Reveal Bid
-
-```move
-public fun reveal_bid(
-    auction_id: ID,
-    bid_amount: u64,
-    secret: vector<u8>,
-    ctx: &mut TxContext
-) {
-    auction::reveal_bid(
-        auction_id,
-        bid_amount,
-        secret,
-        ctx
-    );
-}
-```
-
-## Frontend Integration
+### Setup
 
 ```typescript
-import { sha256 } from '@noble/hashes/sha256';
+import { SuiClient } from '@mysten/sui/client';
+import { seal } from '@aspect/seal-sdk';
 
-// Generate bid commitment
-function createBidCommitment(amount: number, secret: string): string {
-  const data = new TextEncoder().encode(`${amount}:${secret}`);
-  const hash = sha256(data);
-  return Buffer.from(hash).toString('hex');
-}
+const client = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
 
-// Submit sealed bid
-async function submitSealedBid(auctionId: string, amount: number) {
-  const secret = crypto.randomUUID();
-  const commitment = createBidCommitment(amount, secret);
+// Configure Seal with key server endpoints
+const sealClient = client.extend(
+  seal({
+    serverConfigs: [
+      { url: 'https://seal-ks-1.example.com', weight: 1 },
+      { url: 'https://seal-ks-2.example.com', weight: 1 },
+      { url: 'https://seal-ks-3.example.com', weight: 1 },
+    ],
+    verifyKeyServers: true,
+    timeout: 10000,
+  })
+);
+```
 
-  // Store secret locally for reveal
-  localStorage.setItem(`bid_secret_${auctionId}`, secret);
+### Encrypt
 
-  const tx = new Transaction();
-  tx.moveCall({
-    target: `${PACKAGE_ID}::auction::commit_bid`,
-    arguments: [
-      tx.pure(auctionId),
-      tx.pure(Array.from(Buffer.from(commitment, 'hex')))
-    ]
-  });
+```typescript
+// Encrypt data — the policyObjectId determines who can decrypt
+const encrypted = await sealClient.seal.encrypt({
+  data: new TextEncoder().encode('secret content'),
+  policyObjectId: '<POLICY_OBJECT_ID>',
+  threshold: 2, // 2-of-3 key servers needed
+});
 
-  return await signAndExecute({ transaction: tx });
-}
+// Store encrypted blob (e.g., on Walrus)
+const blobId = await uploadToWalrus(encrypted);
+```
 
-// Reveal bid after commit phase
-async function revealBid(auctionId: string, amount: number) {
-  const secret = localStorage.getItem(`bid_secret_${auctionId}`);
+### Create Session Key & Decrypt
 
-  if (!secret) {
-    throw new Error('Secret not found');
-  }
+```typescript
+import { SessionKey } from '@aspect/seal-sdk';
 
-  const tx = new Transaction();
-  tx.moveCall({
-    target: `${PACKAGE_ID}::auction::reveal_bid`,
-    arguments: [
-      tx.pure(auctionId),
-      tx.pure(amount),
-      tx.pure(Array.from(new TextEncoder().encode(secret)))
-    ]
-  });
+// Create a time-limited session key for decryption
+const sessionKey = await SessionKey.create({
+  address: userAddress,
+  packageId: '<ACCESS_POLICY_PACKAGE>',
+  ttlMs: 600_000, // 10 minutes
+  signer: keypair,
+  client: sealClient,
+});
 
-  return await signAndExecute({ transaction: tx });
+// Decrypt — key servers verify the on-chain policy before releasing shares
+const decrypted = await sealClient.seal.decrypt({
+  encrypted: encryptedBlob,
+  sessionKey,
+});
+
+const content = new TextDecoder().decode(decrypted);
+```
+
+## Move Access Policy Examples
+
+Access policies are Move modules that Seal key servers call to verify authorization.
+
+### Token-Gated Access
+
+```move
+/// Only holders of a specific NFT collection can decrypt
+module example::token_gate {
+    use sui::object;
+
+    struct GatePolicy has key {
+        id: UID,
+        required_collection: ID,
+    }
+
+    /// Seal key servers call this — returns true if caller holds the NFT
+    public fun authorize(
+        policy: &GatePolicy,
+        ctx: &TxContext,
+    ): bool {
+        // Verify caller owns an object from required_collection
+        // Implementation depends on your NFT structure
+        true
+    }
 }
 ```
 
-## Auction Phases
+### Time-Locked Access
 
+```move
+/// Content unlocks after a specific epoch
+module example::time_lock {
+    use sui::clock::Clock;
+
+    struct TimeLockPolicy has key {
+        id: UID,
+        unlock_epoch: u64,
+    }
+
+    public fun authorize(
+        policy: &TimeLockPolicy,
+        clock: &Clock,
+    ): bool {
+        clock::timestamp_ms(clock) >= policy.unlock_epoch
+    }
+}
 ```
-Phase 1: Commit (bidders submit commitments)
-  ↓
-Phase 2: Reveal (bidders reveal bids)
-  ↓
-Phase 3: Settlement (highest bidder wins)
+
+### Pay-to-Decrypt
+
+```move
+/// User must pay to decrypt content
+module example::pay_to_decrypt {
+    use sui::coin::Coin;
+    use sui::sui::SUI;
+
+    struct PayPolicy has key {
+        id: UID,
+        price: u64,
+        recipient: address,
+    }
+
+    public fun authorize_and_pay(
+        policy: &PayPolicy,
+        payment: Coin<SUI>,
+        ctx: &mut TxContext,
+    ): bool {
+        assert!(coin::value(&payment) >= policy.price, 0);
+        transfer::public_transfer(payment, policy.recipient);
+        true
+    }
+}
 ```
+
+## Common Use Cases
+
+| Use Case | Policy Type |
+|----------|-------------|
+| Premium content / paywall | Pay-to-decrypt |
+| NFT-gated community content | Token-gate |
+| Time-release announcements | Time-lock |
+| Private DAO votes | Membership check |
+| Encrypted NFT metadata | Owner-only |
+| Subscription content | Token balance check |
 
 ## Best Practices
 
-- Use strong random secrets
-- Store secrets securely
-- Handle reveal deadline
-- Validate commitment hash
-- Implement bid cancellation
+- **Store encrypted blobs on Walrus** for decentralized, censorship-resistant storage
+- **Use envelope encryption** for content that needs key rotation
+- **Set reasonable SessionKey TTL** — shorter is safer (minutes, not hours)
+- **Test policies on testnet** with Seal's testnet key servers before mainnet
+- **Handle decryption failures gracefully** — key servers may be temporarily unavailable
 
 ## Common Mistakes
 
-❌ **Weak or predictable secrets**
-- **Problem:** Bids can be guessed via brute force
-- **Fix:** Use `crypto.randomUUID()` or 32+ random bytes
+❌ **Storing unencrypted data and relying only on access control**
+- Seal encrypts data client-side — the encrypted blob is safe even if storage is public
 
-❌ **Losing secret before reveal phase**
-- **Problem:** Cannot reveal bid, lose deposit and item
-- **Fix:** Backup secret to encrypted cloud storage or email user a copy
+❌ **Hardcoding key server URLs**
+- Use configuration so you can switch between testnet/mainnet servers
 
-❌ **Not enforcing reveal deadline**
-- **Problem:** Auction never completes, item locked
-- **Fix:** Implement timeout mechanism, auto-settle if reveal period expires
+❌ **Overly permissive policies**
+- A policy that always returns `true` defeats the purpose — test authorization logic
 
-❌ **Reusing secrets across auctions**
-- **Problem:** If one secret leaks, all bids compromised
-- **Fix:** Generate unique secret per auction
+❌ **Not handling threshold unavailability**
+- If fewer than `t` key servers respond, decryption fails — implement retry with timeout
 
-❌ **Commitment hash mismatch**
-- **Problem:** Reveal fails, bid invalidated
-- **Fix:** Test commitment generation locally before submitting
+## Resources
 
-❌ **Not handling commit phase expiration**
-- **Problem:** Users submit bids after commit deadline
-- **Fix:** Check auction phase client-side, show "Commit phase ended" message
-
-❌ **Storing secret in plaintext localStorage**
-- **Problem:** XSS can steal all secrets
-- **Fix:** Encrypt secrets before localStorage or use sessionStorage
-
-Query Seal docs:
-```typescript
-const sealInfo = await sui_docs_query({
-  type: "github",
-  target: "sui-core",
-  query: "sealed auction implementation patterns"
-});
-```
-
----
-
-**Fair, private auctions with cryptographic guarantees!**
+- [Seal Documentation](https://seal.mystenlabs.com/)
+- [Seal SDK (TypeScript)](https://sdk.mystenlabs.com/seal)
+- [GitHub — MystenLabs/seal](https://github.com/MystenLabs/seal)
+- [Seal Mainnet Launch Blog](https://www.mystenlabs.com/blog/seal-mainnet-launch-privacy-access-control)

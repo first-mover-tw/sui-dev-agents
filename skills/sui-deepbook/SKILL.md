@@ -1,6 +1,6 @@
 ---
 name: sui-deepbook
-description: Use when integrating DeepBook DEX, implementing orderbook trading, managing liquidity pools, or building market-making features on SUI. Triggers on DEX integration, trading pair setup, or liquidity management tasks.
+description: Use when integrating DeepBook — SUI's native CLOB (central limit order book) DEX. Triggers on "DeepBook", "order book", "limit order", "market order", "liquidity pool", "trading pair", "market making", or any on-chain trading/DEX integration on SUI. Also use when the user asks about placing bids/asks or managing pool liquidity.
 ---
 
 # SUI DeepBook Integration

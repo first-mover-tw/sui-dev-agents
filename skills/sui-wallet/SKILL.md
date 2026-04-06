@@ -1,6 +1,9 @@
-# sui-wallet
+---
+name: sui-wallet
+description: Use when performing on-chain transactions (transfer, Move call, publish) through the agent's CLI wallet via MCP tools. Triggers on "transfer SUI", "call Move function", "publish package", "wallet status", "sign transaction", or any agent-driven on-chain operation. This is for headless/backend wallet operations — for browser wallet UI (React/Vue), use sui-frontend instead.
+---
 
-Use when performing on-chain transactions (transfer, Move call, publish) through the agent wallet. Triggers on wallet operations, transaction signing, or deployment requests.
+# sui-wallet
 
 ## MCP Wallet Tools
 

@@ -1,6 +1,6 @@
 ---
 name: sui-security-guard
-description: Use when setting up security scanning, detecting secrets in code, implementing pre-commit hooks, or auditing SUI projects. Triggers on security setup, API key exposure risks, or security checklist verification.
+description: Use when setting up security scanning, detecting leaked secrets/API keys, implementing pre-commit hooks, or running security checklists on SUI projects. Triggers on "security scan", "detect secrets", "pre-commit hook", "security audit setup", "API key leaked", or any defensive security setup task. For offensive/adversarial testing (attack vectors, exploit discovery), use sui-red-team instead.
 ---
 
 # SUI Security Guard

@@ -1,6 +1,6 @@
 ---
 name: sui-tools-guide
-description: Use when selecting SUI ecosystem tools, comparing integration options, or deciding between multiple libraries. Triggers on tool selection decisions, ecosystem navigation, or integration pattern questions.
+description: Use when the user needs to choose between SUI ecosystem tools, compare libraries, or navigate the SUI tooling landscape. Triggers on "which SDK should I use", "compare options", "what tools are available", "best library for", or any SUI tool/library selection decision. Also use when the user seems confused about which SUI package or framework to pick for their use case.
 ---
 
 # SUI Tools Guide

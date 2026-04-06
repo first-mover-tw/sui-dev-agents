@@ -1,6 +1,6 @@
 ---
 name: sui-decompile
-description: Use when fetching on-chain SUI Move contract source code for analysis, learning from existing protocols, or reverse-engineering deployed contracts. Triggers on decompile, contract source, on-chain code, or protocol analysis tasks.
+description: Use when fetching or analyzing deployed SUI Move contract source code from on-chain bytecode. Triggers on "decompile", "show me the contract code", "reverse engineer", "read on-chain module", "analyze deployed package", or when the user provides a package ID and wants to understand what it does. Also use when studying existing protocols or verifying deployed code.
 ---
 
 # SUI Decompile

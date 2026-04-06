@@ -1,6 +1,6 @@
 ---
 name: sui-developer
-description: Use when developing SUI Move contracts, generating Move code, running quality checks, or integrating with frontend. Triggers on Move development tasks, code quality verification, or smart contract implementation.
+description: Use when writing or modifying SUI Move smart contracts, generating Move code, or following Move development patterns. Triggers on "write a Move module", "implement contract", "add function", "Move code", or any hands-on Move development task. Also use when the user pastes Move code and asks for help. For code quality audits specifically, prefer move-code-quality.
 ---
 
 # SUI Developer
@@ -13,8 +13,7 @@ This skill assists with writing production-ready SUI Move code through:
 - Code generation from specifications
 - Multi-level quality checks (Fast/Standard/Strict)
 - Real-time development suggestions
-- Frontend-friendly contract design
-- TypeScript type generation from Move ABI
+- Frontend-friendly contract design (see sui-fullstack-integration for TS type generation)
 
 ## Quick Start
 
@@ -26,9 +25,6 @@ sui-developer generate --spec docs/specs/project-spec.md
 sui-developer check --mode fast      # Development iteration
 sui-developer check --mode standard  # Feature complete
 sui-developer check --mode strict    # Pre-deployment (default)
-
-# Generate TypeScript types
-sui-developer gen-types
 
 # Watch mode for continuous checking
 sui-developer watch
@@ -144,18 +140,6 @@ See [scripts/](scripts/) for implementation details.
 - **Macro Patterns:** Prefer `do!`, `tabulate!`, `fold!`, `filter!`, `destroy!` macros over manual loops for vector/option operations
 - **Positional Struct Keys:** Use `public struct MyKey() has copy, drop, store;` for dynamic field keys
 
-## SUI v1.69.1 Updates (Protocol 119)
-
-**Key changes affecting Move development (as of April 2026):**
-
-### Platform & Runtime
-
-### New in Protocol 119
-
-- **New Move VM (Testnet):** A new Move VM implementation is enabled on testnet. Performance improvements with no behavioural changes. Gas metering may differ slightly from Protocol 118 — re-benchmark if you have tight gas budgets.
-- **`sui move build --dump` Offline:** When `--no-tree-shaking` is set, `sui move build --dump` works fully offline — useful for CI pipelines and air-gapped environments.
-- **`sui client object` Decoded Output:** The CLI now displays decoded Move struct fields instead of raw BCS-encoded bytes, making on-chain inspection more readable.
-
 ## Core Features
 
 ### 1. Code Generation from Specification
@@ -213,43 +197,9 @@ const versionInfo = await sui_docs_query({
 // Warn if using deprecated functions
 ```
 
-### 3. Frontend Integration Support
+### 3. Frontend Integration
 
-**TypeScript Type Generation:**
-
-Automatically generate TypeScript types from Move ABI:
-
-```typescript
-// After building Move code
-sui-developer gen-types
-
-// Generates: frontend/src/types/contracts.ts
-export interface Listing {
-  id: string;
-  nft_id: string;
-  seller: string;
-  price: number | bigint;
-  created_at: number | bigint;
-}
-```
-
-**Frontend-Friendly Events:**
-
-Ensure events contain all info frontend needs:
-
-```move
-// ✅ Good: Complete event
-public struct NFTPurchased has copy, drop {
-    listing_id: ID,
-    nft_id: ID,
-    buyer: address,
-    seller: address,
-    price: u64,
-    timestamp: u64
-}
-```
-
-See [reference.md](references/reference.md) for event design patterns.
+For TypeScript type generation from Move ABI, event design for frontends, and contract API wrappers, use the **sui-fullstack-integration** skill.
 
 ### 4. Best Practices Enforcement
 
@@ -355,10 +305,6 @@ Automatically runs Fast mode checks on file changes.
 ❌ **Skipping quality checks during rapid iteration**
 - **Problem:** Bugs accumulate, major refactor needed before deployment
 - **Fix:** Use Fast mode during development, Standard mode before commits
-
-❌ **Not generating TypeScript types from Move ABI**
-- **Problem:** Frontend uses wrong types, runtime errors
-- **Fix:** Run `sui-developer gen-types` after every Move contract change
 
 ❌ **Ignoring Move analyzer warnings**
 - **Problem:** Subtle bugs (dead code, unused variables) slip through

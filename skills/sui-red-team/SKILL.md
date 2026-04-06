@@ -1,6 +1,6 @@
 ---
 name: sui-red-team
-description: Use when performing adversarial security testing on SUI Move contracts. Generates attack tests targeting access control, integer abuse, object manipulation, economic exploits, input fuzzing, ordering attacks, type confusion, and DoS vectors. Triggers on red team, penetration test, attack simulation, or exploit discovery tasks.
+description: Use when performing adversarial security testing on SUI Move contracts — generating attack tests for access control bypass, integer overflow, object manipulation, economic exploits, reentrancy, and DoS vectors. Triggers on "red team", "attack test", "find vulnerabilities", "exploit", "pentest", "security test", or when the user wants to stress-test their contract's security. For defensive security setup (scanning, hooks, checklists), use sui-security-guard instead.
 ---
 
 # SUI Red Team

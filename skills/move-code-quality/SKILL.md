@@ -1,6 +1,6 @@
 ---
 name: move-code-quality
-description: Analyzes Move language packages against the official Move Book Code Quality Checklist. Use this skill when reviewing Move code, checking Move 2024 Edition compliance, or analyzing Move packages for best practices. Activates automatically when working with .move files or Move.toml manifests.
+description: Analyzes Move packages against the official Move Book Code Quality Checklist. Use when reviewing Move code quality, checking Move 2024 Edition compliance, auditing best practices, or when the user says "review my Move code", "check code quality", "Move lint", or "does this follow best practices". Activates automatically when working with .move files. Different from sui-developer (which writes code) — this skill reviews and audits existing code.
 ---
 
 # Move Code Quality Checker

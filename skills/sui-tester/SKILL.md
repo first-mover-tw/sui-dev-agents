@@ -1,6 +1,6 @@
 ---
 name: sui-tester
-description: Use when testing SUI Move contracts, setting up test suites, running gas benchmarks, or implementing property-based tests. Triggers on test creation, test strategy planning, or quality assurance tasks.
+description: Use when writing Move tests, setting up test suites, running gas benchmarks, or planning test strategy for SUI contracts. Triggers on "write tests", "test this module", "#[test]", "test coverage", "gas benchmark", "property-based test", or any Move testing task. Use even for simple "how do I test this function" questions.
 ---
 
 # SUI Tester

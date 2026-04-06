@@ -1,6 +1,6 @@
 ---
 name: sui-suins
-description: Use when implementing SUI name service, resolving human-readable addresses, performing reverse lookups, or integrating SuiNS. Triggers on name service integration, address resolution needs, or domain name features.
+description: Use when integrating SuiNS (SUI Name Service) — resolving .sui names to addresses, reverse lookups, or registering names. Triggers on "SuiNS", ".sui name", "name resolution", "reverse lookup", "human-readable address", or any name service integration. Also use when the user wants to display user-friendly names instead of hex addresses.
 ---
 
 # SUI SuiNS Integration

@@ -1,6 +1,6 @@
 ---
 name: sui-kiosk
-description: Use when implementing NFT marketplaces with Kiosk standard, enforcing transfer policies, managing royalties, or ensuring marketplace compatibility. Triggers on NFT commerce features, royalty enforcement, or Kiosk framework usage.
+description: Use when building NFT marketplaces, enforcing royalties, or managing transfer policies using SUI's Kiosk standard. Triggers on "Kiosk", "NFT marketplace", "transfer policy", "royalty enforcement", "list NFT for sale", "purchase rules", or any NFT commerce on SUI. Also use when the user asks about listing, delisting, or trading NFTs with enforced rules.
 ---
 
 # SUI Kiosk Integration

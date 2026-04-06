@@ -1,6 +1,6 @@
 ---
 name: sui-passkey
-description: Use when implementing passwordless authentication, integrating WebAuthn passkeys, or enabling biometric login on SUI. Triggers on authentication implementation, passkey integration, or device biometric requirements.
+description: Use when implementing WebAuthn passkeys or biometric authentication (Face ID, fingerprint, hardware keys) on SUI. Triggers on "passkey", "WebAuthn", "biometric login", "Face ID", "fingerprint auth", "FIDO2", or passwordless auth that uses device authenticators instead of seed phrases. Different from zkLogin (which uses OAuth providers).
 ---
 
 # SUI Passkey Integration

@@ -1,6 +1,6 @@
 ---
 name: sui-fullstack-integration
-description: Use when connecting Move contracts to frontend, generating TypeScript types from Move, handling blockchain events, or building E2E integration. Triggers on contract-frontend integration, type generation needs, or event listener implementation.
+description: Use when connecting Move contracts to frontend code — generating TypeScript types from Move ABI, creating contract API wrappers, handling on-chain events, or building E2E integration tests. Triggers on "generate types from Move", "event listener", "contract ABI", "Move to TypeScript", or any Move↔frontend bridging task. Do NOT use for starting new projects (that's sui-full-stack) or for dApp UI/wallet setup (that's sui-frontend).
 ---
 
 # SUI Fullstack Integration

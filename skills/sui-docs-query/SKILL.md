@@ -1,6 +1,6 @@
 ---
 name: sui-docs-query
-description: Use when searching SUI documentation, querying API references, checking tool versions, or finding integration examples. Triggers on documentation lookup, API usage questions, or version compatibility checks.
+description: Use when searching SUI-specific documentation, querying Move framework API references, or checking SUI CLI/tool versions. Triggers on "check SUI docs", "what's the API for", "sui client command", "Move stdlib function", or any SUI-specific documentation lookup. Prefer this over generic web search for SUI/Move-specific questions. For general library docs (React, Node, etc.), use context7 instead.
 ---
 
 # SUI Documentation Query Engine
