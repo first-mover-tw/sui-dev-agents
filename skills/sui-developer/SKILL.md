@@ -144,6 +144,18 @@ See [scripts/](scripts/) for implementation details.
 - **Macro Patterns:** Prefer `do!`, `tabulate!`, `fold!`, `filter!`, `destroy!` macros over manual loops for vector/option operations
 - **Positional Struct Keys:** Use `public struct MyKey() has copy, drop, store;` for dynamic field keys
 
+## SUI v1.69.1 Updates (Protocol 119)
+
+**Key changes affecting Move development (as of April 2026):**
+
+### Platform & Runtime
+
+### New in Protocol 119
+
+- **New Move VM (Testnet):** A new Move VM implementation is enabled on testnet. Performance improvements with no behavioural changes. Gas metering may differ slightly from Protocol 118 — re-benchmark if you have tight gas budgets.
+- **`sui move build --dump` Offline:** When `--no-tree-shaking` is set, `sui move build --dump` works fully offline — useful for CI pipelines and air-gapped environments.
+- **`sui client object` Decoded Output:** The CLI now displays decoded Move struct fields instead of raw BCS-encoded bytes, making on-chain inspection more readable.
+
 ## Core Features
 
 ### 1. Code Generation from Specification

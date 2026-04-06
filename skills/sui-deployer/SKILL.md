@@ -58,6 +58,15 @@ sui client publish --dry-run --gas-budget 100000000
 sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 ```
 
+## SUI v1.69.1 Deployment Updates (Protocol 119)
+
+**Key changes affecting deployment (April 2026):**
+
+### Protocol 119 Deployment Notes
+
+- **New Move VM (Testnet Only):** The new VM is active on testnet but not yet on mainnet. Cross-network testing should account for potential gas metering differences.
+- **Offline Bytecode Dump:** `sui move build --dump --no-tree-shaking` now works offline — enables air-gapped deployment pipelines that need bytecode without network access.
+
 ## Deployment Stages
 
 ### Stage 1: Devnet Deployment
