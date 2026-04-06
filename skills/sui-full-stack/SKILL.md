@@ -66,6 +66,7 @@ sui-full-stack --stage testing
 - Call `sui-fullstack-integration`
 - Generate TypeScript types from Move ABI
 - Set up event listeners and dev environment
+- If project needs historical data aggregation or custom analytics, call `sui-indexer` to set up a data pipeline (PostgreSQL + checkpoint processor)
 
 ### Phase 5: Testing
 
@@ -114,6 +115,7 @@ This skill orchestrates:
 | `sui-tester` | 5 | Comprehensive testing |
 | `sui-deployer` | 6 | Multi-network deployment |
 | `sui-tools-guide` | All | Tool selection |
+| `sui-indexer` | 4 | Custom data pipelines (optional) |
 
 ## Common Mistakes
 

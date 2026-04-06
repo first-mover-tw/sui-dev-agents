@@ -78,6 +78,7 @@ Ask questions one at a time to refine architecture:
 - NFT/token standards (if applicable)
 - Payment methods
 - Storage strategy (on-chain, Walrus, IPFS)
+- Data access pattern (gRPC for current state, GraphQL for frontend queries, custom indexer for historical analytics/aggregation — see `sui-indexer`)
 - Upgradeability requirements
 - Emergency controls
 
@@ -92,6 +93,7 @@ Suggest relevant SUI tools based on requirements:
 - DEX integration → `sui-deepbook`
 - Name service → `sui-suins`
 - Cross-chain → `sui-nautilus`
+- Custom data pipeline / historical analytics → `sui-indexer`
 
 Query latest integration patterns:
 ```typescript
@@ -128,9 +130,10 @@ Present design in small sections (200-300 words each):
 7. Error Handling
 8. Security Considerations
 9. Tool Integration Plan
-10. Testing Strategy
-11. Deployment Plan
-12. Gas Optimization
+10. Data Layer (gRPC vs GraphQL vs Custom Indexer — see decision table in `sui-indexer`)
+11. Testing Strategy
+12. Deployment Plan
+13. Gas Optimization
 
 **After each section, ask:** "Does this look good?"
 

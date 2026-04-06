@@ -38,9 +38,12 @@ This guide helps you:
 ### Domain & Identity
 - **SuiNS** - SUI Name Service (human-readable addresses)
 
-### Advanced Features
-- **Seal** - Sealed-bid auctions
-- **Nautilus** - Cross-chain bridge
+### Privacy & Off-Chain Compute
+- **Seal** - Decentralized Secrets Management (threshold encryption + on-chain access policies)
+- **Nautilus** - Verifiable off-chain computation (AWS Nitro Enclaves + on-chain signature verification)
+
+### Data & Indexing
+- **Indexer Framework** - Custom data pipelines for historical analytics, event aggregation, real-time derived data
 
 ## Decision Tree
 
@@ -60,6 +63,9 @@ This guide helps you:
 
 **Social Platform**
 → Use: zkLogin (auth), Walrus (media), SuiNS (profiles)
+
+**Analytics / Data Platform**
+→ Use: Indexer Framework (historical data), GraphQL (frontend queries)
 
 ## Tool Combinations
 
@@ -94,9 +100,10 @@ For detailed integration, use the specific tool skills:
 - `sui-deepbook` - DeepBook integration
 - `sui-kiosk` - Kiosk integration
 - `sui-passkey` - Passkey integration
-- `sui-seal` - Sealed auction integration
-- `sui-nautilus` - Bridge integration
+- `sui-seal` - Secrets management / threshold encryption
+- `sui-nautilus` - Verifiable off-chain compute integration
 - `sui-suins` - SuiNS integration
+- `sui-indexer` - Custom data pipeline integration
 
 ## Integration Complexity Matrix
 
@@ -108,8 +115,9 @@ For detailed integration, use the specific tool skills:
 | DeepBook | High | 3-5 days | Orderbook DEX |
 | SuiNS | Low | 1-2 hours | Name resolution |
 | Passkey | Low | 2-4 hours | Passwordless auth |
-| Seal | Medium | 1-2 days | Sealed auctions |
-| Nautilus | High | 3-7 days | Cross-chain |
+| Seal | Medium | 1-2 days | Threshold encryption / secrets management |
+| Nautilus | High | 3-7 days | Verifiable off-chain compute |
+| Indexer | High | 2-5 days | Historical analytics, data pipelines |
 
 ## Common Patterns
 
@@ -177,6 +185,7 @@ Combine multiple tools:
 - Full marketplace → Kiosk + Walrus + zkLogin + SuiNS
 - DeFi protocol → DeepBook + Oracle + Multi-sig + Governance
 - Cross-chain app → Nautilus + Kiosk + DeepBook
+- Analytics dashboard → Indexer + GraphQL + custom frontend
 
 ## When NOT to Use Ecosystem Tools
 
