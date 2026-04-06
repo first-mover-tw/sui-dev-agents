@@ -613,7 +613,7 @@ Gradual Learning
   - Fixed residual version mismatches from v2.5.0
 
 - **v2.5.0** (2026-03-19)
-  - Updated to SUI v1.68.0 (testnet), Protocol 117
+  - Updated to SUI v1.69.1 (testnet), Protocol 119
   - Display V2, Address Aliases mainnet, Adaptive Concurrency Control
   - gRPC-first: Quorum Driver disabled, Transaction Driver exclusive
 

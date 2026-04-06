@@ -199,7 +199,7 @@ If you use `@mysten/sui` SDK v2:
 - **Custom RPC middleware** that intercepts JSON-RPC payloads will need updating.
 - **Direct `fetch()` calls** to JSON-RPC must be migrated.
 
-## Data Access Architecture (v1.68+)
+## Data Access Architecture (v1.69+)
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
@@ -218,7 +218,7 @@ If you use `@mysten/sui` SDK v2:
 - **GraphQL** — Frontend queries, complex object graphs, Relay integration
 - **Indexer** — Historical analytics, custom aggregations, complex filters
 
-## Indexing Changes (v1.68)
+## Indexing Changes (v1.69)
 
 - Checkpoint data encoding changed from BCS to **zstd-compressed protobuf**
 - Custom indexers using raw checkpoint data must update their deserialization

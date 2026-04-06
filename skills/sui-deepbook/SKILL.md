@@ -22,8 +22,8 @@ Since SUI v1.47, **DeepBook is no longer included as an implicit dependency**. Y
 
 ```toml
 [dependencies]
-Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.68.0" }
-DeepBook = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/deepbook", rev = "testnet-v1.68.0" }
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.69.1" }
+DeepBook = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/deepbook", rev = "testnet-v1.69.1" }
 ```
 
 ## Use Cases

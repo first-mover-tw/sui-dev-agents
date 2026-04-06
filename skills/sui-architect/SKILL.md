@@ -26,7 +26,7 @@ sui-architect
 sui-full-stack  # → Phase 1: Architecture
 ```
 
-## SUI v1.68.1 Architecture Considerations (Protocol 118)
+## SUI v1.69.1 Architecture Considerations (Protocol 119)
 
 When designing architectures, account for these recent platform changes:
 

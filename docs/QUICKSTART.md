@@ -150,7 +150,7 @@ Fast, focused operations for common tasks:
 # Quick project setup
 /sui-dev-agents:init
 → Creates project structure
-→ Configures Move.toml (Protocol 118)
+→ Configures Move.toml (Protocol 119)
 → Generates template files
 → Initializes git
 
