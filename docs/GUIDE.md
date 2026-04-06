@@ -68,7 +68,7 @@ Initialize new SUI Move project with proper structure.
 
 **Creates:**
 - Project structure via `sui move new`
-- Enhanced `Move.toml` with Protocol 118
+- Enhanced `Move.toml` with Protocol 119
 - Test directories and scaffolds
 - Git repository with initial commit
 - Documentation files
@@ -612,7 +612,7 @@ Installs to: `~/.claude/rules/`
 - Module structure patterns
 - Naming conventions (PascalCase, snake_case)
 - Entry function patterns
-- TxContext positioning (Protocol 118)
+- TxContext positioning (Protocol 119)
 - Error handling conventions
 
 #### `sui-move/security.md`
@@ -909,4 +909,4 @@ SUI provides three data access methods:
 - `jsonrpc-warn` hook detects deprecated patterns in your code
 - See `skills/sui-frontend/references/grpc-reference.md` for details
 
-**Built for Protocol 118, Move 2024 Edition, SUI SDK v2, dApp Kit v2**
+**Built for Protocol 119, Move 2024 Edition, SUI SDK v2, dApp Kit v2**

@@ -3,8 +3,8 @@
 
 set -e
 
-EXPECTED_VERSION=118
-EXPECTED_SUI_VERSION="1.68"
+EXPECTED_VERSION=119
+EXPECTED_SUI_VERSION="1.69"
 
 echo "=== Sui Protocol Version Check ==="
 echo ""

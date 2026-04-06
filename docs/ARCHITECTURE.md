@@ -605,8 +605,8 @@ Gradual Learning
 
 ## Version History
 
-- **v2.6.0** (2026-03-25)
-  - Updated to SUI v1.68.1 (testnet) / v1.67.3 (mainnet), Protocol 118
+- **v2.7.0** (2026-04-06)
+  - Updated to SUI v1.69.1 (testnet) / v1.67.3 (mainnet), Protocol 119
   - Added Witness & Capability authorization pattern
   - Added PTB-composable object return pattern
   - Aligned with upstream MystenLabs sui-dev-skills (Move sub-skills, FAQ)
@@ -734,4 +734,4 @@ Gradual Learning
 
 ---
 
-**Architecture designed for Protocol 118, Move 2024 Edition, SUI SDK v2, dApp Kit v2, gRPC GA**
+**Architecture designed for Protocol 119, Move 2024 Edition, SUI SDK v2, dApp Kit v2, gRPC GA**
