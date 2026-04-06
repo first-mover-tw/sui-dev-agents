@@ -9,5 +9,6 @@ mcp-server/dist/
 docs/superpowers/
 .worktrees/
 deepbook-code-tab.png
-progress.md
+tasks/
+mcp-server/package-lock.json
 landing/ws-resources.json
