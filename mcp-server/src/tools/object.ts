@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getSuiClient, safeStringify } from "../client.js";
+import { getSuiClient, getJsonRpcClient, safeStringify } from "../client.js";
 
 export function registerObjectTools(server: McpServer) {
   server.tool(
@@ -8,9 +8,13 @@ export function registerObjectTools(server: McpServer) {
     "Get object details by ID",
     { objectId: z.string().describe("Object ID") },
     async ({ objectId }) => {
-      const client = getSuiClient();
-      const result = await client.core.getObjects({ objectIds: [objectId] });
-      const obj = result.objects[0];
+      // JSON-RPC fallback: gRPC getObjects returns raw BCS bytes only, not decoded Move struct fields.
+      // showContent: true ensures we get the decoded content.fields from the Move struct.
+      const client = getJsonRpcClient();
+      const obj = await client.getObject({
+        id: objectId,
+        options: { showContent: true, showOwner: true, showType: true },
+      });
       return {
         content: [{ type: "text" as const, text: safeStringify(obj) }],
       };
