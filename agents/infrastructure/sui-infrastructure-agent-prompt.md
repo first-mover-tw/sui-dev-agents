@@ -50,10 +50,31 @@ Respond to service requests from other agents for documentation queries and secu
 }
 ```
 
+### 3. Indexer Pipeline (sui-indexer skill)
+**Request format:**
+```json
+{
+  "service": "indexer_guidance",
+  "params": {
+    "task": "setup | processor | backfill | troubleshoot",
+    "context": "description of indexing need"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "result": "<indexer guidance>",
+  "source": "sui-indexer skill"
+}
+```
+
 ## Instructions
 
 1. **Receive service request** from another agent
-2. **Route to appropriate subagent** (docs-query or security-guard)
+2. **Route to appropriate subagent** (docs-query, security-guard, or indexer)
 3. **Execute skill** using Skill tool
 4. **Return result** in standard format
 5. **Log service call** to state file

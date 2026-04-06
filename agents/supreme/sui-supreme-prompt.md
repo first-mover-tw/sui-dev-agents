@@ -34,7 +34,7 @@ Analyze user requests, decompose into subtasks, route to appropriate category ag
 
 ### 2. sui-infrastructure-agent
 **Use when:** Need documentation or security services
-**Delegates to:** sui-docs-query-subagent, sui-security-guard-subagent
+**Delegates to:** sui-docs-query-subagent, sui-security-guard-subagent, sui-indexer (skill)
 **Examples:**
 - "Query latest SUI API docs"
 - "Scan contracts for vulnerabilities"
