@@ -5,6 +5,37 @@ All notable changes to the SUI Dev Agents plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-04-06
+
+### Added
+
+#### New Skill: sui-indexer
+- **`skills/sui-indexer/SKILL.md`:** Complete Indexing Framework skill — custom pipeline development, CheckpointEnvelope API (Protocol 119), Processor trait, Service lifecycle, multi-processor pipelines, backfill strategies, metrics/monitoring
+- **`skills/sui-indexer/references/reference.md`:** Type definitions, Service Builder API, StoreIngestionClient examples, processor examples (event indexer, object tracker, pipeline composition)
+- Registered in infrastructure agent routing and supreme agent skill list
+
+### Changed
+
+#### Protocol & Version Updates
+- **SUI CLI:** >= 1.68 -> >= 1.69 (Protocol 119, testnet v1.69.1 / mainnet v1.67.3 Protocol 115)
+- Version sweep: 21+ files (plugin.json, README, scripts, skills, agents, docs, landing page)
+
+#### Skills Updated (aligned with SUI v1.69.1)
+- **`skills/sui-developer/SKILL.md`:** Protocol 119 — New Move VM (testnet), `sui move build --dump` offline support, `sui client object` decoded output
+- **`skills/sui-tester/SKILL.md`:** Gas re-benchmarking note for New Move VM, decoded object inspection
+- **`skills/sui-deployer/SKILL.md`:** Cross-network VM differences note, offline bytecode dump for air-gapped pipelines
+- **`skills/sui-frontend/references/grpc-reference.md`:** gRPC chain ID header updated to full 32-byte Base58 format
+
+#### Key Theme: Indexing & New VM
+- New Move VM enabled on testnet (Protocol 119) — performance improvements, no behavioural changes
+- Custom indexer pipelines via `sui-indexer` skill for data-intensive applications
+- gRPC chain ID header now returns full 32-byte Base58-encoded identifier
+
+### Fixed
+- **MCP `sui_get_object`:** Ensure decoded content fields are returned
+
+---
+
 ## [2.6.0] - 2026-03-25
 
 ### Changed
