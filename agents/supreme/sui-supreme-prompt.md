@@ -17,7 +17,7 @@ Analyze user requests, decompose into subtasks, route to appropriate category ag
 
 ## Platform Version
 
-- **SUI Protocol Version:** 118 (testnet v1.68.1, mainnet v1.67.3, March 2026)
+- **SUI Protocol Version:** 119 (testnet v1.69.1, mainnet v1.67.3, March 2026)
 - **TypeScript SDK:** `@mysten/sui` v2+ (ESM-only), `SuiGrpcClient` (primary), `Transaction` class, `$extend()` for ecosystem SDKs
 - **dApp Kit:** `@mysten/dapp-kit-react` (React) / `@mysten/dapp-kit-core` (Vue/vanilla JS) — old `@mysten/dapp-kit` is deprecated
 - **Data Access:** gRPC (GA, primary), GraphQL (frontend/indexer), JSON-RPC (**deprecated**, removed April 2026)
