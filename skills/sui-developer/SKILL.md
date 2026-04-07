@@ -1,6 +1,6 @@
 ---
 name: sui-developer
-description: Use when writing or modifying SUI Move smart contracts, generating Move code, or following Move development patterns. Triggers on "write a Move module", "implement contract", "add function", "Move code", or any hands-on Move development task. Also use when the user pastes Move code and asks for help. For code quality audits specifically, prefer move-code-quality.
+description: Use when writing or modifying SUI Move smart contracts, generating Move code, or following Move development patterns. Triggers on "write a Move module", "implement contract", "add function", "Move code", or any hands-on Move development task. Also use when the user pastes Move code and asks for help. For code review/audit, use move-code-quality instead. For contract architecture design, use sui-architect.
 ---
 
 # SUI Developer

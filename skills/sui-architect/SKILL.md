@@ -1,6 +1,6 @@
 ---
 name: sui-architect
-description: Use when planning SUI Move architecture, generating technical specs, or designing object/module structure before writing code. Triggers on "design", "architect", "plan the contracts", "object model", "module structure", "how should I structure", or any SUI system design task. Use this even when the user says "I want to build X" and hasn't started coding yet — architecture comes before implementation.
+description: Use when planning SUI Move architecture, generating technical specs, or designing object/module structure before writing code. Triggers on "design", "architect", "plan the contracts", "object model", "module structure", "how should I structure", or any SUI system design task. For new projects from scratch, use sui-full-stack (which calls this skill at Phase 1). For ecosystem tool/stack selection (Walrus vs IPFS, zkLogin vs Passkey), use sui-tools-guide.
 ---
 
 # SUI Architect

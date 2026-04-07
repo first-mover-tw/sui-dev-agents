@@ -1,6 +1,6 @@
 ---
 name: sui-tools-guide
-description: Use when the user needs to choose between SUI ecosystem tools, compare libraries, or navigate the SUI tooling landscape. Triggers on "which SDK should I use", "compare options", "what tools are available", "best library for", or any SUI tool/library selection decision. Also use when the user seems confused about which SUI package or framework to pick for their use case.
+description: Use during product design and stack selection — choosing between SUI ecosystem tools and official building blocks (Walrus vs Arweave, zkLogin vs Passkey, DeepBook vs AMM, Kiosk vs custom marketplace). Triggers on "which SUI stack", "compare Walrus and IPFS", "what tools are available", "best library for", "which auth method", "storage options on SUI", or any SUI tool/library selection decision. This is for CHOOSING tools, not designing contract architecture (that's sui-architect).
 ---
 
 # SUI Tools Guide

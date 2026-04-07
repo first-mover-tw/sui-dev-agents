@@ -1,6 +1,6 @@
 ---
 name: sui-indexer
-description: Use when building custom indexers, data pipelines, or event processors for the SUI blockchain. Triggers on "indexer", "checkpoint processing", "data pipeline", "backfill", "event processor", "index transactions", or any custom data extraction from SUI chain history. Also use when the user needs to process historical on-chain data or build real-time event streams.
+description: Use when building custom indexers, data pipelines, or event processors for the SUI blockchain. Triggers on "indexer", "data pipeline", "backfill", "event processor", "index transactions", "analytics dashboard", "aggregate on-chain data", "historical query", "track all trades", or any custom data extraction from SUI chain history. Also use when the user needs to build dashboards from on-chain data, process historical transactions, or set up real-time event streams.
 ---
 
 # SUI Indexer

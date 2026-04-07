@@ -1,6 +1,6 @@
 ---
 name: sui-walrus
-description: Use when storing or retrieving files using Walrus — SUI's decentralized blob storage. Triggers on "Walrus", "blob storage", "upload file to chain", "decentralized storage", "store NFT image", "content-addressable", or any off-chain data storage needs on SUI. Also use for Walrus Sites (decentralized web hosting) or when the user needs to store large data that doesn't fit on-chain.
+description: Use when storing or retrieving files using Walrus — SUI's decentralized blob storage. Triggers on "Walrus", "blob storage", "upload file to chain", "decentralized storage", "store NFT image", "IPFS alternative on SUI", "where to store NFT metadata", "host a site on-chain", or any off-chain data storage needs on SUI. Also use for Walrus Sites (decentralized web hosting), storing game assets, media files, or when the user asks "where do I put large files on SUI".
 ---
 
 # SUI Walrus Integration

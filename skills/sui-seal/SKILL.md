@@ -1,6 +1,6 @@
 ---
 name: sui-seal
-description: Use when implementing data encryption, access control, or secrets management on SUI using the Seal protocol. Triggers on threshold encryption, data privacy, token-gated content, encrypted storage, decryption policies, or any scenario requiring on-chain access control for off-chain data. Also use when the user mentions Seal, encrypted NFT content, pay-to-decrypt, or privacy-preserving data sharing.
+description: Use when implementing data encryption, access control, or secrets management on SUI using the Seal protocol. Triggers on threshold encryption, data privacy, token-gated content, encrypted storage, decryption policies, paywall, gated access, encrypted NFT metadata, private data sharing, or any scenario requiring on-chain access control for off-chain data. Also use when the user mentions Seal, pay-to-decrypt, "only NFT holders can see", or subscriber-only content on SUI.
 ---
 
 # SUI Seal — Decentralized Secrets Management

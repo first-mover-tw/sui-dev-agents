@@ -1,6 +1,6 @@
 ---
 name: sui-nautilus
-description: Use when building verifiable off-chain computation, integrating external APIs with on-chain verification, or running trusted execution environments (TEE) on SUI. Triggers on Nautilus, Nitro Enclave, off-chain oracle, trusted compute, enclave attestation, or any scenario requiring cryptographically verified external data on-chain. Also use when the user needs to fetch real-world data (weather, prices, social media) and prove its authenticity to a Move contract.
+description: Use when building verifiable off-chain computation, integrating external APIs with on-chain proof, or running trusted execution environments on SUI. Triggers on Nautilus, off-chain oracle, "verify API data on-chain", "connect external API to Move", "prove off-chain result", trusted compute, price feed, weather data on-chain, or any scenario requiring cryptographically verified external data. Also use when the user asks "how do I get real-world data into my SUI contract" or needs an oracle-like pattern.
 ---
 
 # SUI Nautilus — Verifiable Off-Chain Computation

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sui-dev-agents — AI-Powered SUI Development</title>
-  <meta name="description" content="51+ AI tools covering the full SUI development lifecycle — smart contracts, security audits, frontend integration, and staged deployment. Aligned with SUI CLI v1.69+ and Protocol 119." />
+  <meta name="description" content="80+ AI tools covering the full SUI development lifecycle — smart contracts, security audits, frontend integration, and staged deployment. Aligned with SUI CLI v1.69+ and Protocol 119." />
   <meta name="theme-color" content="#4DA2FF" />
 
   <!-- Google Fonts -->
@@ -947,10 +947,10 @@
 
       <!-- Left: copy -->
       <div class="hero-text">
-        <span class="hero-badge">Open Source · MIT Licence · v2.6.0</span>
+        <span class="hero-badge">Open Source · MIT Licence · v2.9.0</span>
         <h1>AI-Powered SUI Development, From Architecture to Mainnet</h1>
         <p class="subtitle">
-          51+ tools covering the full lifecycle — smart contracts, security audits,
+          80+ tools covering the full lifecycle — smart contracts, security audits,
           frontend integration, and staged deployment. Aligned with SUI CLI v1.69+
           and Protocol 119.
         </p>
@@ -1009,7 +1009,7 @@
   <section id="features">
     <div class="container">
       <div class="section-header">
-        <h2>51+ Tools, 7 Categories</h2>
+        <h2>80+ Tools, 7 Categories</h2>
         <p class="subtitle">Everything you need for production-grade SUI development, in one plugin.</p>
       </div>
       <div class="feature-grid" id="feature-grid">
@@ -1058,7 +1058,7 @@
     <div class="container">
       <div class="section-header">
         <h2>Ecosystem Ready</h2>
-        <p class="subtitle">Dedicated skills for 8 major SUI protocols — best practices built in.</p>
+        <p class="subtitle">Dedicated skills for 9 major SUI protocols — best practices built in.</p>
       </div>
       <div class="eco-grid" id="eco-grid">
         <!-- built via JS below -->
@@ -1122,7 +1122,7 @@
     <div class="container footer-inner">
       <div>
         <strong>sui-dev-agents</strong>
-        <span class="footer-version">v2.6.0 &middot; Protocol 119 &middot; MIT Licence</span>
+        <span class="footer-version">v2.9.0 &middot; Protocol 119 &middot; MIT Licence</span>
       </div>
       <div class="footer-right">
         <a
@@ -1145,7 +1145,7 @@
         { label: 'Architecture',  desc: 'Move module structure planned',           status: '✓', statusClass: 't-green' },
         { label: 'Move Contracts',desc: 'token.move + marketplace.move compiled',  status: '✓', statusClass: 't-green' },
         { label: 'Frontend',      desc: 'React + @mysten/dapp-kit scaffolded',     status: '✓', statusClass: 't-green' },
-        { label: 'Integration',   desc: 'wallet adapter + RPC hooks wired',        status: '✓', statusClass: 't-green' },
+        { label: 'Integration',   desc: 'wallet adapter + gRPC hooks wired',        status: '✓', statusClass: 't-green' },
         { label: 'Testing',       desc: 'sui move test — 24/24 passing',           status: '▸', statusClass: 't-gold'  },
         { label: 'Deployment',    desc: 'staging → mainnet pipeline queued',       status: '…', statusClass: 't-dim'   },
         { label: 'Documentation', desc: 'auto-generating from source annotations', status: '…', statusClass: 't-dim'   },
@@ -1281,7 +1281,7 @@
        ============================================= */
     (function () {
       var features = [
-        { icon: '⚡', count: '23', name: 'Skills',    desc: 'Interactive workflows from architecture to deployment' },
+        { icon: '⚡', count: '24', name: 'Skills',    desc: 'Interactive workflows from architecture to deployment' },
         { icon: '▶',  count: '9',  name: 'Commands',  desc: 'Fast single-action operations — build, test, deploy, audit' },
         { icon: '🤖', count: '19', name: 'Agents',    desc: 'Hierarchical orchestrators for complex multi-step tasks' },
         { icon: '🔌', count: '14', name: 'MCP Tools', desc: 'On-chain queries and wallet operations via gRPC' },
@@ -1381,7 +1381,7 @@
         { cap: 'MCP Server (14 on-chain tools)',          official: false, thisPlugin: true  },
         { cap: 'Hierarchical Agent System (19 agents)',   official: false, thisPlugin: true  },
         { cap: 'Automatic Hooks (8 event-driven checks)', official: false, thisPlugin: true  },
-        { cap: 'Ecosystem Integrations (8 protocols)',    official: false, thisPlugin: true  },
+        { cap: 'Ecosystem Integrations (9 protocols)',    official: false, thisPlugin: true  },
         { cap: 'Starter Templates (NFT / DeFi / DAO)',    official: false, thisPlugin: true  },
         { cap: 'Red-Team Security Testing',               official: false, thisPlugin: true  },
         { cap: 'Multi-Platform Support (14 AI tools)',    official: false, thisPlugin: true  },
@@ -1455,7 +1455,8 @@
         { icon: '🐋', name: 'Walrus',   desc: 'Decentralised storage for blobs and static sites' },
         { icon: '🏷️', name: 'SuiNS',   desc: 'SUI Name Service — human-readable addresses' },
         { icon: '🔏', name: 'Seal',     desc: 'Sealed bid auctions and threshold encryption' },
-        { icon: '🌊', name: 'Nautilus', desc: 'Cross-chain bridge and off-chain compute integration' }
+        { icon: '🌊', name: 'Nautilus', desc: 'Cross-chain bridge and off-chain compute integration' },
+        { icon: '📡', name: 'Indexer',  desc: 'Custom data pipelines and analytics dashboards' }
       ];
 
       var grid = document.getElementById('eco-grid');
@@ -1503,7 +1504,7 @@
         {
           name: 'sui-ecosystem-agent',
           tag: 'Ecosystem',
-          leaves: ['kiosk', 'zklogin', 'passkey', 'deepbook', 'walrus']
+          leaves: ['kiosk', 'zklogin', 'passkey', 'deepbook', 'walrus', 'suins', 'seal', 'nautilus', 'indexer']
         }
       ];
 
