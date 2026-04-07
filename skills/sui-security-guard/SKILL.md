@@ -5,104 +5,95 @@ description: Use when setting up security scanning, detecting leaked secrets/API
 
 # SUI Security Guard
 
-**Automated security scanning and secret detection for SUI projects.**
+**Secret detection and pre-commit hooks for SUI projects.**
 
-## Overview
+## Secret Detection
 
-This skill provides comprehensive security scanning:
-- Secret detection (private keys, API keys, mnemonics)
-- Pre-commit hook installation
-- Security checklist validation
-- Best practices enforcement
-
-## Quick Start
+Scan the project for leaked secrets using grep patterns:
 
 ```bash
-# Install pre-commit hook
-sui-security-guard install-hook
+# SUI private keys
+grep -rn 'suiprivkey1[a-zA-Z0-9]\{44\}' --include='*.ts' --include='*.move' --include='*.json' .
 
-# Manual scan
-sui-security-guard scan
+# Mnemonics (12+ word phrases that look like BIP39)
+grep -rn '\b\(abandon\|ability\|able\|about\|above\)' --include='*.ts' --include='*.env' .
 
-# Verify configuration
-sui-security-guard check
+# API keys
+grep -rn 'sk-[a-zA-Z0-9]\{20,\}\|sk-ant-[a-zA-Z0-9-]\{20,\}' .
+
+# AWS credentials
+grep -rn 'AKIA[A-Z0-9]\{16\}' .
+
+# .env files that shouldn't be committed
+git ls-files '*.env' '.env*'
 ```
 
-## Core Features
+If any matches are found: **rotate the key immediately**, then use `git-filter-repo` or `BFG Repo-Cleaner` to purge from git history.
 
-### 1. Secret Detection
+## Pre-commit Hook Setup
 
-Scans for:
-- SUI private keys (`suiprivkey1...`)
-- Mnemonics (12/24 word phrases)
-- API keys (OpenAI, Anthropic, etc.)
-- AWS credentials
-- Environment files (.env)
+Create `.git/hooks/pre-commit` to block secrets before they enter git:
 
-### 2. Pre-commit Hook
-
-Automatically runs before each commit to prevent secrets from being committed.
-
-**Installation:**
 ```bash
-# Creates .git/hooks/pre-commit
-sui-security-guard install-hook
+#!/bin/sh
+# Scan staged files for secrets before committing
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Check for SUI private keys
+if echo "$STAGED" | xargs grep -l 'suiprivkey1' 2>/dev/null; then
+  echo "❌ SUI private key detected in staged files. Commit blocked."
+  exit 1
+fi
+
+# Check for .env files
+if echo "$STAGED" | grep -q '\.env$\|\.env\.'; then
+  echo "❌ .env file staged for commit. Add to .gitignore."
+  exit 1
+fi
+
+# Check for common API key patterns
+if echo "$STAGED" | xargs grep -l 'sk-[a-zA-Z0-9]\{20,\}' 2>/dev/null; then
+  echo "❌ API key pattern detected. Commit blocked."
+  exit 1
+fi
+
+echo "✅ Security scan passed."
 ```
 
-### 3. Security Checklist
-
-Validates:
-- No hardcoded secrets
-- .env in .gitignore
-- No private keys in code
-- No API keys in frontend
-- Proper capability usage
-
-## Configuration
-
-`.sui-security.json`:
-```json
-{
-  "enabled": true,
-  "scan_on_commit": true,
-  "exclude_patterns": [
-    "node_modules/",
-    ".git/",
-    "*.test.ts"
-  ]
-}
+```bash
+# Install the hook
+chmod +x .git/hooks/pre-commit
 ```
 
-## Common Mistakes
+For team-wide enforcement, use a shared hooks directory:
+```bash
+git config core.hooksPath .githooks/
+# Then commit .githooks/pre-commit to the repo
+```
 
-❌ **Committing .env files**
-- **Problem:** API keys exposed in git history
-- **Fix:** Add `.env*` to .gitignore, use .env.example for templates
-- **Remediation:** Rotate all exposed keys, use git-filter-repo to purge history
+## .gitignore Essentials
 
-❌ **Hardcoding private keys in code**
-- **Problem:** Permanent exposure, cannot rotate
-- **Fix:** Use environment variables, secure key management systems
+Ensure these are in `.gitignore`:
+```
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+```
 
-❌ **Disabling pre-commit hook "just once"**
-- **Problem:** Secrets slip through, end up in production
-- **Fix:** Never skip hooks, fix the issue instead
+## Security Checklist
 
-❌ **Storing mnemonics in comments**
-- **Problem:** Easy to miss in code review, exposed in repo
-- **Fix:** Never store mnemonics anywhere in codebase, use secure vaults
-
-❌ **Not scanning existing codebase**
-- **Problem:** Legacy secrets remain in old commits
-- **Fix:** Run full historical scan with tools like gitleaks
-
-❌ **Testing with production API keys**
-- **Problem:** Rate limits, billing issues, exposure risk
-- **Fix:** Use separate test API keys with limited permissions
+Before deployment, verify:
+- [ ] No hardcoded private keys or mnemonics in source
+- [ ] `.env` files in `.gitignore`
+- [ ] No API keys in frontend code (browser-accessible)
+- [ ] AdminCap / UpgradeCap properly guarded (not public transfer)
+- [ ] Pre-commit hook installed and active
 
 ## Integration
 
 - **Called by:** `sui-full-stack` (throughout development)
-- **Hooks:** Git pre-commit
-
-See [reference.md](references/reference.md) for scan patterns and [examples.md](references/examples.md) for remediation guides.
+- For Move contract security analysis, use `sui-red-team`
+- For code quality / Move best practices, use `move-code-quality`

@@ -1,99 +1,58 @@
 ---
 name: sui-docs-query
-description: Use when searching SUI-specific documentation, querying Move framework API references, or checking SUI CLI/tool versions. Triggers on "check SUI docs", "what's the API for", "sui client command", "Move stdlib function", or any SUI-specific documentation lookup. Prefer this over generic web search for SUI/Move-specific questions. For general library docs (React, Node, etc.), use context7 instead.
+description: Use when searching SUI-specific documentation, querying Move framework API references, or checking SUI CLI/tool versions. Triggers on "check SUI docs", "what's the API for", "sui client command", "Move stdlib function", "sui move build flags", or any SUI/Move-specific documentation lookup. Prefer this over generic web search for SUI-specific questions — it routes to Context7 MCP with optimized SUI queries. For non-SUI library docs (React, Node, etc.), use context7 directly.
 ---
 
 # SUI Documentation Query Engine
 
-**Centralized service for querying latest SUI documentation, GitHub examples, and version information.**
+**Query SUI/Move documentation via Context7 MCP for up-to-date answers.**
 
-## Overview
+## How It Works
 
-This skill provides a unified interface for all other SUI skills to query:
-- Official documentation (via Context7 MCP)
-- GitHub repositories (latest code, examples, issues)
-- Version detection and comparison
-- Cached results to reduce API calls
+This skill uses the **Context7 MCP server** (available as `mcp__plugin_context7_context7__*` tools) to fetch current documentation. Two-step process:
 
-**Key Principle:** Other skills don't query directly - they call this skill with standardized parameters.
+### Step 1: Resolve the library ID
 
-## Query Types
+```
+Tool: mcp__plugin_context7_context7__resolve-library-id
+Input: { "libraryName": "sui" }
+```
 
-### Type 1: Official Documentation Query
+Common library mappings:
+| Topic | libraryName to resolve |
+|-------|----------------------|
+| SUI core / Move stdlib / framework | `sui` |
+| Walrus storage | `walrus` |
+| DeepBook | `deepbook` |
+| SuiNS | `suins` |
+| dApp Kit | `mysten dapp-kit` |
+| TypeScript SDK | `mysten sui sdk` |
 
-```typescript
-{
-  type: "docs",
-  target: "sui-core" | "walrus" | "zklogin" | "deepbook",
-  query: "specific question or topic",
-  options: { use_cache: true, max_results: 5 }
+### Step 2: Query docs with the resolved ID
+
+```
+Tool: mcp__plugin_context7_context7__query-docs
+Input: {
+  "context7CompatibleLibraryID": "<id-from-step-1>",
+  "topic": "specific question here"
 }
 ```
 
-### Type 2: GitHub Repository Query
+## Query Tips
 
-```typescript
-{
-  type: "github",
-  target: "sui-core" | "walrus",
-  query: "search query",
-  options: { include_examples: true, include_issues: false }
-}
-```
+- **Be specific:** "Transfer policy royalty enforcement in Kiosk" not "royalties"
+- **Include version context:** "sui client publish flags in v1.69" helps get relevant results
+- **One topic per query:** Split compound questions into separate queries
 
-### Type 3: Version Detection
+## When to Use
 
-```typescript
-{
-  type: "version",
-  target: "sui"
-}
-```
+- User asks about a SUI CLI command or flag
+- Need to check Move stdlib / framework API signatures
+- Verifying current SUI version behavior or breaking changes
+- Any SUI-specific question where your training data might be outdated
 
-## Usage
+## When NOT to Use
 
-Called by all other skills to query latest documentation:
-
-```typescript
-const info = await sui_docs_query({
-  type: "docs",
-  target: "kiosk",
-  query: "Transfer policy implementation"
-});
-```
-
-## Configuration
-
-Cache duration: 1 hour for docs, 15 minutes for GitHub.
-
-## Common Mistakes
-
-❌ **Querying with vague questions**
-- **Problem:** Irrelevant results, wasted API calls
-- **Fix:** Be specific - "Transfer policy royalty implementation" not "royalties"
-
-❌ **Not using cached results**
-- **Problem:** Hitting rate limits, slow responses
-- **Fix:** Set `use_cache: true` for repeated queries
-
-❌ **Querying deprecated targets**
-- **Problem:** Outdated information, wrong implementation
-- **Fix:** Check version first with `type: "version"` before querying docs
-
-❌ **Skipping GitHub examples**
-- **Problem:** Implementing from scratch when examples exist
-- **Fix:** Set `include_examples: true` for implementation queries
-
-❌ **Not specifying target correctly**
-- **Problem:** Wrong documentation source, confusing results
-- **Fix:** Use exact target names: "sui-core", "walrus", "kiosk", "zklogin"
-
-❌ **Ignoring version compatibility**
-- **Problem:** Using API that doesn't exist in user's SUI version
-- **Fix:** Query version, verify compatibility before suggesting code
-
-❌ **Over-querying during development**
-- **Problem:** Rate limited, blocked from Context7/GitHub
-- **Fix:** Cache aggressively, query only when truly needed
-
-See [reference.md](references/reference.md) for complete API and [examples.md](references/examples.md) for integration patterns.
+- Non-SUI libraries (React, Node, Vite) → use Context7 MCP directly
+- General Move language questions → use `sui-developer` skill
+- Architecture decisions → use `sui-architect` or `sui-tools-guide`

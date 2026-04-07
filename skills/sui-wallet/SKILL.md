@@ -7,7 +7,7 @@ description: Use when performing on-chain transactions (transfer, Move call, pub
 
 ## MCP Wallet Tools
 
-The following MCP tools are available via the `sui-dev-mcp` server:
+Available via the `sui-dev-mcp` server:
 
 | Tool | Purpose |
 |------|---------|
@@ -18,58 +18,21 @@ The following MCP tools are available via the `sui-dev-mcp` server:
 
 ## Transaction Flow
 
-All wallet tools follow a **dry-run → approve → execute** flow:
+All tools follow **dry-run → approve → execute**:
 
-1. **Agent calls MCP tool** → tool runs `sui client ... --dry-run` internally
-2. **MCP returns summary** with `status: "PENDING_APPROVAL"` including:
-   - Network, signer, gas estimate
-   - Effects preview (object changes, balance changes)
-   - The CLI command to execute
-3. **Agent presents summary to user** for review
-4. **User approves** in Claude Code
-5. **Agent executes** the command from `execute_args`
+1. Agent calls MCP tool → runs `sui client ... --dry-run` internally
+2. MCP returns summary (`status: "PENDING_APPROVAL"`) with network, signer, gas estimate, effects preview, and the CLI command
+3. Agent presents summary to user for review
+4. User approves → agent executes the command from `execute_args`
 
 ## Safety Rules
 
-- **NEVER** execute a transaction without showing the dry-run summary first
-- **ALWAYS** confirm the network (testnet vs mainnet) before executing
-- **ALWAYS** use MCP wallet tools instead of direct `sui client` CLI when possible
-- The `tx-approval-guard` hook will warn if direct CLI signing is attempted
+- **NEVER** execute without showing dry-run summary first
+- **ALWAYS** confirm network (testnet vs mainnet) before executing
+- **ALWAYS** prefer MCP wallet tools over direct `sui client` CLI
+- The `tx-approval-guard` hook warns on direct CLI signing attempts
 
 ## When to Use This vs dApp Kit
 
-| Scenario | Use This Skill | Use `sui-frontend` Skill |
-|----------|---------------|-------------------------|
-| Automated deployments | ✅ MCP wallet tools | |
-| Testing flows / CI/CD | ✅ Agent-driven transactions | |
-| Backend scripts / headless ops | ✅ CLI wallet | |
-| Browser wallet signing (React/Vue) | | ✅ dApp Kit |
-| User-facing UI with wallet connect | | ✅ dApp Kit |
-
-- **MCP wallet tools** = agent automation (backend, scripts, CI/CD, headless operations)
-- **dApp Kit** = user-facing wallet signing in browser (frontend, React/Vue apps)
-
-## Examples
-
-### Check wallet status
-```
-Use the sui_wallet_status MCP tool.
-```
-
-### Transfer SUI
-```
-Use sui_wallet_transfer with recipient and amount.
-Review the dry-run output, then execute the command if user approves.
-```
-
-### Publish package
-```
-Use sui_wallet_publish with the package path.
-Review gas cost and effects, then execute if user approves.
-```
-
-### Call Move function
-```
-Use sui_wallet_call with package_id, module, function_name, and args.
-Review the effects preview, then execute if user approves.
-```
+- **This skill (MCP wallet)** → agent automation, backend scripts, CI/CD, headless ops
+- **sui-frontend (dApp Kit)** → browser wallet signing, user-facing UI with wallet connect
