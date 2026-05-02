@@ -231,7 +231,8 @@ await client.waitForTransaction({ digest: result.Transaction.digest });
 ## Wallet-Gated UI
 
 ```tsx
-import { useCurrentAccount, ConnectButton } from '@mysten/dapp-kit-react';
+import { useCurrentAccount } from '@mysten/dapp-kit-react';
+import { ConnectButton } from '@mysten/dapp-kit-react/ui';
 
 function ProtectedPage() {
   const account = useCurrentAccount();

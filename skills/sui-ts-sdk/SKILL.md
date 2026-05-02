@@ -5,6 +5,14 @@ description: Use when writing TypeScript code interacting with SUI blockchain vi
 
 # Sui TypeScript SDK Skill
 
+## SDK Versions
+
+Targets: `@mysten/sui` ^2.0. Last verified: 2026-05-02.
+
+Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and changed `GrpcCoreClient.streamEvents`. If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
+
+---
+
 You are writing TypeScript code that interacts with the Sui blockchain using the `@mysten/sui` SDK (v2+). Follow these rules precisely. This skill covers PTB (Programmable Transaction Block) construction, client setup, transaction execution, and on-chain queries. These patterns apply equally in backend scripts and frontend apps. If you are building a frontend, use the **sui-frontend** skill first (or alongside this one) for dApp Kit setup, wallet connection, and React integration — then apply the PTB and client patterns from this skill.
 
 ---

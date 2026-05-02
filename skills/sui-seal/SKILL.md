@@ -7,6 +7,14 @@ description: Use when implementing data encryption, access control, or secrets m
 
 **On-chain access policies + threshold encryption + decentralized key servers.**
 
+## SDK Versions
+
+Targets: `@mysten/sui` ^2.0, `@mysten/seal` ^1.0. Last verified: 2026-05-02.
+
+If you see `Cannot find module '@mysten/sui/client'` or `SuiClient is not exported`, you have mixed sui 1.x examples with sui 2.x install — `SuiClient` was removed in sui 2.x. Use `SuiGrpcClient` from `@mysten/sui/grpc` (recommended) or `SuiJsonRpcClient` from `@mysten/sui/jsonRpc`. See `sui-ts-sdk` skill for full migration.
+
+Do not mix `@mysten/sui@1.x` and `@2.x` in the same install. Run `npm ls @mysten/sui` before adding seal/walrus/dapp-kit packages — peer-deps will silently pull a second sui copy.
+
 ## What Seal Does
 
 Seal is a Decentralized Secrets Management (DSM) platform on SUI:
@@ -51,10 +59,10 @@ Security guarantees:
 ### Setup
 
 ```typescript
-import { SuiClient } from '@mysten/sui/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { seal } from '@aspect/seal-sdk';
 
-const client = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
+const client = new SuiGrpcClient({ network: 'testnet' });
 
 // Configure Seal with key server endpoints
 const sealClient = client.extend(
