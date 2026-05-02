@@ -37,8 +37,7 @@ import { Transaction } from '@mysten/sui/transactions';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-// wrong: old package name
-import { TransactionBlock } from '@mysten/sui.js';
+import { TransactionBlock } from '@mysten/sui.js'; // wrong: old package name (deprecated, removed at v1.0)
 
 // wrong: importing from package root
 import { Transaction } from '@mysten/sui';
@@ -87,8 +86,7 @@ A Programmable Transaction Block (PTB) is built using the `Transaction` class. T
 import { Transaction } from '@mysten/sui/transactions';
 const tx = new Transaction();
 
-// wrong: old class name (pre-1.0)
-import { TransactionBlock } from '@mysten/sui.js/transactions';
+import { TransactionBlock } from '@mysten/sui.js/transactions'; // wrong: old class name, deprecated pre-1.0
 const txb = new TransactionBlock();
 ```
 
