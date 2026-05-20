@@ -7,6 +7,10 @@ description: Use when building NFT marketplaces, enforcing royalties, or managin
 
 **Official NFT trading standard with transfer policies and royalties.**
 
+## SDK Versions
+
+Targets: `@mysten/kiosk` ^1.2, `@mysten/sui` ^2.16. Last verified: 2026-05-21.
+
 ## Overview
 
 Kiosk provides:

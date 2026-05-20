@@ -7,6 +7,10 @@ description: Use when integrating DeepBook — SUI's native CLOB (central limit 
 
 **Decentralized orderbook exchange protocol on SUI.**
 
+## SDK Versions
+
+Targets: `@mysten/deepbook-v3` ^1.3 (current; legacy `@mysten/deepbook` is CLOB V2 and not recommended), `@mysten/sui` ^2.16. Last verified: 2026-05-21.
+
 ## Overview
 
 DeepBook provides:

@@ -7,6 +7,10 @@ description: Use when integrating SuiNS (SUI Name Service) — resolving .sui na
 
 **Human-readable names for SUI addresses (like ENS for Ethereum).**
 
+## SDK Versions
+
+Targets: `@mysten/suins` ^1.1, `@mysten/sui` ^2.16. Last verified: 2026-05-21.
+
 ## Overview
 
 SuiNS provides:
