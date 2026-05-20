@@ -93,7 +93,7 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI v1.69.1 Updates (Protocol 119)
+## SUI v1.72.2 Updates (Protocol 124)
 
 **Key changes affecting Move development (as of March 2026):**
 
@@ -101,7 +101,7 @@ See [scripts/](scripts/) for implementation details.
 
 - **gRPC Data Access (GA):** gRPC is the primary data access method. JSON-RPC is deprecated (removal April 2026) — Quorum Driver for transaction submission is **fully disabled**. Use **Transaction Driver** exclusively.
 - **Display V2 (Activated):** Display Registry (system object `0xd`) is live on all networks. JSON-RPC and GraphQL now prioritize Display V2 lookups over legacy Display v1. Use `sui::display::DisplayRegistry` for new projects.
-- **Address Aliases (Mainnet):** Human-readable address mappings now enabled on mainnet (`v1.69.1+`).
+- **Address Aliases (Mainnet):** Human-readable address mappings now enabled on mainnet (`v1.72.2+`).
 - **Adaptive Concurrency Control:** Indexing framework replaces fixed worker counts with automatic scaling. `Processor::FANOUT` is **removed** — use `ConcurrencyConfig` enum instead.
 - **Display Registry in APIs:** JSON-RPC (`showDisplay`) and GraphQL now prioritize Display Registry (V2) over legacy Display v1. New `MoveValue.asVector` for paginating vector data in GraphQL.
 - **SignatureScheme Union:** GraphQL introduces `SignatureScheme` union type for `UserSignature`, replacing flat fields.
@@ -124,7 +124,7 @@ See [scripts/](scripts/) for implementation details.
 - **CLI Auto-completion:** Use `sui completion --generate [shell]` for shell auto-completion (`v1.66.2+`).
 - **Regex Test Filtering:** Test filtering now uses regex — use `sui move test --filter "regex_pattern"`.
 
-### GraphQL Breaking Changes (v1.67.3+)
+### GraphQL Breaking Changes (v1.71.1+)
 
 - **Simulation:** `events` field removed from `simulateResult` and `ExecutionResult`. Access events via `effects.events()` instead.
 - **Error field:** `error` field removed from `ExecutionResult`; use `effects.status` for error information.

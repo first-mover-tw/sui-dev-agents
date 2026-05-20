@@ -149,7 +149,7 @@ const coins = await client.core.getCoins({ owner: '0x...' });
 
 > **Note:** All client methods now live under `client.core.*`. The `options` parameter is renamed to `include` (e.g., `include: { content: true }` instead of `options: { showContent: true }`).
 
-### Chain ID Header (Protocol 119)
+### Chain ID Header (Protocol 124)
 
 The gRPC `chain-id` response header now returns the full 32-byte, Base58-encoded chain identifier. Previously, some endpoints returned a truncated format.
 
@@ -224,4 +224,4 @@ If you use `@mysten/sui` SDK v2:
 - Custom indexers using raw checkpoint data must update their deserialization
 - Official indexer framework handles this automatically
 - **Adaptive Concurrency Control (v1.68.0):** `Processor::FANOUT` removed — use `fanout` field with `ConcurrencyConfig` enum. `ingest_concurrency` changed from integer to `ConcurrencyConfig` type.
-- **Ingestion client** now enforces single source configuration (`v1.67.3+`)
+- **Ingestion client** now enforces single source configuration (`v1.71.1+`)

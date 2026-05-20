@@ -37,11 +37,11 @@ Checkpoint Stream → Ingestion Client → Processor(s) → Store (PostgreSQL / 
 3. **Store** — writes processed data to your database
 4. **Service** — manages lifecycle, shutdown signals, error handling
 
-## Core API (Protocol 119)
+## Core API (Protocol 124)
 
 ### CheckpointEnvelope
 
-As of Protocol 119, `IngestionClientTrait::checkpoint()` returns a `CheckpointEnvelope` containing both checkpoint data and chain identification:
+As of Protocol 124, `IngestionClientTrait::checkpoint()` returns a `CheckpointEnvelope` containing both checkpoint data and chain identification:
 
 ```rust
 /// Returned by IngestionClientTrait::checkpoint()
@@ -60,7 +60,7 @@ pub struct CheckpointEnvelope {
 ```rust
 #[async_trait]
 pub trait IngestionClientTrait: Send + Sync {
-    /// Fetch a checkpoint by sequence number (renamed from `fetch` in Protocol 119)
+    /// Fetch a checkpoint by sequence number (renamed from `fetch` in Protocol 124)
     async fn checkpoint(&self, checkpoint: u64) -> Result<Arc<CheckpointEnvelope>>;
 }
 ```
@@ -272,7 +272,7 @@ let service = Service::builder()
 
 | Version | Change |
 |---------|--------|
-| v1.69.1 (Protocol 119) | `IngestionClientTrait::fetch` → `checkpoint`; returns `CheckpointEnvelope` with `chain_id` |
+| v1.72.2 (Protocol 124) | `IngestionClientTrait::fetch` → `checkpoint`; returns `CheckpointEnvelope` with `chain_id` |
 | v1.68 (Protocol 118) | `Processor::FANOUT` removed; Adaptive Concurrency Control replaces fixed workers |
 | v1.65.2 (Protocol 111) | `RemoteIngestionClient` renamed to `StoreIngestionClient`; supports any `ObjectStore` |
 | v1.63.3 (Protocol 107) | Indexer/ingestion services return `Service` instead of `JoinHandle<()>`; use `Service::main()` |

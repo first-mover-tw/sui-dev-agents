@@ -1,7 +1,7 @@
 # SUI Indexer Framework Reference
 
 > Framework: `sui-indexer-alt-framework` from MystenLabs/sui repository
-> Protocol: 119 (testnet v1.69.1)
+> Protocol: 119 (testnet v1.72.2)
 
 ## Type Definitions
 

@@ -7,7 +7,7 @@ description: Sui frontend dApp development with @mysten/dapp-kit-react (React) a
 
 ## SDK Versions
 
-Targets: `@mysten/sui` ^2.0, `@mysten/dapp-kit-react` ^2.0, `@mysten/dapp-kit-core` ^2.0. Last verified: 2026-05-02.
+Targets: `@mysten/sui` ^2.0, `@mysten/dapp-kit-react` ^2.0, `@mysten/dapp-kit-core` ^2.0. Last verified: 2026-05-20.
 
 Before installing, run `npm ls @mysten/sui` — if you already have `@mysten/sui@1.x` from `seal`, `walrus`, or legacy `@mysten/dapp-kit`, do not add a 2.x package on top. Either upgrade those peers to 1.x-compatible-with-sui-2.x releases, or stay fully on the 1.x line. Mixing produces dual-sui installs with confusing type errors.
 

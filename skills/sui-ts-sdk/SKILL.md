@@ -7,7 +7,7 @@ description: Use when writing TypeScript code interacting with SUI blockchain vi
 
 ## SDK Versions
 
-Targets: `@mysten/sui` ^2.0. Last verified: 2026-05-02.
+Targets: `@mysten/sui` ^2.0. Last verified: 2026-05-20.
 
 Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and changed `GrpcCoreClient.streamEvents`. If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
 

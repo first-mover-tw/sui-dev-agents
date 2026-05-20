@@ -26,11 +26,11 @@ sui-architect
 sui-full-stack  # → Phase 1: Architecture
 ```
 
-## SUI v1.69.1 Architecture Considerations (Protocol 119)
+## SUI v1.72.2 Architecture Considerations (Protocol 124)
 
 When designing architectures, account for these recent platform changes:
 
-- **Protocol Version 117** (testnet v1.68.0, mainnet v1.67.3 / Protocol 115, March 2026)
+- **Protocol Version 124** (testnet v1.72.2, mainnet v1.71.1 / Protocol 123, May 2026)
 - **Data Access:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, Quorum Driver disabled, removal April 2026)
 - **Display V2 (Activated):** Display Registry (`0xd`) live on all networks — prioritized over legacy Display v1. Plan new projects around Display V2.
 - **Address Aliases (Mainnet):** Human-readable address mappings now live on mainnet.

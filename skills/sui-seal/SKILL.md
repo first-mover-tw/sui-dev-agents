@@ -9,7 +9,7 @@ description: Use when implementing data encryption, access control, or secrets m
 
 ## SDK Versions
 
-Targets: `@mysten/sui` ^2.0, `@mysten/seal` ^1.0. Last verified: 2026-05-02.
+Targets: `@mysten/sui` ^2.0, `@mysten/seal` ^1.0. Last verified: 2026-05-20.
 
 If you see `Cannot find module '@mysten/sui/client'` or `SuiClient is not exported`, you have mixed sui 1.x examples with sui 2.x install — `SuiClient` was removed in sui 2.x. Use `SuiGrpcClient` from `@mysten/sui/grpc` (recommended) or `SuiJsonRpcClient` from `@mysten/sui/jsonRpc`. See `sui-ts-sdk` skill for full migration.
 
