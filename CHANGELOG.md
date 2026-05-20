@@ -5,7 +5,7 @@ All notable changes to the SUI Dev Agents plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — 2026-05-20
+## [2.9.1] - 2026-05-21
 
 ### Changed
 - SUI version refs aligned with testnet v1.72.2 (Protocol 124) and mainnet v1.71.1 (Protocol 123).
@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `sui-indexer`: documents `subscriber_channel_size` / `pipeline-depth`; rpc-index DB v4 upgrade note.
 - `sui-tester` / `sui-red-team`: `sui replay --forking-mode` + `sui-fork` impersonation usage.
 - `sui-frontend`: parser-breaking note on `TypeName` structured-output format.
+
+### Fixed
+- `sui-tester`: deduped repeated `## SUI v1.72.2 Testing Updates (Protocol 124)` header; folded Protocol 124 gas/decoded-object notes into the single section.
 
 ### Removed
 - `sui-indexer`: `checkpoint_lag` / `checkpoint_buffer_size` examples (config keys removed upstream in v1.71).
