@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SUI version refs aligned with testnet v1.72.2 (Protocol 124) and mainnet v1.71.1 (Protocol 123).
 - SDK banners (`sui-frontend`, `sui-seal`, `sui-walrus`, `sui-ts-sdk`) re-verified for `@mysten/sui` 2.x.
 
+### Added
+- `sui-developer`: Move 1.70–1.71 APIs section (dynamic_field helpers, `mul_div`, deprecation list).
+- `sui-indexer`: documents `subscriber_channel_size` / `pipeline-depth`; rpc-index DB v4 upgrade note.
+- `sui-tester` / `sui-red-team`: `sui replay --forking-mode` + `sui-fork` impersonation usage.
+- `sui-frontend`: parser-breaking note on `TypeName` structured-output format.
+
+### Removed
+- `sui-indexer`: `checkpoint_lag` / `checkpoint_buffer_size` examples (config keys removed upstream in v1.71).
+
 ## [2.7.0] - 2026-04-06
 
 ### Added

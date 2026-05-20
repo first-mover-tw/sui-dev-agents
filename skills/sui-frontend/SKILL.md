@@ -417,6 +417,8 @@ function SomeComponent() {
 
 Do not instantiate `new SuiGrpcClient(...)` inside components — use `useCurrentClient` so it stays in sync with the active network.
 
+> **Parser-breaking (v1.70+):** `0x1::type_name::TypeName` values in structured outputs (JSON-RPC, gRPC, GraphQL) are now serialized as a plain string (e.g. `"0x2::sui::SUI"`) instead of `{ "name": "0x2::sui::SUI" }`. If your frontend parses these fields, expect a string at that position.
+
 ---
 
 ## 7. Signing and Executing Transactions

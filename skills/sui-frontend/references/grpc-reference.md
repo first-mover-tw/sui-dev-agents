@@ -149,7 +149,7 @@ const coins = await client.core.getCoins({ owner: '0x...' });
 
 > **Note:** All client methods now live under `client.core.*`. The `options` parameter is renamed to `include` (e.g., `include: { content: true }` instead of `options: { showContent: true }`).
 
-### Chain ID Header (Protocol 124)
+### Chain ID Header (Protocol 119+)
 
 The gRPC `chain-id` response header now returns the full 32-byte, Base58-encoded chain identifier. Previously, some endpoints returned a truncated format.
 

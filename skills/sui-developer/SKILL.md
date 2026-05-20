@@ -140,6 +140,36 @@ See [scripts/](scripts/) for implementation details.
 - **Macro Patterns:** Prefer `do!`, `tabulate!`, `fold!`, `filter!`, `destroy!` macros over manual loops for vector/option operations
 - **Positional Struct Keys:** Use `public struct MyKey() has copy, drop, store;` for dynamic field keys
 
+## Move 1.70–1.71 APIs (mainnet v1.71.1)
+
+### Dynamic field ergonomics (1.71)
+
+`sui::dynamic_field` and `sui::dynamic_object_field` gained these helpers — use them instead of hand-rolling existence checks:
+
+- `borrow_or_add(parent, key, default)` / `borrow_mut_or_add` — get or insert.
+- `get_do(parent, key, |v| ...)` / `get_mut_do` — apply a closure if present.
+- `get_fold(parent, key, init, |acc, v| ...)` / `get_mut_fold` — fold pattern over optional value.
+- `replace(parent, key, new)` — swap value, return old.
+- `remove_opt(parent, key)` — returns `Option<V>` (use this; `remove_if_exists` is deprecated).
+- `exists(parent, key)` — replaces deprecated `exists_`.
+
+### Overflow-safe integer math (1.70)
+
+`std::u{8,16,32,64,128,256}` gained `mul_div(a, b, c)` and `mul_div_ceil(a, b, c)` — computes `(a * b) / c` without intermediate overflow. Prefer over manual widening.
+
+`div_ceil(a, b)` replaces deprecated `divide_and_round_up`.
+
+### Deprecations to clean up
+
+| Deprecated | Replacement |
+|---|---|
+| `vector::empty<T>()` | `vector[]` literal |
+| `vector::singleton(x)` | `vector[x]` |
+| `dynamic_field::exists_` | `dynamic_field::exists` |
+| `dynamic_field::remove_if_exists` | `dynamic_field::remove_opt` |
+| `dynamic_object_field::exists_` | `dynamic_object_field::exists` |
+| `std::u*::divide_and_round_up` | `std::u*::div_ceil` |
+
 ## Core Features
 
 ### 1. Code Generation from Specification

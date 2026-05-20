@@ -37,11 +37,11 @@ Checkpoint Stream → Ingestion Client → Processor(s) → Store (PostgreSQL / 
 3. **Store** — writes processed data to your database
 4. **Service** — manages lifecycle, shutdown signals, error handling
 
-## Core API (Protocol 124)
+## Core API (Protocol 119+)
 
 ### CheckpointEnvelope
 
-As of Protocol 124, `IngestionClientTrait::checkpoint()` returns a `CheckpointEnvelope` containing both checkpoint data and chain identification:
+As of Protocol 119, `IngestionClientTrait::checkpoint()` returns a `CheckpointEnvelope` containing both checkpoint data and chain identification:
 
 ```rust
 /// Returned by IngestionClientTrait::checkpoint()
@@ -60,7 +60,7 @@ pub struct CheckpointEnvelope {
 ```rust
 #[async_trait]
 pub trait IngestionClientTrait: Send + Sync {
-    /// Fetch a checkpoint by sequence number (renamed from `fetch` in Protocol 124)
+    /// Fetch a checkpoint by sequence number (renamed from `fetch` in Protocol 119)
     async fn checkpoint(&self, checkpoint: u64) -> Result<Arc<CheckpointEnvelope>>;
 }
 ```
@@ -250,6 +250,16 @@ Since Protocol 118, the framework uses Adaptive Concurrency Control instead of f
 // No configuration needed — the framework adapts to your processor speed
 ```
 
+### Sequential pipeline tuning (1.71+)
+
+Both `checkpoint_lag` and `checkpoint_buffer_size` were **removed** in v1.71. Sequential pipelines now participate in the same adaptive ingestion concurrency system as concurrent pipelines.
+
+Available knobs:
+- `subscriber_channel_size` — per-pipeline, under the pipeline's `ingestion` section. Defaults to `max(num_cpus / 2, 4)`. Drives fetch concurrency via bounded-channel fill.
+- `pipeline-depth` — new in v1.72: lets a sequential pipeline keep building batches while one is flushing.
+
+> **Upgrade note (v1.72):** `rpc-index` DB version bumped to `4`. First start after upgrade triggers a full re-index of object history. Duration scales with object count — plan accordingly.
+
 ### Metrics & Monitoring
 
 The framework exposes Prometheus metrics automatically:
@@ -272,7 +282,9 @@ let service = Service::builder()
 
 | Version | Change |
 |---------|--------|
-| v1.72.2 (Protocol 124) | `IngestionClientTrait::fetch` → `checkpoint`; returns `CheckpointEnvelope` with `chain_id` |
+| v1.72 (Protocol 124) | `rpc-index` DB v4 — first start re-indexes full object history; added `pipeline-depth` for sequential pipelines |
+| v1.71 (Protocol 123) | `checkpoint_lag` / `checkpoint_buffer_size` **removed**; sequential pipelines use adaptive concurrency + `subscriber_channel_size` |
+| v1.69.1 (Protocol 119) | `IngestionClientTrait::fetch` → `checkpoint`; returns `CheckpointEnvelope` with `chain_id` |
 | v1.68 (Protocol 118) | `Processor::FANOUT` removed; Adaptive Concurrency Control replaces fixed workers |
 | v1.65.2 (Protocol 111) | `RemoteIngestionClient` renamed to `StoreIngestionClient`; supports any `ObjectStore` |
 | v1.63.3 (Protocol 107) | Indexer/ingestion services return `Service` instead of `JoinHandle<()>`; use `Service::main()` |

@@ -102,6 +102,14 @@ tests/red_team_round_{N}_{category}.move
 
 With `--keep-tests`, files persist in `tests/red-team/` directory for later review or extension.
 
+## Sender impersonation via `sui-fork` (v1.72+)
+
+`sui replay --forking-mode` plus `sui-fork` lets a red-teamer replay a target transaction under a chosen sender address — without that user's keys. Use to:
+- Confirm an exploit path is reachable from a specific privileged address.
+- Reproduce a victim's exact pre-state when validating a finding.
+
+See `sui-tester` for the base replay command. The red-team angle is using it on adversarial scenarios, not happy-path regressions.
+
 ## Integration with Other Skills
 
 - After red-team: Run `sui-security-guard` for static analysis complement

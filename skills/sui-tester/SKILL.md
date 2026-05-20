@@ -35,6 +35,19 @@ This skill provides comprehensive testing across all layers:
 - **Gas Re-benchmarking:** The New Move VM on testnet may produce different gas profiles compared to Protocol 118. If your tests assert specific gas values, re-run `sui move test --gas-limit` and update expected values.
 - **Decoded Object Inspection:** `sui client object` now shows decoded struct fields — useful for manual verification during integration tests.
 
+### Replay with sender impersonation (v1.72+)
+
+The new `sui-fork` tool plus `sui replay --forking-mode` lets you replay a historical transaction while impersonating an arbitrary sender — useful for reproducing user-reported bugs without their keys.
+
+```bash
+sui replay <tx-digest> \
+  --node https://graphql.devnet.sui.io/graphql \
+  --forking-mode impersonate \
+  --sender 0x<address>
+```
+
+Use this when an integration test needs to mimic real on-chain state under a specific signer.
+
 ## Quick Start
 
 ```bash
