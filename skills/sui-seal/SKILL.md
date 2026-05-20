@@ -9,49 +9,47 @@ description: Use when implementing data encryption, access control, or secrets m
 
 ## SDK Versions
 
-Targets: `@mysten/sui` ^2.0, `@mysten/seal` ^1.0. Last verified: 2026-05-20.
+Targets: `@mysten/seal` ^1.1, peer `@mysten/sui` ^2.16.2. Last verified: 2026-05-21.
 
-If you see `Cannot find module '@mysten/sui/client'` or `SuiClient is not exported`, you have mixed sui 1.x examples with sui 2.x install — `SuiClient` was removed in sui 2.x. Use `SuiGrpcClient` from `@mysten/sui/grpc` (recommended) or `SuiJsonRpcClient` from `@mysten/sui/jsonRpc`. See `sui-ts-sdk` skill for full migration.
+Seal is NOT a `$extend()` client extension. Always instantiate `new SealClient({ suiClient, serverConfigs, ... })` directly. The `suiClient` must be a v2.x `SuiGrpcClient` (from `@mysten/sui/grpc`) or `SuiJsonRpcClient` (from `@mysten/sui/jsonRpc`) — these satisfy the `SealCompatibleClient` interface.
 
-Do not mix `@mysten/sui@1.x` and `@2.x` in the same install. Run `npm ls @mysten/sui` before adding seal/walrus/dapp-kit packages — peer-deps will silently pull a second sui copy.
+Do not mix `@mysten/sui@1.x` and `@2.x` in the same install. Run `npm ls @mysten/sui` before adding seal/walrus/dapp-kit packages.
 
 ## What Seal Does
 
-Seal is a Decentralized Secrets Management (DSM) platform on SUI:
-
 1. **Encrypt** data client-side using Seal SDK
-2. **Define access policies** in Move smart contracts (who can decrypt, when, under what conditions)
-3. **Threshold decrypt** — key servers release key shares only when the on-chain policy approves
+2. **Define access policies** in Move smart contracts via `seal_approve*` entry functions
+3. **Threshold decrypt** — key servers release key shares only when the on-chain policy approves the supplied PTB
 4. **Storage agnostic** — encrypted blobs can live on Walrus, IPFS, S3, or anywhere
 
-Security guarantees:
+Security:
 - Privacy holds as long as fewer than `t` of `n` key servers are compromised
 - Liveness holds as long as at least `t` key servers are available
 
 ## Core Concepts
 
 | Concept | Description |
-|---------|-------------|
-| **Identity-Based Encryption (IBE)** | Data encrypted to an identity derived from on-chain policy |
+|---|---|
+| **Identity-Based Encryption (IBE)** | Data encrypted under an `id` derived from on-chain policy |
 | **Threshold Key Servers** | Distributed key management — no single point of failure |
-| **Session Keys** | Time-limited decryption credentials created per user session |
-| **Access Policy (Move)** | On-chain smart contract that gates decryption approval |
-| **Envelope Encryption** | Supports key rotation without re-encrypting data |
+| **Session Keys** | Time-limited decryption credentials signed by the user (personal message) |
+| **seal_approve PTB** | A built (not executed) PTB calling `seal_approve*` that key servers dry-run to authorize |
+| **Access Policy (Move)** | Move module exposing `seal_approve*(id, ...)` entry functions |
 
 ## Usage Flow
 
 ```
-1. App encrypts data with Seal SDK (client-side)
+1. App encrypts data with SealClient.encrypt({ packageId, id, threshold, data })
    ↓
-2. Encrypted blob stored (Walrus, IPFS, etc.)
+2. Encrypted blob (Uint8Array) stored on Walrus / IPFS / DB
    ↓
-3. User requests decryption
+3. User starts a session: SessionKey.create({ address, packageId, ttlMin, signer, suiClient })
    ↓
-4. Seal SDK creates SessionKey → sends to key servers
+4. App builds a Transaction that calls `${packageId}::policy::seal_approve_*` with the id
    ↓
-5. Key servers check on-chain Move policy
+5. tx.build({ client: suiClient, onlyTransactionKind: true }) → txBytes
    ↓
-6. If approved → key shares returned → client decrypts
+6. sealClient.decrypt({ data, sessionKey, txBytes }) → plaintext
 ```
 
 ## TypeScript SDK
@@ -60,132 +58,204 @@ Security guarantees:
 
 ```typescript
 import { SuiGrpcClient } from '@mysten/sui/grpc';
-import { seal } from '@aspect/seal-sdk';
+import { SealClient } from '@mysten/seal';
 
-const client = new SuiGrpcClient({ network: 'testnet' });
+const suiClient = new SuiGrpcClient({ network: 'testnet' });
 
-// Configure Seal with key server endpoints
-const sealClient = client.extend(
-  seal({
-    serverConfigs: [
-      { url: 'https://seal-ks-1.example.com', weight: 1 },
-      { url: 'https://seal-ks-2.example.com', weight: 1 },
-      { url: 'https://seal-ks-3.example.com', weight: 1 },
-    ],
-    verifyKeyServers: true,
-    timeout: 10000,
-  })
-);
+// Each entry is a key server *object ID* on-chain — not a URL.
+// weight controls how that server counts toward the threshold.
+const sealClient = new SealClient({
+  suiClient,
+  serverConfigs: [
+    { objectId: '0xKEYSERVER_OBJ_1', weight: 1 },
+    { objectId: '0xKEYSERVER_OBJ_2', weight: 1 },
+    { objectId: '0xKEYSERVER_OBJ_3', weight: 1 },
+    // optional fields per entry:
+    // apiKeyName, apiKey, aggregatorUrl (required for committee-mode servers)
+  ],
+  verifyKeyServers: true,
+  timeout: 10_000,
+});
 ```
 
 ### Encrypt
 
 ```typescript
-// Encrypt data — the policyObjectId determines who can decrypt
-const encrypted = await sealClient.seal.encrypt({
+import { fromHex } from '@mysten/sui/utils';
+
+const PACKAGE_ID = '0xYOUR_POLICY_PKG';
+// `id` is the IBE identity. Convention: bytes that the on-chain
+// seal_approve* function will validate (e.g. allowlist object id || nonce).
+const id = fromHex('deadbeef'); // hex string of the identity bytes
+
+const { encryptedObject, key } = await sealClient.encrypt({
+  threshold: 2,                    // 2-of-3 key servers
+  packageId: PACKAGE_ID,
+  id: '0xdeadbeef',                // hex-encoded identity string
   data: new TextEncoder().encode('secret content'),
-  policyObjectId: '<POLICY_OBJECT_ID>',
-  threshold: 2, // 2-of-3 key servers needed
+  // optional: aad, kemType, demType (DemType.AesGcm256 by default)
 });
 
-// Store encrypted blob (e.g., on Walrus)
-const blobId = await uploadToWalrus(encrypted);
+// `encryptedObject` is Uint8Array (BCS-serialized) — store wherever you want.
+// `key` is the raw symmetric key — DO NOT share; only useful for backup/escrow.
+const blobId = await uploadToWalrus(encryptedObject);
 ```
 
-### Create Session Key & Decrypt
+### Decrypt — full round-trip
 
 ```typescript
-import { SessionKey } from '@aspect/seal-sdk';
+import { SessionKey } from '@mysten/seal';
+import { Transaction } from '@mysten/sui/transactions';
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 
-// Create a time-limited session key for decryption
+// 1. Create a session key. The user signs a personal message under the hood
+//    (signer can be any Signer — Ed25519, EnokiSigner, PasskeyKeypair, etc.).
+const keypair = Ed25519Keypair.generate();
 const sessionKey = await SessionKey.create({
-  address: userAddress,
-  packageId: '<ACCESS_POLICY_PACKAGE>',
-  ttlMs: 600_000, // 10 minutes
+  address: keypair.toSuiAddress(),
+  packageId: PACKAGE_ID,
+  ttlMin: 10,           // minutes, NOT ms
   signer: keypair,
-  client: sealClient,
+  suiClient,
 });
 
-// Decrypt — key servers verify the on-chain policy before releasing shares
-const decrypted = await sealClient.seal.decrypt({
-  encrypted: encryptedBlob,
+// 2. Build (don't execute) the seal_approve PTB. The key servers will
+//    dry-run this transaction; if it succeeds, they release the share.
+const tx = new Transaction();
+tx.moveCall({
+  target: `${PACKAGE_ID}::policy::seal_approve_allowlist`,
+  arguments: [
+    tx.pure.vector('u8', Array.from(fromHex('deadbeef'))), // the id
+    tx.object('0xALLOWLIST_OBJ'),
+    // ...any other args your seal_approve_* function needs
+  ],
+});
+const txBytes = await tx.build({
+  client: suiClient,
+  onlyTransactionKind: true,   // REQUIRED — TransactionKind, not full tx
+});
+
+// 3. Fetch the encrypted blob and decrypt.
+const encryptedBlob: Uint8Array = await fetchFromWalrus(blobId);
+const plaintext = await sealClient.decrypt({
+  data: encryptedBlob,
   sessionKey,
+  txBytes,
 });
 
-const content = new TextDecoder().decode(decrypted);
+console.log(new TextDecoder().decode(plaintext));
 ```
 
-## Move Access Policy Examples
+### Batch decrypts (same session, many ids)
 
-Access policies are Move modules that Seal key servers call to verify authorization.
+```typescript
+// Pre-fetch keys once, then decrypt many objects cheaply.
+await sealClient.fetchKeys({
+  ids: ['0xdeadbeef', '0xcafebabe'],
+  txBytes,           // a single PTB that calls seal_approve* for all ids
+  sessionKey,
+  threshold: 2,
+});
 
-### Token-Gated Access
+for (const blob of blobs) {
+  const pt = await sealClient.decrypt({ data: blob, sessionKey, txBytes });
+  // ...
+}
+```
+
+### Persisting a SessionKey (e.g. across page reloads)
+
+```typescript
+const exported = sessionKey.export();          // ExportedSessionKey (JSON-safe)
+localStorage.setItem('seal-sk', JSON.stringify(exported));
+
+// Later:
+const restored = SessionKey.import(
+  JSON.parse(localStorage.getItem('seal-sk')!),
+  suiClient,
+  keypair, // optional, only needed if you must re-sign
+);
+```
+
+### Parsing an encrypted blob's metadata
+
+```typescript
+import { EncryptedObject } from '@mysten/seal';
+
+const meta = EncryptedObject.parse(encryptedBlob);
+// → { version, packageId, id, services, threshold, ciphertext, ... }
+```
+
+## Move Access Policy
+
+The on-chain side exposes `seal_approve*` entry functions. The function name **must** start with `seal_approve`. The first argument is always the IBE `id` as `vector<u8>`. The body should `abort` if access is denied — success means "release the key".
+
+### Token-gated (NFT holder) example
 
 ```move
-/// Only holders of a specific NFT collection can decrypt
 module example::token_gate {
-    use sui::object;
+    use sui::object::{Self, UID, ID};
 
-    struct GatePolicy has key {
+    public struct GatePolicy has key {
         id: UID,
         required_collection: ID,
     }
 
-    /// Seal key servers call this — returns true if caller holds the NFT
-    public fun authorize(
+    /// Seal key servers dry-run this. Aborts → no key. Returns → key released.
+    /// `id` is the IBE identity supplied by the decryptor (must match what was encrypted).
+    public fun seal_approve_holder(
+        id: vector<u8>,
         policy: &GatePolicy,
-        ctx: &TxContext,
-    ): bool {
-        // Verify caller owns an object from required_collection
-        // Implementation depends on your NFT structure
-        true
+        nft: &SomeNFT,             // caller passes their NFT
+        _ctx: &TxContext,
+    ) {
+        assert!(some_nft::collection(nft) == policy.required_collection, 0);
+        // (optionally bind `id` to `object::id(nft)` so each NFT has its own key)
     }
 }
 ```
 
-### Time-Locked Access
+### Time-locked example
 
 ```move
-/// Content unlocks after a specific epoch
 module example::time_lock {
     use sui::clock::Clock;
 
-    struct TimeLockPolicy has key {
-        id: UID,
-        unlock_epoch: u64,
-    }
+    public struct TimeLockPolicy has key { id: UID, unlock_ms: u64 }
 
-    public fun authorize(
+    public fun seal_approve_after(
+        _id: vector<u8>,
         policy: &TimeLockPolicy,
         clock: &Clock,
-    ): bool {
-        clock::timestamp_ms(clock) >= policy.unlock_epoch
+    ) {
+        assert!(clock::timestamp_ms(clock) >= policy.unlock_ms, 0);
     }
 }
 ```
 
-### Pay-to-Decrypt
+### Pay-to-decrypt (split: payment runs as a real tx, approval as dry-run)
 
 ```move
-/// User must pay to decrypt content
-module example::pay_to_decrypt {
-    use sui::coin::Coin;
+module example::paywall {
+    use sui::coin::{Self, Coin};
     use sui::sui::SUI;
 
-    struct PayPolicy has key {
-        id: UID,
-        price: u64,
-        recipient: address,
+    public struct Receipt has key, store { id: UID, owner: address, paid_for: vector<u8> }
+
+    /// Real transaction: user pays, gets a Receipt object.
+    public entry fun pay(price: u64, mut payment: Coin<SUI>, paid_for: vector<u8>, ctx: &mut TxContext) {
+        assert!(coin::value(&payment) >= price, 0);
+        // ...transfer payment, mint receipt...
     }
 
-    public fun authorize_and_pay(
-        policy: &PayPolicy,
-        payment: Coin<SUI>,
-        ctx: &mut TxContext,
-    ): bool {
-        assert!(coin::value(&payment) >= policy.price, 0);
-        transfer::public_transfer(payment, policy.recipient);
-        true
+    /// seal_approve runs against the user's owned Receipt.
+    public fun seal_approve_with_receipt(
+        id: vector<u8>,
+        receipt: &Receipt,
+        ctx: &TxContext,
+    ) {
+        assert!(receipt.owner == tx_context::sender(ctx), 0);
+        assert!(receipt.paid_for == id, 0);
     }
 }
 ```
@@ -193,39 +263,35 @@ module example::pay_to_decrypt {
 ## Common Use Cases
 
 | Use Case | Policy Type |
-|----------|-------------|
-| Premium content / paywall | Pay-to-decrypt |
-| NFT-gated community content | Token-gate |
-| Time-release announcements | Time-lock |
+|---|---|
+| Premium content / paywall | Receipt-based `seal_approve` |
+| NFT-gated community content | Holder check |
+| Time-release announcements | Clock-based |
 | Private DAO votes | Membership check |
 | Encrypted NFT metadata | Owner-only |
-| Subscription content | Token balance check |
 
 ## Best Practices
 
-- **Store encrypted blobs on Walrus** for decentralized, censorship-resistant storage
-- **Use envelope encryption** for content that needs key rotation
-- **Set reasonable SessionKey TTL** — shorter is safer (minutes, not hours)
-- **Test policies on testnet** with Seal's testnet key servers before mainnet
-- **Handle decryption failures gracefully** — key servers may be temporarily unavailable
+- Store encrypted blobs on Walrus for decentralized storage
+- Keep `ttlMin` short (5–15 min); rotate session keys
+- Test policies against testnet key servers before mainnet
+- Always retry with at least `threshold` servers reachable
+- Bind the IBE `id` to something on-chain (object ID, content hash) so re-using a key isn't possible
 
 ## Common Mistakes
 
-❌ **Storing unencrypted data and relying only on access control**
-- Seal encrypts data client-side — the encrypted blob is safe even if storage is public
+**`sealClient.seal.encrypt(...)` / `client.extend(seal())` — neither exists.**
+- Seal exports a `SealClient` class. There is no `.seal` namespace and no `$extend()` factory.
+- Use `new SealClient({ suiClient, serverConfigs })`, call `sealClient.encrypt(...)` / `.decrypt(...)` directly.
 
-❌ **Hardcoding key server URLs**
-- Use configuration so you can switch between testnet/mainnet servers
+**Calling `decrypt` without `txBytes`.**
+- `txBytes` is mandatory. It must be a `TransactionKind` (`tx.build({ client, onlyTransactionKind: true })`) that calls a `seal_approve*` Move function for the given `id`. Key servers dry-run this PTB; if it aborts, the key is denied.
 
-❌ **Overly permissive policies**
-- A policy that always returns `true` defeats the purpose — test authorization logic
-
-❌ **Not handling threshold unavailability**
-- If fewer than `t` key servers respond, decryption fails — implement retry with timeout
+**`KeyServerConfig.url` — wrong field.**
+- Servers are referenced by their on-chain object ID: `{ objectId: '0x…', weight: 1 }`. There is no `url` field. (For committee-mode servers, supply `aggregatorUrl`.)
 
 ## Resources
 
 - [Seal Documentation](https://seal.mystenlabs.com/)
-- [Seal SDK (TypeScript)](https://sdk.mystenlabs.com/seal)
+- [Seal SDK reference](https://sdk.mystenlabs.com/seal)
 - [GitHub — MystenLabs/seal](https://github.com/MystenLabs/seal)
-- [Seal Mainnet Launch Blog](https://www.mystenlabs.com/blog/seal-mainnet-launch-privacy-access-control)

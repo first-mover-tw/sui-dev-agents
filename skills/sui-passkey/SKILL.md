@@ -5,201 +5,191 @@ description: Use when implementing WebAuthn passkeys or biometric authentication
 
 # SUI Passkey Integration
 
-**Passwordless authentication using WebAuthn and device biometrics.**
+**Passwordless wallets via WebAuthn / SIP-9.**
 
-## Overview
+## SDK Versions
 
-Passkey provides:
-- Biometric authentication (Face ID, Touch ID, Windows Hello)
-- No passwords or seed phrases
-- Hardware-backed security
-- Cross-device sync (via iCloud, Google)
+Targets: `@mysten/sui` ^2.0 (passkey sub-export at `@mysten/sui/keypairs/passkey`). Last verified: 2026-05-21.
+
+> Do **NOT** import passkey symbols from `@mysten/wallet-standard`. wallet-standard exports zero passkey APIs. Everything passkey-related lives in `@mysten/sui/keypairs/passkey`.
+
+## Real exports
+
+```typescript
+import {
+  BrowserPasskeyProvider,         // class implementing PasskeyProvider
+  PasskeyKeypair,                  // extends Signer
+  findCommonPublicKey,
+  type PasskeyProvider,            // interface, NOT a class
+  type BrowserPasswordProviderOptions,
+  PasskeyPublicKey,
+} from '@mysten/sui/keypairs/passkey';
+```
 
 ## Use Cases
 
-- Consumer apps requiring easy login
-- Mobile-first applications
-- Security-critical applications
-- Enterprise SUI apps
+- Consumer apps wanting Face ID / Touch ID login
+- Mobile-first dApps
+- No seed-phrase onboarding flow
 
-## Quick Start
+## First-time registration
 
-### Register Passkey
+Use `PasskeyKeypair.getPasskeyInstance(provider)` — this invokes the browser passkey UI, creates a fresh credential, and returns a signer.
 
 ```typescript
-import { PasskeyProvider } from '@mysten/wallet-standard';
+import {
+  BrowserPasskeyProvider,
+  PasskeyKeypair,
+  type BrowserPasswordProviderOptions,
+} from '@mysten/sui/keypairs/passkey';
 
-async function registerPasskey(username: string) {
-  const provider = new PasskeyProvider();
+async function registerPasskey() {
+  const provider = new BrowserPasskeyProvider('My SUI App', {
+    rpName: 'My SUI App',
+    rpId: window.location.hostname,
+    authenticatorSelection: {
+      authenticatorAttachment: 'platform',   // Face ID / Touch ID / Windows Hello
+      userVerification: 'required',
+      residentKey: 'required',
+    },
+  } satisfies BrowserPasswordProviderOptions);
 
-  // Create passkey credential
-  const credential = await navigator.credentials.create({
-    publicKey: {
-      challenge: new Uint8Array(32), // Random challenge
-      rp: {
-        name: 'My SUI App',
-        id: window.location.hostname
-      },
-      user: {
-        id: new Uint8Array(16),
-        name: username,
-        displayName: username
-      },
-      pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
-      authenticatorSelection: {
-        authenticatorAttachment: 'platform',
-        userVerification: 'required'
-      }
-    }
+  // Triggers the OS passkey prompt and returns a Signer.
+  const signer = await PasskeyKeypair.getPasskeyInstance(provider);
+
+  const address = signer.toSuiAddress();
+  const publicKey = signer.getPublicKey().toRawBytes();
+  const credentialId = signer.getCredentialId();         // Uint8Array | undefined
+
+  // Persist the public key + credentialId so you can rebuild the signer later
+  // WITHOUT a fresh registration prompt.
+  localStorage.setItem('pk_address', address);
+  localStorage.setItem('pk_pubkey', Buffer.from(publicKey).toString('base64'));
+  if (credentialId) {
+    localStorage.setItem(
+      'pk_credId',
+      Buffer.from(credentialId).toString('base64'),
+    );
+  }
+
+  return { signer, address };
+}
+```
+
+## Returning user — rebuild signer without re-registering
+
+```typescript
+function restorePasskeySigner(): PasskeyKeypair {
+  const provider = new BrowserPasskeyProvider('My SUI App', {
+    rpName: 'My SUI App',
+    rpId: window.location.hostname,
   });
 
-  // Derive SUI address from passkey
-  const address = provider.getAddress(credential);
+  const publicKey = Buffer.from(localStorage.getItem('pk_pubkey')!, 'base64');
+  const credIdB64 = localStorage.getItem('pk_credId');
+  const credentialId = credIdB64
+    ? new Uint8Array(Buffer.from(credIdB64, 'base64'))
+    : undefined;
 
-  return { credential, address };
+  return new PasskeyKeypair(new Uint8Array(publicKey), provider, credentialId);
 }
 ```
 
-### Authenticate with Passkey
+## Recover wallet when you only have the credential (lost the public key)
+
+Sign two distinct messages, then intersect candidate public keys.
 
 ```typescript
-async function authenticatePasskey() {
-  const credential = await navigator.credentials.get({
-    publicKey: {
-      challenge: new Uint8Array(32),
-      rpId: window.location.hostname,
-      userVerification: 'required'
-    }
-  });
+import { PasskeyKeypair, findCommonPublicKey } from '@mysten/sui/keypairs/passkey';
 
-  return credential;
-}
+const provider = new BrowserPasskeyProvider('My SUI App', {
+  rpName: 'My SUI App',
+  rpId: window.location.hostname,
+});
+
+const msg1 = new TextEncoder().encode('recover-1');
+const msg2 = new TextEncoder().encode('recover-2');
+
+const candidates1 = await PasskeyKeypair.signAndRecover(provider, msg1);
+const candidates2 = await PasskeyKeypair.signAndRecover(provider, msg2);
+const realPubKey = findCommonPublicKey(candidates1, candidates2);
+
+const signer = new PasskeyKeypair(realPubKey.toRawBytes(), provider);
 ```
 
-### Sign Transaction
+## Sign + execute a transaction
 
 ```typescript
-async function signWithPasskey(tx: Transaction) {
-  const provider = new PasskeyProvider();
+import { Transaction } from '@mysten/sui/transactions';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-  // Get passkey credential
-  const credential = await authenticatePasskey();
+const suiClient = new SuiGrpcClient({ network: 'testnet' });
+const signer = restorePasskeySigner();
 
-  // Sign transaction
-  const signature = await provider.signTransaction(tx, credential);
+const tx = new Transaction();
+tx.setSender(signer.toSuiAddress());
+tx.transferObjects([tx.gas], '0xRECIPIENT');
 
-  return signature;
-}
+// Passkey signing invokes the OS biometric prompt:
+const { bytes, signature } = await tx.sign({ client: suiClient, signer });
+
+await suiClient.core.executeTransaction({ transaction: bytes, signature });
 ```
 
-## React Hook
+## React hook
 
 ```typescript
 function usePasskey() {
-  const [address, setAddress] = useState<string | null>(null);
-  const [isRegistered, setIsRegistered] = useState(false);
+  const [signer, setSigner] = useState<PasskeyKeypair | null>(null);
 
-  const register = async (username: string) => {
-    const { credential, address } = await registerPasskey(username);
+  const register = useCallback(async () => {
+    const { signer } = await registerPasskey();
+    setSigner(signer);
+  }, []);
 
-    // Store credential ID
-    localStorage.setItem('passkey_credential_id', credential.id);
-    localStorage.setItem('passkey_address', address);
+  const restore = useCallback(() => {
+    setSigner(restorePasskeySigner());
+  }, []);
 
-    setAddress(address);
-    setIsRegistered(true);
-  };
-
-  const authenticate = async () => {
-    const credential = await authenticatePasskey();
-
-    if (credential) {
-      const storedAddress = localStorage.getItem('passkey_address');
-      setAddress(storedAddress);
-    }
-  };
-
-  const signTransaction = async (tx: Transaction) => {
-    return await signWithPasskey(tx);
-  };
-
-  return { address, isRegistered, register, authenticate, signTransaction };
+  return { signer, address: signer?.toSuiAddress(), register, restore };
 }
 ```
 
-## Move Contract
+## Move contract
+
+Passkey addresses are regular SUI addresses; nothing special on-chain.
 
 ```move
-// Passkey addresses are regular SUI addresses
-// No special Move code needed!
-
-public fun create_profile(
-    name: String,
-    ctx: &mut TxContext
-) {
-    let user = tx_context::sender(ctx);  // Works with passkey!
-    // ...
+public fun create_profile(name: String, ctx: &mut TxContext) {
+    let user = tx_context::sender(ctx);  // works with passkey
 }
 ```
 
-## Best Practices
+## Browser compatibility
 
-- Check WebAuthn browser support
-- Fallback to traditional wallet
-- Handle credential loss scenarios
-- Test on multiple devices
-- Provide backup authentication
-
-## Browser Compatibility
-
-- ✅ Chrome/Edge (Windows, macOS, Android)
-- ✅ Safari (macOS, iOS)
-- ✅ Firefox (Windows, macOS)
-- ⚠️ Check mobile browser support
+- Chrome / Edge (Windows, macOS, Android)
+- Safari (macOS, iOS 16+)
+- Firefox (Win/macOS)
+- Check `window.PublicKeyCredential` before invoking.
 
 ## Common Mistakes
 
-❌ **Not checking WebAuthn browser support**
-- **Problem:** App crashes on unsupported browsers
-- **Fix:** Check `window.PublicKeyCredential` before registering passkey
+**`import { PasskeyProvider } from '@mysten/wallet-standard'` — wrong package, and `PasskeyProvider` is an interface, not a class.**
+- Import `BrowserPasskeyProvider` (the class) from `@mysten/sui/keypairs/passkey`.
 
-❌ **No fallback authentication method**
-- **Problem:** Users locked out if passkey device is lost
-- **Fix:** Offer traditional wallet connection as fallback
+**Calling `new PasskeyKeypair()` with no arguments.**
+- The constructor requires `(publicKey, provider, credentialId?)`. For first-time creation use `await PasskeyKeypair.getPasskeyInstance(provider)`.
 
-❌ **Storing credential ID without encryption**
-- **Problem:** XSS attacks can steal credential reference
-- **Fix:** Encrypt credential ID before localStorage, or use sessionStorage
+**Re-prompting registration on every login.**
+- Persist `getPublicKey().toRawBytes()` + `getCredentialId()` and rebuild via `new PasskeyKeypair(pk, provider, credId)`. If you lost the pubkey, use `signAndRecover` + `findCommonPublicKey`.
 
-❌ **Not handling "user cancelled" flow**
-- **Problem:** App stuck in loading state
-- **Fix:** Catch AbortError, show "Authentication cancelled" message
+**Missing `authenticatorAttachment: 'platform'`.**
+- Without it, the browser may demand a USB security key instead of Face ID / Touch ID.
 
-❌ **Using wrong authenticator attachment**
-- **Problem:** Requires USB key instead of platform biometrics
-- **Fix:** Set `authenticatorAttachment: 'platform'` for Face ID/Touch ID
+**Forgetting `tx.setSender(signer.toSuiAddress())`.**
+- The signature won't verify against an unset / mismatched sender.
 
-❌ **Not testing on multiple devices**
-- **Problem:** Works on desktop, fails on mobile
-- **Fix:** Test registration and authentication on iOS, Android, desktop
+## Resources
 
-❌ **Missing user verification requirement**
-- **Problem:** Security risk, no biometric check
-- **Fix:** Set `userVerification: 'required'` for all operations
-
-❌ **Not providing credential recovery flow**
-- **Problem:** Users lose access if they reset device
-- **Fix:** Implement account recovery via email or backup passkey
-
-Query Passkey docs:
-```typescript
-const passkeyInfo = await sui_docs_query({
-  type: "github",
-  target: "sui-core",
-  query: "passkey WebAuthn implementation examples"
-});
-```
-
----
-
-**Secure, user-friendly authentication with no passwords!**
+- [SIP-9: Passkey signature scheme](https://github.com/sui-foundation/sips/blob/main/sips/sip-9.md)
+- API source: `@mysten/sui/keypairs/passkey`

@@ -7,7 +7,8 @@ import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { walrus } from '@mysten/walrus';
 import { suins } from '@mysten/suins';
 import { deepbook } from '@mysten/deepbook';
-import { seal } from '@mysten/seal';
+// NOTE: @mysten/seal does NOT provide a `$extend()` factory.
+// Use `new SealClient(...)` directly — see the sui-seal skill.
 import { zksend } from '@mysten/zksend';
 
 // Chain multiple extensions

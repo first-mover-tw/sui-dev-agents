@@ -7,236 +7,203 @@ description: Use when implementing zkLogin on SUI — OAuth login (Google, Faceb
 
 **OAuth-based wallet authentication with zero-knowledge proofs.**
 
+## SDK Versions
+
+Targets: `@mysten/sui` ^2.0 (zklogin sub-export — `@mysten/zklogin` is **deprecated and merged into `@mysten/sui`**). Last verified: 2026-05-21.
+
+> If you see `Cannot find module '@mysten/zklogin'`, the package was retired. Install only `@mysten/sui@^2` and import from `@mysten/sui/zklogin`. There is no `ZkLoginProvider` class — the API is functional.
+
 ## Overview
 
-zkLogin allows users to:
-- Login with Google, Facebook, Twitch, etc.
-- No seed phrases or private keys to manage
-- Wallet address derived from OAuth sub (user ID)
-- Zero-knowledge proofs for privacy
+zkLogin lets users:
+- Log in with Google / Facebook / Twitch / Apple
+- No seed phrases — wallet derived from `(iss, aud, sub, salt)`
+- ZK proof hides which OAuth user owns which SUI address
 
-## Use Cases
-
-- User onboarding (no wallet required)
-- Social login for dApps
-- Gaming platforms
-- Mobile apps
-- Mainstream user applications
-
-## Quick Start
-
-### Frontend Setup
+## Real API surface (from `@mysten/sui/zklogin`)
 
 ```typescript
-import { ZkLoginProvider } from '@mysten/zklogin';
-
-const zkLogin = new ZkLoginProvider({
-  network: 'testnet',
-  provider: 'google' // or 'facebook', 'twitch'
-});
-
-// 1. Initiate login
-async function login() {
-  const { url, nonce } = await zkLogin.getLoginUrl();
-
-  // Store nonce for later
-  sessionStorage.setItem('zklogin_nonce', nonce);
-
-  // Redirect to OAuth provider
-  window.location.href = url;
-}
-
-// 2. Handle callback
-async function handleCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const jwt = params.get('id_token');
-  const nonce = sessionStorage.getItem('zklogin_nonce');
-
-  // Generate ZK proof
-  const proof = await zkLogin.getProof(jwt, nonce);
-
-  // Get SUI address
-  const address = await zkLogin.getAddress(proof);
-
-  return { proof, address };
-}
-
-// 3. Sign transactions
-async function signTransaction(tx: Transaction) {
-  const signedTx = await zkLogin.signTransaction(tx);
-  return signedTx;
-}
+import {
+  generateRandomness,
+  generateNonce,
+  getExtendedEphemeralPublicKey,
+  jwtToAddress,
+  computeZkLoginAddress,
+  genAddressSeed,
+  getZkLoginSignature,
+  decodeJwt,
+} from '@mysten/sui/zklogin';
 ```
 
-### Move Contract Support
+There is **no** `ZkLoginProvider`, no `.getLoginUrl()`, no `.getProof()`. You drive the OAuth redirect yourself and call Mysten's prover service over HTTP.
+
+## End-to-end flow
+
+```
+1. ephemeral keypair (Ed25519) + maxEpoch + randomness  →  nonce
+2. redirect to OAuth provider with nonce in `nonce` param
+3. receive JWT (id_token)
+4. jwt + user salt  →  zkLogin address
+5. POST {jwt, extendedEphemeralPublicKey, maxEpoch, jwtRandomness, salt, keyClaimName} → prover → ZK proof
+6. sign tx digest with ephemeral keypair
+7. getZkLoginSignature({inputs: {...proof, addressSeed}, maxEpoch, userSignature}) → serialized signature
+8. submit tx with that signature
+```
+
+### Step 1 — nonce + ephemeral keypair
+
+```typescript
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
+import {
+  generateNonce,
+  generateRandomness,
+  getExtendedEphemeralPublicKey,
+} from '@mysten/sui/zklogin';
+
+const suiClient = new SuiGrpcClient({ network: 'devnet' });
+
+const ephemeral = Ed25519Keypair.generate();
+const { epoch } = await suiClient.core.getCurrentEpoch();
+const maxEpoch = Number(epoch) + 2;                     // valid for ~2 epochs
+const randomness = generateRandomness();                // string
+const nonce = generateNonce(ephemeral.getPublicKey(), maxEpoch, randomness);
+
+// Persist these — you need them after the OAuth redirect.
+sessionStorage.setItem('zk_ephemeral', ephemeral.export().privateKey);
+sessionStorage.setItem('zk_maxEpoch', String(maxEpoch));
+sessionStorage.setItem('zk_randomness', randomness);
+```
+
+### Step 2 — redirect to OAuth provider
+
+```typescript
+const params = new URLSearchParams({
+  client_id: GOOGLE_CLIENT_ID,
+  redirect_uri: 'http://localhost:3000/callback',
+  response_type: 'id_token',
+  scope: 'openid email',
+  nonce,                                                 // critical
+});
+window.location.href =
+  `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+```
+
+### Step 3–4 — JWT → address
+
+```typescript
+import { jwtToAddress, decodeJwt } from '@mysten/sui/zklogin';
+
+const jwt = new URLSearchParams(window.location.hash.slice(1)).get('id_token')!;
+
+// Salt should be fetched from your salt service (per-user, secret).
+// For demos a fixed salt is fine; production needs per-user salts.
+const userSalt = await fetchSaltForUser(jwt);            // string or bigint
+
+const address = jwtToAddress(jwt, userSalt, /*legacy*/ false);
+```
+
+### Step 5 — fetch ZK proof from prover
+
+```typescript
+const ephemeral = Ed25519Keypair.fromSecretKey(
+  sessionStorage.getItem('zk_ephemeral')!,
+);
+const maxEpoch = Number(sessionStorage.getItem('zk_maxEpoch'));
+const randomness = sessionStorage.getItem('zk_randomness')!;
+
+const extendedEphemeralPublicKey = getExtendedEphemeralPublicKey(
+  ephemeral.getPublicKey(),
+);
+
+const proofRes = await fetch('https://prover-dev.mystenlabs.com/v1', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jwt,
+    extendedEphemeralPublicKey,
+    maxEpoch,
+    jwtRandomness: randomness,
+    salt: userSalt,
+    keyClaimName: 'sub',
+  }),
+});
+const partialZkLoginSignature = await proofRes.json();
+// → { proofPoints, issBase64Details, headerBase64 }
+```
+
+### Step 6–7 — sign + assemble zkLogin signature
+
+```typescript
+import { Transaction } from '@mysten/sui/transactions';
+import { genAddressSeed, getZkLoginSignature } from '@mysten/sui/zklogin';
+import { decodeJwt } from '@mysten/sui/zklogin';
+
+const tx = new Transaction();
+tx.setSender(address);
+// ...tx.moveCall(...) etc.
+
+const { bytes, signature: userSignature } =
+  await tx.sign({ client: suiClient, signer: ephemeral });
+
+const decoded = decodeJwt(jwt);
+const addressSeed = genAddressSeed(
+  BigInt(userSalt),
+  'sub',
+  decoded.sub!,
+  decoded.aud as string,
+).toString();
+
+const zkLoginSignature = getZkLoginSignature({
+  inputs: { ...partialZkLoginSignature, addressSeed },
+  maxEpoch,
+  userSignature,
+});
+
+const result = await suiClient.core.executeTransaction({
+  transaction: bytes,
+  signature: zkLoginSignature,
+});
+```
+
+## Move contract support
+
+No special Move code is needed. zkLogin addresses are regular SUI addresses — `tx_context::sender(ctx)` returns them like any other.
 
 ```move
-// No special Move code needed!
-// zkLogin addresses are regular SUI addresses
-// Use tx_context::sender(ctx) as normal
-
-public fun create_profile(
-    name: String,
-    ctx: &mut TxContext
-) {
-    let user = tx_context::sender(ctx);  // Works with zkLogin!
-
-    // Create user profile
+public fun create_profile(name: String, ctx: &mut TxContext) {
+    let user = tx_context::sender(ctx);  // works with zkLogin
     // ...
 }
 ```
 
-## Full OAuth Flow
+## Security considerations
 
-```typescript
-// Complete zkLogin implementation
-
-import { ZkLoginProvider, generateNonce } from '@mysten/zklogin';
-import { SuiGrpcClient } from '@mysten/sui/grpc';
-
-class ZkLoginAuth {
-  private provider: ZkLoginProvider;
-  private client: SuiGrpcClient;
-
-  constructor() {
-    this.provider = new ZkLoginProvider({
-      network: 'testnet',
-      provider: 'google'
-    });
-    this.client = new SuiGrpcClient({ network: 'testnet' });
-  }
-
-  async login() {
-    // Generate nonce
-    const nonce = generateNonce();
-    localStorage.setItem('zklogin_nonce', nonce);
-
-    // Get OAuth URL
-    const authUrl = this.provider.getAuthUrl({
-      nonce,
-      redirectUrl: 'http://localhost:3000/callback'
-    });
-
-    // Redirect
-    window.location.href = authUrl;
-  }
-
-  async handleCallback() {
-    const params = new URLSearchParams(window.location.search);
-    const jwt = params.get('id_token');
-    const nonce = localStorage.getItem('zklogin_nonce');
-
-    if (!jwt || !nonce) {
-      throw new Error('Missing JWT or nonce');
-    }
-
-    // Generate ZK proof
-    const proof = await this.provider.getProof(jwt, nonce);
-
-    // Derive address
-    const address = this.provider.getAddress(proof);
-
-    // Store session
-    localStorage.setItem('zklogin_proof', JSON.stringify(proof));
-    localStorage.setItem('zklogin_address', address);
-
-    return { address, proof };
-  }
-
-  async signAndExecuteTransaction(tx: Transaction) {
-    const proof = JSON.parse(localStorage.getItem('zklogin_proof')!);
-
-    const signed = await this.provider.signTransaction(tx, proof);
-
-    const result = await this.client.core.executeTransaction({
-      transaction: signed,
-      signature: proof.signature
-    });
-
-    return result;
-  }
-}
-```
-
-## React Hook
-
-```typescript
-function useZkLogin() {
-  const [address, setAddress] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const login = async (provider: 'google' | 'facebook') => {
-    setIsLoading(true);
-    const zkLogin = new ZkLoginProvider({ network: 'testnet', provider });
-
-    const { url, nonce } = await zkLogin.getLoginUrl();
-    sessionStorage.setItem('nonce', nonce);
-
-    window.location.href = url;
-  };
-
-  const handleCallback = async () => {
-    const auth = new ZkLoginAuth();
-    const { address } = await auth.handleCallback();
-    setAddress(address);
-    setIsLoading(false);
-  };
-
-  return { address, login, handleCallback, isLoading };
-}
-```
-
-## Security Considerations
-
-- **NEVER** expose OAuth client secrets in frontend
-- Always validate JWT signatures
-- Use secure nonce generation
-- Implement session timeout
-- Store proofs securely (encrypted storage)
-
-## Best Practices
-
-- Support multiple OAuth providers
-- Fallback to traditional wallet connection
-- Clear session on logout
-- Handle token expiration
-- Provide visual feedback during auth
+- Keep OAuth client secrets server-side; use PKCE / implicit flow for SPAs.
+- Always validate JWT signature server-side before trusting it for high-value ops.
+- Generate a fresh `randomness` (and therefore nonce) per login attempt.
+- Persist the ephemeral key only for its short lifetime; rotate when `maxEpoch` passes.
+- User salt is sensitive — leaking it links the OAuth identity to the on-chain address. Store server-side per user.
 
 ## Common Mistakes
 
-❌ **Exposing OAuth client secret in frontend**
-- **Problem:** Security breach, anyone can impersonate your app
-- **Fix:** Keep client secret server-side, use PKCE flow for frontend
+**`import { ZkLoginProvider } from '@mysten/zklogin'` — both the symbol and the package are wrong.**
+- Install `@mysten/sui@^2`, import from `@mysten/sui/zklogin`, use the functional API above.
 
-❌ **Not validating JWT signature**
-- **Problem:** Forged tokens, authentication bypass
-- **Fix:** Always verify JWT with provider's public key
+**Skipping `extendedEphemeralPublicKey` when calling the prover.**
+- The prover requires the *extended* public key; pass `getExtendedEphemeralPublicKey(ephemeral.getPublicKey())`, not the raw key.
 
-❌ **Reusing nonce across sessions**
-- **Problem:** Replay attacks possible
-- **Fix:** Generate fresh nonce for each login attempt
+**Using `jwt.sub` directly as `addressSeed`.**
+- The seed is `genAddressSeed(salt, 'sub', sub, aud)` — a Poseidon hash. Using the raw sub gives the wrong address.
 
-❌ **Storing ZK proof in localStorage unencrypted**
-- **Problem:** XSS attacks can steal proof, drain wallet
-- **Fix:** Encrypt proof before storage or use sessionStorage
+**Forgetting to call `tx.setSender(address)` before signing.**
+- The ephemeral keypair signs *for* the zkLogin address. If sender isn't set to the zkLogin address, the signature won't verify on-chain.
 
-❌ **No fallback when OAuth provider is down**
-- **Problem:** Users locked out of app
-- **Fix:** Offer traditional wallet connection as fallback
+**Reusing `maxEpoch` past expiry.**
+- Once the current epoch exceeds `maxEpoch`, every signature fails. Refresh the ephemeral key + nonce + JWT.
 
-❌ **Not handling token expiration**
-- **Problem:** Silent failures, broken transactions
-- **Fix:** Implement token refresh or prompt re-authentication
+## Resources
 
-Query latest zkLogin updates:
-```typescript
-const zkLoginInfo = await sui_docs_query({
-  type: "github",
-  target: "zklogin",
-  query: "OAuth integration examples and best practices"
-});
-```
-
----
-
-**Seamless user onboarding with familiar OAuth login!**
+- [zkLogin docs (Sui)](https://docs.sui.io/concepts/cryptography/zklogin)
+- [Mysten Prover service](https://docs.sui.io/guides/developer/cryptography/zklogin-integration)
+- API source: `@mysten/sui/zklogin`

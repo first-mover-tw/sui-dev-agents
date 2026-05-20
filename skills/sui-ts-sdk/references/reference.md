@@ -108,7 +108,8 @@ await client.suins.getName('0xAddress');
 | `@mysten/walrus` | `import { walrus } from '@mysten/walrus'` | `.$extend(walrus())` |
 | `@mysten/suins` | `import { suins } from '@mysten/suins'` | `.$extend(suins())` |
 | `@mysten/deepbook` | `import { deepbook } from '@mysten/deepbook'` | `.$extend(deepbook())` |
-| `@mysten/seal` | `import { seal } from '@mysten/seal'` | `.$extend(seal())` |
 | `@mysten/zksend` | `import { zksend } from '@mysten/zksend'` | `.$extend(zksend())` |
+
+Note: `@mysten/seal` does **not** ship a client extension. Construct `new SealClient({ suiClient, serverConfigs })` directly — see the `sui-seal` skill.
 
 Each extension adds its own namespace of methods to the client instance, keeping concerns separated while sharing the same underlying transport.

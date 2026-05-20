@@ -134,23 +134,28 @@ module nft::metadata {
 
 ### Upload from Browser
 
+Use the real `@mysten/walrus` extension on a v2 Sui client (see the `$extend(walrus())` examples earlier in this file). There is no separate `@walrus-sdk/client` package — that name is fabricated. A minimal upload + Move-call pattern looks like:
+
 ```typescript
-import { WalrusClient } from '@walrus-sdk/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
+import { walrus } from '@mysten/walrus';
+import { Transaction } from '@mysten/sui/transactions';
 
-const client = new WalrusClient({ network: 'testnet' });
+const client = new SuiGrpcClient({ network: 'testnet' }).$extend(walrus());
 
-async function uploadNFTMetadata(file: File) {
-  // Upload to Walrus
-  const blobId = await client.upload(file);
+async function uploadNFTMetadata(file: File, signer) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const { blobId } = await client.walrus.writeBlob({
+    blob: bytes,
+    deletable: false,
+    epochs: 5,
+    signer,
+  });
 
-  // Store in Move contract
   const tx = new Transaction();
   tx.moveCall({
     target: `${PACKAGE_ID}::nft::create_nft`,
-    arguments: [
-      tx.pure('My NFT'),
-      tx.pure(Array.from(Buffer.from(blobId, 'hex')))
-    ]
+    arguments: [tx.pure.string('My NFT'), tx.pure.string(blobId)],
   });
 
   return blobId;
