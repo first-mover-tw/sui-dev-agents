@@ -5,6 +5,23 @@ All notable changes to the SUI Dev Agents plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.2] - 2026-05-21
+
+### Fixed
+- **Critical**: `sui-seal` skill rewritten to match the real `@mysten/seal` 1.1.3 API. Removed fabricated `@aspect/seal-sdk` package, non-existent `client.extend(seal())` factory, non-existent `sealClient.seal.encrypt/decrypt` namespace, wrong `KeyServerConfig.url` field (now `objectId`), and added the mandatory `txBytes` parameter (built from a `seal_approve*` PTB) to every decrypt example.
+- **Critical**: `sui-zklogin` skill rewritten. Dropped the deprecated `@mysten/zklogin` package and the fictional `ZkLoginProvider` class. Now uses the real functional API from `@mysten/sui/zklogin` (`generateNonce`, `jwtToAddress`, `genAddressSeed`, `getZkLoginSignature`).
+- **Critical**: `sui-passkey` skill imports corrected from `@mysten/wallet-standard` (which has no passkey exports) to `@mysten/sui/keypairs/passkey` (`BrowserPasskeyProvider`, `PasskeyKeypair`).
+- `sui-walrus`: removed fabricated `@walrus-sdk/client` stub block; consolidated to the real `@mysten/walrus` `.$extend(walrus())` pattern.
+- `sui-ts-sdk` references: removed non-existent `seal` extension factory rows; point readers to the `sui-seal` skill instead.
+
+### Changed
+- `sui-frontend` banner: `@mysten/dapp-kit-core` version constraint corrected from `^2.0` to `^1.3` (latest published is 1.3.2; no 2.x exists).
+- `sui-full-stack`: install/usage migrated from legacy `@mysten/dapp-kit` to the active split (`@mysten/dapp-kit-react` + `@mysten/dapp-kit-core`), matching `sui-frontend`.
+- `sui-ts-sdk` references: unified DeepBook examples on `@mysten/deepbook-v3` (1.3.6); removed legacy `@mysten/deepbook` (V2 CLOB) references.
+
+### Added
+- SDK version banners on `sui-kiosk`, `sui-suins`, `sui-deepbook` skills (mirroring the `sui-frontend` pattern).
+
 ## [2.9.1] - 2026-05-21
 
 ### Changed
