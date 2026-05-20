@@ -57,7 +57,7 @@ sui-full-stack --stage testing
 ### Phase 3: Frontend Development (Optional)
 
 - Call `sui-frontend` to set up React/Next.js/Vue
-- Install `@mysten/sui`, `@mysten/dapp-kit`
+- Install `@mysten/dapp-kit-react @mysten/dapp-kit-core @mysten/sui @tanstack/react-query` (hooks/providers from `@mysten/dapp-kit-react`; UI components like `ConnectButton` from `@mysten/dapp-kit-react/ui`). The legacy `@mysten/dapp-kit` package is deprecated.
 - Wallet integration and API wrappers
 - Git checkpoint with frontend commit
 

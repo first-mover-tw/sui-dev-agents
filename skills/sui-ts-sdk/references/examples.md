@@ -6,7 +6,7 @@
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { walrus } from '@mysten/walrus';
 import { suins } from '@mysten/suins';
-import { deepbook } from '@mysten/deepbook';
+import { deepbook } from '@mysten/deepbook-v3';
 // NOTE: @mysten/seal does NOT provide a `$extend()` factory.
 // Use `new SealClient(...)` directly — see the sui-seal skill.
 import { zksend } from '@mysten/zksend';
@@ -15,7 +15,7 @@ import { zksend } from '@mysten/zksend';
 const client = new SuiGrpcClient({ network: 'mainnet' })
   .$extend(walrus())
   .$extend(suins())
-  .$extend(deepbook());
+  .$extend(deepbook({ address: myAddress }));
 
 // Walrus with custom config
 const walrusClient = new SuiGrpcClient({ network: 'testnet' })

@@ -218,7 +218,10 @@ Changes:
 
 sui-frontend will:
   1. Set up React/Next.js/Vue project
-  2. Install @mysten/sui, @mysten/dapp-kit
+  2. Install @mysten/dapp-kit-react @mysten/dapp-kit-core @mysten/sui @tanstack/react-query
+     (legacy @mysten/dapp-kit is deprecated; hooks/providers come from
+     @mysten/dapp-kit-react, UI components like ConnectButton from
+     @mysten/dapp-kit-react/ui)
   3. Generate config files
   4. Create wallet integration
   5. Set up API wrappers
