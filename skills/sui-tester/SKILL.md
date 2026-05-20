@@ -25,13 +25,6 @@ This skill provides comprehensive testing across all layers:
 - **gRPC Data Access:** Integration tests **must** use gRPC client — JSON-RPC Quorum Driver is disabled, removal April 2026.
 - **`#[error]` Annotation:** Use `#[error]` on error constants for human-readable abort messages. Update `#[expected_failure]` tests to reference constant names, not hardcoded values.
 - **GraphQL Simulation:** `events` field removed from `simulateResult`. Access events via `effects.events()` in dry-run tests.
-
-## SUI v1.72.2 Testing Updates (Protocol 124)
-
-**Key changes affecting testing (April 2026):**
-
-### Protocol 124 Testing Notes
-
 - **Gas Re-benchmarking:** The New Move VM on testnet may produce different gas profiles compared to Protocol 118. If your tests assert specific gas values, re-run `sui move test --gas-limit` and update expected values.
 - **Decoded Object Inspection:** `sui client object` now shows decoded struct fields — useful for manual verification during integration tests.
 
