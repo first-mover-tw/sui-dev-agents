@@ -35,3 +35,53 @@ test('exits 0 on empty scope', () => {
   const r = run(root);
   assert.equal(r.code, 0, r.stderr || r.stdout);
 });
+
+import { parseBanner } from '../check-compat-matrix.mjs';
+
+test('parseBanner extracts single package', () => {
+  const md = 'foo\n\nTargets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.\n\nrest';
+  const got = parseBanner(md);
+  assert.deepEqual(got, {
+    targets: [{ pkg: '@mysten/sui', tested: '2.17.0', accepted: '^2.16' }],
+    testedDate: '2026-05-21',
+    lineNumber: 3,
+  });
+});
+
+test('parseBanner extracts multiple packages', () => {
+  const md = 'Targets: `@mysten/sui` 2.17.0 (^2.16), `@mysten/kiosk` 1.2.6 (^1.2). Tested: 2026-05-21.\n';
+  const got = parseBanner(md);
+  assert.equal(got.targets.length, 2);
+  assert.equal(got.targets[1].pkg, '@mysten/kiosk');
+  assert.equal(got.targets[1].tested, '1.2.6');
+});
+
+test('parseBanner returns null when no Targets line', () => {
+  assert.equal(parseBanner('no banner here\n'), null);
+});
+
+test('parseBanner returns error on trailing prose', () => {
+  const md = 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21. extra prose\n';
+  assert.throws(() => parseBanner(md), /trailing content/);
+});
+
+test('parseBanner only scans first 30 lines', () => {
+  const md = '\n'.repeat(40) + 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.\n';
+  assert.equal(parseBanner(md), null);
+});
+
+test('parseBanner rejects invalid tested semver', () => {
+  const md = 'Targets: `@mysten/sui` 2.17 (^2.16). Tested: 2026-05-21.\n';
+  assert.throws(() => parseBanner(md), /invalid tested/);
+});
+
+test('parseBanner rejects duplicate Targets lines', () => {
+  const md = 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.\nTargets: `@mysten/x` 1.0.0 (^1.0). Tested: 2026-05-21.\n';
+  assert.throws(() => parseBanner(md), /duplicate/);
+});
+
+test('parseBanner throws on malformed package segment', () => {
+  // missing backtick on package name → fails PKG_RE, not EXACT_VER_RE
+  const md = 'Targets: @mysten/sui 2.17.0 (^2.16). Tested: 2026-05-21.\n';
+  assert.throws(() => parseBanner(md), /bad package segment/);
+});
