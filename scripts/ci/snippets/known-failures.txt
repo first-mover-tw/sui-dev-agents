@@ -2,9 +2,6 @@ sui-architect__ref-reference__00__L546.ts
 sui-architect__ref-reference__01__L563.ts
 sui-architect__SKILL__00__L99.ts
 sui-architect__SKILL__01__L110.ts
-sui-deepbook__SKILL__00__L88.ts
-sui-deepbook__SKILL__01__L116.ts
-sui-deepbook__SKILL__02__L196.ts
 sui-developer__ref-examples__00__L319.ts
 sui-developer__ref-examples__01__L636.tsx
 sui-developer__SKILL__00__L179.ts

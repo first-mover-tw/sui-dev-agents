@@ -1,0 +1,23 @@
+{
+  "skill_name": "sui-deepbook",
+  "evals": [
+    {
+      "id": 1,
+      "name": "limit-order-bot-setup",
+      "prompt": "I'm building a TypeScript market-maker bot that places a SUI/USDC limit buy at $2.10 with size 10 SUI on mainnet. Show me the full setup: SDK init, BalanceManager creation, depositing collateral, and the place-order call. Use the current @mysten/deepbook-v3 SDK (not the legacy clob_v2). Make sure DEEP fee handling is covered.",
+      "expected_output": "TS code using DeepBookClient + BalanceManagerContract + placeLimitOrder with payWithDeep, correct human-unit conventions, mentions DEEP funding."
+    },
+    {
+      "id": 2,
+      "name": "leveraged-long-margin",
+      "prompt": "Show me how to open a 3x leveraged long on SUI/USDC using DeepBook margin trading. I need TS code that creates a MarginManager, deposits USDC collateral, borrows, places the margin limit order via PoolProxy, and refreshes Pyth price feeds in the same PTB. Also explain liquidation health.",
+      "expected_output": "TS code using MarginManagerContract + PoolProxyContract + Pyth refresh; mentions health factor, Pyth max age, permissionless liquidation."
+    },
+    {
+      "id": 3,
+      "name": "indexer-ohlcv-fetch",
+      "prompt": "I need to fetch 24h OHLCV candles for the DEEP/USDC pool from DeepBook. Should I use the SDK or the indexer? Give me the actual HTTP call.",
+      "expected_output": "Recommends indexer (not SDK) for historical OHLCV; provides correct base URL https://deepbook-indexer.mainnet.mystenlabs.com and the /ohlcv endpoint with pool_id + interval params."
+    }
+  ]
+}

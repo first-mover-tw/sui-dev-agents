@@ -13,3 +13,4 @@ tasks/
 mcp-server/package-lock.json
 landing/ws-resources.json
 description-optimization-workspace/
+sui-deepbook-workspace/
