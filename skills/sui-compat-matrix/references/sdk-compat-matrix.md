@@ -8,7 +8,7 @@ Canonical source-of-truth for `@mysten/*` versions across in-scope skills. See `
 | skills/sui-frontend/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.0 | 2026-05-21 | — |
 | skills/sui-frontend/SKILL.md | @mysten/dapp-kit-react | primary | 2.0.3 | ^2.0 | 2026-05-21 | ui-subpath |
 | skills/sui-frontend/SKILL.md | @mysten/dapp-kit-core | primary | 1.3.2 | ^1.3 | 2026-05-21 | — |
-| skills/sui-deepbook/SKILL.md | @mysten/deepbook-v3 | primary | 1.3.6 | ^1.3 | 2026-05-21 | v2-deprecated |
+| skills/sui-deepbook/SKILL.md | @mysten/deepbook-v3 | primary | 1.4.0 | ^1.3 | 2026-05-21 | v2-deprecated |
 | skills/sui-deepbook/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.16 | 2026-05-21 | — |
 | skills/sui-kiosk/SKILL.md | @mysten/kiosk | primary | 1.2.6 | ^1.2 | 2026-05-21 | no-grpc |
 | skills/sui-kiosk/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.16 | 2026-05-21 | — |

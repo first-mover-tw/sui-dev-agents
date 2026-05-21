@@ -206,15 +206,7 @@ function NFTImage({ blobId }: { blobId: string }) {
 - **Problem:** Browser memory issues, upload timeout
 - **Fix:** Implement chunked upload for files >10MB
 
-Query latest Walrus docs:
-```typescript
-// @check:skip
-const walrusInfo = await sui_docs_query({
-  type: "docs",
-  target: "walrus",
-  query: "blob upload API and storage patterns"
-});
-```
+Query latest Walrus docs via the in-repo `sui-docs-query` skill (not an SDK function — invoke the skill from Claude Code with args like `type=docs target=walrus query="blob upload API and storage patterns"`).
 
 ---
 

@@ -9,7 +9,7 @@ description: Use when integrating DeepBook V3 — SUI's native CLOB DEX, margin 
 
 ## SDK Versions
 
-Targets: `@mysten/deepbook-v3` 1.3.6 (^1.3), `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.
+Targets: `@mysten/deepbook-v3` 1.4.0 (^1.3), `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.
 
 **Compatibility notes:** Use `@mysten/deepbook-v3` (V3 — current). The legacy `@mysten/deepbook` / `clob_v2` packages are deprecated and **not** what you want.
 
@@ -241,20 +241,30 @@ DeepBook Margin adds leverage on top of any CLOB pool via separate objects. The 
 
 ### Skeleton: open a leveraged long
 
+Two-transaction flow: **(A)** create + initialize + share the margin manager once, **(B)** in later txs reference it by `managerKey` to deposit / borrow / trade.
+
 ```typescript
 // @check:skip — fragment, continues from Quick Start §1
+
+// === Transaction A: one-time setup ===
+const txA = new Transaction();
+const { manager, initializer } = dbClient.marginManager.newMarginManagerWithInitializer('SUI_USDC')(txA);
+txA.add(dbClient.marginManager.depositDuringInitialization({
+  manager,
+  poolKey: 'SUI_USDC',
+  coinType: 'USDC',
+  amount: 1000, // human units
+}));
+txA.add(dbClient.marginManager.shareMarginManager('SUI_USDC', manager, initializer));
+// → register the resulting shared object as 'MY_MM' in your config map
+
+// === Transaction B: borrow + place margin order ===
 const tx = new Transaction();
 
-// 1. Create a margin manager (one-time per position)
-tx.add(dbClient.marginManager.createMarginManager('SUI_USDC'));
+// 1. Borrow against the collateral (use borrowBase / borrowQuote, not generic borrow)
+tx.add(dbClient.marginManager.borrowQuote('MY_MM', 3000)); // 3x leverage on quote (USDC)
 
-// 2. Deposit collateral
-tx.add(dbClient.marginManager.depositCollateral('MY_MM', 'USDC', 1000));
-
-// 3. Borrow against it
-tx.add(dbClient.marginManager.borrow('MY_MM', 'USDC', 3000)); // 3x leverage
-
-// 4. Place a margin limit order through the pool proxy
+// 2. Place a margin limit order through the pool proxy
 tx.add(
   dbClient.poolProxy.placeMarginLimitOrder({
     poolKey: 'SUI_USDC',

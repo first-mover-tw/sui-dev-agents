@@ -357,7 +357,7 @@ export function Marketplace() {
         listing_id: listingId,
         payment: '0x...',
       });
-      return await dAppKit.signAndExecuteTransaction({ transaction: tx });
+      return await dAppKit.signAndExecuteTransaction({ transaction: txb });
     },
     onSuccess: () => {
       toast.success('Purchase successful!');
