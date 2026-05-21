@@ -306,3 +306,24 @@ test('failure output includes summary table', () => {
   assert.match(r.stdout, /Summary:/);
   assert.match(r.stdout, /skills\/sui-foo\/SKILL\.md\s+@mysten\/sui\s+banner=2\.17\.0\s+matrix=2\.17\.0\s+installed=2\.16\.0/);
 });
+
+test('R9: matrix row without banner target fails', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.');
+  writePkgJson(root, { '@mysten/sui': '2.17.0', '@mysten/extra': '1.0.0' });
+  writeMatrix(root, [
+    { skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/sui', kind: 'primary', tested: '2.17.0', accepted: '^2.16', lastVerified: '2026-05-21', tag: '' },
+    { skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/extra', kind: 'primary', tested: '1.0.0', accepted: '^1.0', lastVerified: '2026-05-21', tag: '' },
+  ]);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R9\] skills\/sui-foo\/SKILL\.md @mysten\/extra: matrix row has no corresponding banner target/);
+});
+
+test('parseMatrix rejects duplicate (skill, pkg) rows', () => {
+  const md = MATRIX_HEAD +
+    '| skills/x/SKILL.md | @mysten/x | primary | 1.0.0 | ^1.0 | 2026-05-21 | — |\n' +
+    '| skills/x/SKILL.md | @mysten/x | primary | 1.0.0 | ^1.0 | 2026-05-21 | — |\n';
+  assert.throws(() => parseMatrix(md), /duplicate matrix row for skills\/x\/SKILL\.md @mysten\/x/);
+});

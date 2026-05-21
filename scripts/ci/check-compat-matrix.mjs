@@ -55,6 +55,7 @@ export function parseMatrix(md) {
     throw new Error(`matrix separator row missing or malformed at L${headerIdx + 2}`);
   }
   const rows = [];
+  const seenKeys = new Set();
   for (let i = headerIdx + 2; i < lines.length; i++) {
     const line = lines[i];
     if (!line.trim().startsWith('|')) break;
@@ -69,6 +70,11 @@ export function parseMatrix(md) {
     if (!DATE_RE.test(lastVerified)) throw new Error(`bad Last verified "${lastVerified}" at L${i + 1}`);
     const tag = tagRaw === '—' ? '' : tagRaw;
     if (tag && !TAG_RE.test(tag)) throw new Error(`bad tag "${tag}" at L${i + 1}`);
+    const dupKey = `${skill}\0${pkg}`;
+    if (seenKeys.has(dupKey)) {
+      throw new Error(`duplicate matrix row for ${skill} ${pkg} at L${i + 1}`);
+    }
+    seenKeys.add(dupKey);
     rows.push({ skill, pkg, kind, tested, accepted, lastVerified, tag, rowNumber: i + 1 });
   }
   return rows;
@@ -165,6 +171,8 @@ function checkRules({ scope, banners, matrix, installed }) {
         if (t.accepted !== row.accepted) {
           failures.push(`[R5] ${row.skill} ${row.pkg}: matrix accepted=${row.accepted} banner accepted=${t.accepted}`);
         }
+      } else {
+        failures.push(`[R9] ${row.skill} ${row.pkg}: matrix row has no corresponding banner target`);
       }
     }
     const inst = installed[row.pkg];
