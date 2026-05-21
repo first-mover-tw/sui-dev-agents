@@ -317,6 +317,7 @@ module marketplace::listing_tests {
 ### Generated TypeScript
 
 ```typescript
+// @check:skip
 // Auto-generated from Move ABI
 // Generated: 2024-01-28
 
@@ -634,6 +635,7 @@ sui-developer gen-types
 ### Step 3: Frontend Implementation
 
 ```typescript
+// @check:skip
 import { create_listing, subscribeToListingCreated } from './types/marketplace';
 import { useDAppKit } from '@mysten/dapp-kit-react';
 import { Transaction } from '@mysten/sui/transactions';

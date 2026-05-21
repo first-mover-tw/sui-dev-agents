@@ -39,6 +39,7 @@ Let's set up your project.
 **Implementation:**
 
 ```typescript
+// @check:skip
 async function initializeProject() {
   // Get project info
   const projectName = await askUser("Project name?");

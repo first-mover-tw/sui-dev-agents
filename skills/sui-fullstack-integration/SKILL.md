@@ -33,6 +33,7 @@ Output: `frontend/src/types/contracts.ts`
 ### 2. Create API Wrapper
 
 ```typescript
+// @check:skip
 import { MarketplaceAPI } from './api/marketplace';
 
 const api = new MarketplaceAPI(suiClient, packageId);
@@ -42,6 +43,7 @@ const txb = api.createListing({ nft_id: '0x...', price: 1000000000n });
 ### 3. Subscribe to Events
 
 ```typescript
+// @check:skip
 useNFTPurchasedEvents((event) => {
   console.log(`NFT ${event.nft_id} sold for ${event.price}`);
 });

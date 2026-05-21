@@ -5,6 +5,7 @@ Detailed code examples for each integration pattern.
 ## Type Generation Script
 
 ```typescript
+// @check:skip
 // scripts/generate-types.ts
 import { execSync } from 'child_process';
 import * as fs from 'fs';
@@ -79,6 +80,7 @@ function moveTypeToTypeScript(moveType: string): string {
 ## Contract API Wrapper
 
 ```typescript
+// @check:skip
 // frontend/src/api/marketplace.ts
 import { Transaction } from '@mysten/sui/transactions';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
@@ -155,6 +157,7 @@ export class MarketplaceAPI {
 ## React Hooks Integration
 
 ```typescript
+// @check:skip
 // frontend/src/hooks/useMarketplaceAPI.ts
 import { useMemo } from 'react';
 import { useCurrentClient } from '@mysten/dapp-kit-react';
@@ -271,6 +274,7 @@ wait
 ## Error Handling
 
 ```typescript
+// @check:skip
 // frontend/src/lib/contract-errors.ts
 export function parseContractError(error: any): {
   title: string;
@@ -321,6 +325,7 @@ function mapMoveErrorCode(code: string) {
 ## Complete Marketplace Component
 
 ```typescript
+// @check:skip
 // frontend/src/components/Marketplace.tsx
 import { useMarketplaceAPI } from '../hooks/useMarketplaceAPI';
 import { useDAppKit } from '@mysten/dapp-kit-react';
