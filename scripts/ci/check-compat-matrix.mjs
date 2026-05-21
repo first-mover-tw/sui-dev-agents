@@ -41,6 +41,39 @@ export function parseBanner(md) {
   return found;
 }
 
+const KIND_ENUM = new Set(['primary', 'peer', 'sub-export', 'deprecated']);
+const TAG_RE = /^[a-z0-9:-]{1,20}$/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const EXPECTED_HEADER = '| Skill | Package | Kind | Tested | Accepted | Last verified | Notes-tag |';
+
+export function parseMatrix(md) {
+  const lines = md.split('\n');
+  const headerIdx = lines.findIndex(l => l.trim() === EXPECTED_HEADER);
+  if (headerIdx < 0) throw new Error('matrix header not found');
+  const sepLine = lines[headerIdx + 1] ?? '';
+  if (!/^\|[-:| ]+\|$/.test(sepLine.trim())) {
+    throw new Error(`matrix separator row missing or malformed at L${headerIdx + 2}`);
+  }
+  const rows = [];
+  for (let i = headerIdx + 2; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.trim().startsWith('|')) continue;
+    const cells = line.split('|').slice(1, -1).map(s => s.trim());
+    for (const c of cells) {
+      if (c.includes('`')) throw new Error(`bad row at L${i + 1}: backticks not allowed in matrix cells (got "${c}")`);
+    }
+    if (cells.length !== 7) throw new Error(`bad row at L${i + 1}: expected 7 cells, got ${cells.length}`);
+    const [skill, pkg, kind, tested, accepted, lastVerified, tagRaw] = cells;
+    if (!KIND_ENUM.has(kind)) throw new Error(`bad Kind "${kind}" at L${i + 1}`);
+    if (!EXACT_VER_RE.test(tested)) throw new Error(`bad Tested "${tested}" at L${i + 1}`);
+    if (!DATE_RE.test(lastVerified)) throw new Error(`bad Last verified "${lastVerified}" at L${i + 1}`);
+    const tag = tagRaw === '—' ? '' : tagRaw;
+    if (tag && !TAG_RE.test(tag)) throw new Error(`bad tag "${tag}" at L${i + 1}`);
+    rows.push({ skill, pkg, kind, tested, accepted, lastVerified, tag, rowNumber: i + 1 });
+  }
+  return rows;
+}
+
 async function main() {
   const scopeRaw = await readFile(join(ROOT, 'scripts/ci/compat-scope.txt'), 'utf8');
   const scope = scopeRaw.split('\n').map(s => s.trim()).filter(Boolean);

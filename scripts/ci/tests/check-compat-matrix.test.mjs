@@ -85,3 +85,55 @@ test('parseBanner throws on malformed package segment', () => {
   const md = 'Targets: @mysten/sui 2.17.0 (^2.16). Tested: 2026-05-21.\n';
   assert.throws(() => parseBanner(md), /bad package segment/);
 });
+
+import { parseMatrix } from '../check-compat-matrix.mjs';
+
+const MATRIX_HEAD = '| Skill | Package | Kind | Tested | Accepted | Last verified | Notes-tag |\n|---|---|---|---|---|---|---|\n';
+
+test('parseMatrix extracts rows', () => {
+  const md = MATRIX_HEAD +
+    '| skills/sui-kiosk/SKILL.md | @mysten/kiosk | primary | 1.2.6 | ^1.2 | 2026-05-21 | no-grpc |\n' +
+    '| skills/sui-kiosk/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.16 | 2026-05-21 | — |\n';
+  const rows = parseMatrix(md);
+  assert.equal(rows.length, 2);
+  assert.deepEqual(rows[0], {
+    skill: 'skills/sui-kiosk/SKILL.md',
+    pkg: '@mysten/kiosk',
+    kind: 'primary',
+    tested: '1.2.6',
+    accepted: '^1.2',
+    lastVerified: '2026-05-21',
+    tag: 'no-grpc',
+    rowNumber: 3,
+  });
+});
+
+test('parseMatrix rejects bad kind enum', () => {
+  const md = MATRIX_HEAD + '| skills/x/SKILL.md | @mysten/x | bogus | 1.0.0 | ^1.0 | 2026-05-21 | — |\n';
+  assert.throws(() => parseMatrix(md), /bad Kind "bogus"/);
+});
+
+test('parseMatrix rejects bad tag charset', () => {
+  const md = MATRIX_HEAD + '| skills/x/SKILL.md | @mysten/x | primary | 1.0.0 | ^1.0 | 2026-05-21 | Bad Tag! |\n';
+  assert.throws(() => parseMatrix(md), /bad tag/);
+});
+
+test('parseMatrix accepts em-dash as empty tag', () => {
+  const md = MATRIX_HEAD + '| skills/x/SKILL.md | @mysten/x | primary | 1.0.0 | ^1.0 | 2026-05-21 | — |\n';
+  const rows = parseMatrix(md);
+  assert.equal(rows[0].tag, '');
+});
+
+test('parseMatrix throws on missing header', () => {
+  assert.throws(() => parseMatrix('no table\n'), /matrix header not found/);
+});
+
+test('parseMatrix rejects backticks in cells', () => {
+  const md = MATRIX_HEAD + '| skills/x/SKILL.md | `@mysten/x` | primary | 1.0.0 | ^1.0 | 2026-05-21 | — |\n';
+  assert.throws(() => parseMatrix(md), /backticks not allowed/);
+});
+
+test('parseMatrix rejects missing separator row', () => {
+  const md = '| Skill | Package | Kind | Tested | Accepted | Last verified | Notes-tag |\n\n| skills/x/SKILL.md | @mysten/x | primary | 1.0.0 | ^1.0 | 2026-05-21 | — |\n';
+  assert.throws(() => parseMatrix(md), /separator row missing or malformed/);
+});
