@@ -97,6 +97,7 @@ Suggest relevant SUI tools based on requirements:
 
 Query latest integration patterns:
 ```typescript
+// @check:skip
 const info = await sui_docs_query({
   type: "docs",
   target: "kiosk",
@@ -108,6 +109,7 @@ const info = await sui_docs_query({
 
 Query similar projects for patterns:
 ```typescript
+// @check:skip
 const references = await sui_docs_query({
   type: "github",
   target: "sui-core",

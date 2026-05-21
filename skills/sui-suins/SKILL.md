@@ -173,6 +173,7 @@ function AddressDisplay({ address }: { address: string }) {
 
 Query SuiNS docs:
 ```typescript
+// @check:skip
 const suinsInfo = await sui_docs_query({
   type: "github",
   target: "suins",

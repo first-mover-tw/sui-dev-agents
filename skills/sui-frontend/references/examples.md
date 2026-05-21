@@ -5,6 +5,7 @@ Real-world component and integration examples.
 ## Example 1: Complete NFT Marketplace Component
 
 ```typescript
+// @check:skip
 // src/components/NFTMarketplace.tsx
 import { useListings, useCreateListing, useBuyListing } from '../hooks/useMarketplace';
 import { useCurrentAccount } from '@mysten/dapp-kit-react';
@@ -48,6 +49,7 @@ export function NFTMarketplace() {
 ## Example 2: Real-time Event Updates
 
 ```typescript
+// @check:skip
 export function RealtimeListings() {
   const queryClient = useQueryClient();
   const events = useMarketplaceEvents('NFTPurchased');

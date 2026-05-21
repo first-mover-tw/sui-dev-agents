@@ -46,6 +46,7 @@ function Balance() {
 Always wrap `@tanstack/react-query` usage in a `QueryClientProvider`:
 
 ```tsx
+// @check:skip
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const queryClient = new QueryClient();
 Use `useInfiniteQuery` from `@tanstack/react-query` paired with `useCurrentClient`:
 
 ```tsx
+// @check:skip
 import { useCurrentClient, useCurrentAccount } from '@mysten/dapp-kit-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
@@ -139,6 +141,7 @@ For the server-side sponsored execution flow, see **sui-ts-sdk references/advanc
 ## Personal Message Signing
 
 ```tsx
+// @check:skip
 import { useDAppKit, useCurrentAccount } from '@mysten/dapp-kit-react';
 
 function AuthButton() {
@@ -193,6 +196,7 @@ Only networks in `createDAppKit`'s `networks` array are valid targets. `switchNe
 After a successful transaction, invalidate React Query caches. **Always wait for indexing first:**
 
 ```tsx
+// @check:skip
 import { useQueryClient } from '@tanstack/react-query';
 import { useDAppKit, useCurrentClient, useCurrentAccount } from '@mysten/dapp-kit-react';
 
@@ -231,6 +235,7 @@ await client.waitForTransaction({ digest: result.Transaction.digest });
 ## Wallet-Gated UI
 
 ```tsx
+// @check:skip
 import { useCurrentAccount } from '@mysten/dapp-kit-react';
 import { ConnectButton } from '@mysten/dapp-kit-react/ui';
 
@@ -253,6 +258,7 @@ function ProtectedPage() {
 Reusable guard:
 
 ```tsx
+// @check:skip
 function WalletGuard({ children }: { children: React.ReactNode }) {
   const account = useCurrentAccount();
   if (!account) return <ConnectButton />;

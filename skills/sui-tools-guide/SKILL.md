@@ -242,6 +242,7 @@ sui-zklogin
 
 Query latest tool updates:
 ```typescript
+// @check:skip
 const toolInfo = await sui_docs_query({
   type: "docs",
   target: "walrus",

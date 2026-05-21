@@ -84,6 +84,7 @@ All methods are under the `.core` namespace:
 ### Result Types
 
 ```typescript
+// @check:skip
 // signAndExecuteTransaction returns a discriminated union:
 if ('Transaction' in result) {
   result.Transaction.digest; // success

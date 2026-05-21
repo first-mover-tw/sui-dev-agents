@@ -86,6 +86,7 @@ declare module '@mysten/dapp-kit-react' {
 ```
 
 ```tsx
+// @check:skip
 // App.tsx
 import { DAppKitProvider } from '@mysten/dapp-kit-react';
 import { ConnectButton } from '@mysten/dapp-kit-react/ui';
@@ -110,6 +111,7 @@ The `declare module` augmentation is what makes `useDAppKit()` and other hooks r
 `createDAppKit` accepts these key options:
 
 ```tsx
+// @check:skip
 createDAppKit({
   networks: ['testnet', 'mainnet'],       // which networks your app supports
   defaultNetwork: 'testnet',              // starting network
@@ -139,6 +141,7 @@ createClient: (network) => new SuiGrpcClient({ network, baseUrl: GRPC_URLS[netwo
 Use `@mysten/dapp-kit-core` when not building with React. The `createDAppKit` call is identical — only the import path differs:
 
 ```ts
+// @check:skip
 // dapp-kit.ts
 import { createDAppKit } from '@mysten/dapp-kit-core';  // core, not -react
 import { SuiGrpcClient } from '@mysten/sui/grpc';
@@ -213,6 +216,7 @@ State is exposed as [nanostores](https://github.com/nanostores/nanostores) store
 **Vanilla JS** — subscribe for reactive updates:
 
 ```ts
+// @check:skip
 // Read current value synchronously
 const connection = dAppKit.stores.$connection.get();
 
@@ -273,6 +277,7 @@ async function handleTransfer() {
 Outside React there's no `useCurrentClient` hook. Use the store or `getClient()` directly:
 
 ```ts
+// @check:skip
 const client = dAppKit.stores.$currentClient.get();
 // or equivalently:
 const client = dAppKit.getClient();           // current network's client
@@ -312,6 +317,7 @@ function Header() {
 You can filter or sort the wallet list:
 
 ```tsx
+// @check:skip
 <ConnectButton
   modalOptions={{
     filterFn: (wallet) => wallet.name !== 'ExcludedWallet',

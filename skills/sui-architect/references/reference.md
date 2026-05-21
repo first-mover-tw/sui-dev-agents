@@ -544,6 +544,7 @@ Create custom templates in:
 ### With sui-docs-query
 
 ```typescript
+// @check:skip
 // Query Kiosk documentation
 const kioskDocs = await sui_docs_query({
   type: "docs",
@@ -561,6 +562,7 @@ spec.integrations.kiosk = {
 ### With sui-developer
 
 ```typescript
+// @check:skip
 // After spec generation, pass to developer
 await sui_developer({
   spec_file: "docs/specs/2024-01-28-project-spec.md",

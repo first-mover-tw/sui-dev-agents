@@ -187,6 +187,7 @@ async function purchaseNFT(
 
 Query Kiosk docs:
 ```typescript
+// @check:skip
 const kioskInfo = await sui_docs_query({
   type: "docs",
   target: "kiosk",

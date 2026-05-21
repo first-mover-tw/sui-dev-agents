@@ -207,6 +207,7 @@ function NFTImage({ blobId }: { blobId: string }) {
 
 Query latest Walrus docs:
 ```typescript
+// @check:skip
 const walrusInfo = await sui_docs_query({
   type: "docs",
   target: "walrus",

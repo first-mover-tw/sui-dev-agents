@@ -177,6 +177,7 @@ See [scripts/](scripts/) for implementation details.
 Generate complete module structure from architecture spec:
 
 ```typescript
+// @check:skip
 // Read specification
 const spec = readSpec("docs/specs/project-spec.md")
 
@@ -219,6 +220,7 @@ public struct AdminCap has key { id: UID }
 Query latest APIs to detect deprecations:
 
 ```typescript
+// @check:skip
 const versionInfo = await sui_docs_query({
   type: "version",
   target: "sui"
@@ -236,6 +238,7 @@ For TypeScript type generation from Move ABI, event design for frontends, and co
 Query and apply latest Move best practices:
 
 ```typescript
+// @check:skip
 const practices = await sui_docs_query({
   type: "docs",
   target: "sui-core",

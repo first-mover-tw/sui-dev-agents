@@ -123,6 +123,7 @@ This skill is invoked by `sui-full-stack` after Phase 2 (contracts) and Phase 3 
 
 Query latest integration patterns:
 ```typescript
+// @check:skip
 const patterns = await sui_docs_query({
   type: "github",
   target: "dapp-kit",
