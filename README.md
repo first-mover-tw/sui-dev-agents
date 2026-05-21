@@ -72,6 +72,7 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 | Test | `/sui-tester` | Unit, integration, E2E, gas benchmarks, coverage analysis |
 | Deploy | `/sui-deployer` | Staged rollout: devnet → testnet → mainnet |
 | Quality | `/move-code-quality` | Move Book code quality checklist |
+| Versioning | `/sui-compat-matrix` | `@mysten/*` SDK version source-of-truth + bump SOP (CI-enforced) |
 
 ### 🧩 Ecosystem Integrations
 
@@ -152,7 +153,7 @@ Skills can be configured via `.sui-full-stack.json`:
 - **Architecture:** `docs/ARCHITECTURE.md` — Component design
 - **Platform Guides:** `docs/platforms/` — Installation for 14 AI tools
 - **Commands:** `commands/*.md` — 9 command references
-- **Skills:** `skills/*/SKILL.md` — 24 skill docs
+- **Skills:** `skills/*/SKILL.md` — 25 skill docs
 - **Agents:** `agents/*.md` — 19 agent definitions
 - **Rules:** `rules/**/*.md` — 5 coding conventions
 - **MCP Server:** `mcp-server/` — 14 gRPC tools source
