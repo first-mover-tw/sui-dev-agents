@@ -9,11 +9,9 @@ description: Use when implementing data encryption, access control, or secrets m
 
 ## SDK Versions
 
-Targets: `@mysten/seal` ^1.1, peer `@mysten/sui` ^2.16.2. Last verified: 2026-05-21.
+Targets: `@mysten/seal` 1.1.3 (^1.1), `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.
 
-Seal is NOT a `$extend()` client extension. Always instantiate `new SealClient({ suiClient, serverConfigs, ... })` directly. The `suiClient` must be a v2.x `SuiGrpcClient` (from `@mysten/sui/grpc`) or `SuiJsonRpcClient` (from `@mysten/sui/jsonRpc`) — these satisfy the `SealCompatibleClient` interface.
-
-Do not mix `@mysten/sui@1.x` and `@2.x` in the same install. Run `npm ls @mysten/sui` before adding seal/walrus/dapp-kit packages.
+**Compatibility notes:** `@mysten/sui` is a peer dependency of `@mysten/seal`. The `suiClient` must be a v2.x `SuiGrpcClient` (from `@mysten/sui/grpc`) or `SuiJsonRpcClient` (from `@mysten/sui/jsonRpc`) — these satisfy `SealCompatibleClient`. Do not mix `@mysten/sui@1.x` and `@2.x` in the same install — run `npm ls @mysten/sui` before adding seal/walrus/dapp-kit. Seal is NOT a `$extend()` client extension; always instantiate `new SealClient({ ... })` directly.
 
 ## What Seal Does
 
