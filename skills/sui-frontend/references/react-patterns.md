@@ -220,6 +220,7 @@ function MintButton() {
 ```
 
 ```tsx
+// @check:skip — illustrative WRONG pattern with `...` placeholders
 // WRONG: invalidating before waitForTransaction — indexer hasn't caught up yet
 const result = await dAppKit.signAndExecuteTransaction({ transaction: tx });
 await queryClient.invalidateQueries(...); // stale!

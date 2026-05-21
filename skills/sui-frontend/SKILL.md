@@ -122,6 +122,7 @@ createDAppKit({
 **Use `SuiGrpcClient` here** — unlike the deprecated `@mysten/dapp-kit`, the new package is built for gRPC. Do not pass `SuiJsonRpcClient` to `createClient`.
 
 ```tsx
+// @check:skip — illustrative wrong/correct contrast, not a runnable snippet
 // wrong client type — belongs to the deprecated @mysten/dapp-kit era
 import { SuiJsonRpcClient } from '@mysten/sui/jsonRpc';
 createClient: (network) => new SuiJsonRpcClient({ ... })

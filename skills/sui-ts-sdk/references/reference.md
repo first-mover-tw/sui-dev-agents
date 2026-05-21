@@ -92,7 +92,7 @@ import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { walrus } from '@mysten/walrus';
 import { suins } from '@mysten/suins';
 
-const client = new SuiGrpcClient({ network: 'mainnet' })
+const client = new SuiGrpcClient({ network: 'mainnet', baseUrl: 'https://fullnode.mainnet.sui.io:443' })
   .$extend(walrus())
   .$extend(suins());
 

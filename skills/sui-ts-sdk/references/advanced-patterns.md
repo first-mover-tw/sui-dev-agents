@@ -52,6 +52,7 @@ const gqlClient = new SuiGraphQLClient({
 The `SuiGrpcClient` exposes typed service clients for lower-level access:
 
 ```typescript
+// @check:skip — API-surface overview with `...` placeholders
 await client.transactionExecutionService.executeTransaction({ ... });
 await client.ledgerService.getObject({ objectId: '0x...' });
 await client.movePackageService.getFunction({ packageId: '0x2', moduleName: 'coin', name: 'transfer' });

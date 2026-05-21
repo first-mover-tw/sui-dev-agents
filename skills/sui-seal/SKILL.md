@@ -60,7 +60,10 @@ Security:
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { SealClient } from '@mysten/seal';
 
-const suiClient = new SuiGrpcClient({ network: 'testnet' });
+const suiClient = new SuiGrpcClient({
+  network: 'testnet',
+  baseUrl: 'https://fullnode.testnet.sui.io:443',
+});
 
 // Each entry is a key server *object ID* on-chain — not a URL.
 // weight controls how that server counts toward the threshold.

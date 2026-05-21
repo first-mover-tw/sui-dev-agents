@@ -12,13 +12,13 @@ import { deepbook } from '@mysten/deepbook-v3';
 import { zksend } from '@mysten/zksend';
 
 // Chain multiple extensions
-const client = new SuiGrpcClient({ network: 'mainnet' })
+const client = new SuiGrpcClient({ network: 'mainnet', baseUrl: 'https://fullnode.mainnet.sui.io:443' })
   .$extend(walrus())
   .$extend(suins())
   .$extend(deepbook({ address: myAddress }));
 
 // Walrus with custom config
-const walrusClient = new SuiGrpcClient({ network: 'testnet' })
+const walrusClient = new SuiGrpcClient({ network: 'testnet', baseUrl: 'https://fullnode.testnet.sui.io:443' })
   .$extend(walrus({
     packageConfig: {
       systemObjectId: '0x98ebc47370603fe81d9e15491b2f1443d619d1dab720d586e429ed233e1255c1',
@@ -84,7 +84,7 @@ import { Transaction } from '@mysten/sui/transactions';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-const client = new SuiGrpcClient({ network: 'testnet' });
+const client = new SuiGrpcClient({ network: 'testnet', baseUrl: 'https://fullnode.testnet.sui.io:443' });
 const senderKeypair = Ed25519Keypair.deriveKeypair('sender mnemonic ...');
 const sponsorKeypair = Ed25519Keypair.deriveKeypair('sponsor mnemonic ...');
 

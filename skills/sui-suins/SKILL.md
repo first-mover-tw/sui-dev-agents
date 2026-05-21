@@ -113,7 +113,7 @@ async function registerName(name: string, years: number) {
 
 ## Display Name in UI
 
-```typescript
+```tsx
 function AddressDisplay({ address }: { address: string }) {
   const { data: name } = useQuery({
     queryKey: ['suins', address],

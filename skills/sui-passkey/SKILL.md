@@ -123,7 +123,10 @@ const signer = new PasskeyKeypair(realPubKey.toRawBytes(), provider);
 import { Transaction } from '@mysten/sui/transactions';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-const suiClient = new SuiGrpcClient({ network: 'testnet' });
+const suiClient = new SuiGrpcClient({
+  network: 'testnet',
+  baseUrl: 'https://fullnode.testnet.sui.io:443',
+});
 const signer = restorePasskeySigner();
 
 const tx = new Transaction();

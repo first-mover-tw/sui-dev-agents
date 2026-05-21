@@ -492,6 +492,7 @@ const fields = await client.core.listDynamicFields({ parentId: '0xParentObjId' }
 ### gRPC service clients (lower-level)
 
 ```typescript
+// @check:skip — API surface overview with `...` placeholders, not runnable
 await client.ledgerService.getObject({ objectId: '0x...' });
 await client.transactionExecutionService.executeTransaction({ ... });
 await client.movePackageService.getFunction({ packageId: '0x2', moduleName: 'coin', name: 'transfer' });

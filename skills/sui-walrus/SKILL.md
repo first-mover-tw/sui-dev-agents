@@ -141,7 +141,10 @@ import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { walrus } from '@mysten/walrus';
 import { Transaction } from '@mysten/sui/transactions';
 
-const client = new SuiGrpcClient({ network: 'testnet' }).$extend(walrus());
+const client = new SuiGrpcClient({
+  network: 'testnet',
+  baseUrl: 'https://fullnode.testnet.sui.io:443',
+}).$extend(walrus());
 
 async function uploadNFTMetadata(file: File, signer) {
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -164,7 +167,7 @@ async function uploadNFTMetadata(file: File, signer) {
 
 ### Retrieve and Display
 
-```typescript
+```tsx
 function NFTImage({ blobId }: { blobId: string }) {
   const url = `https://walrus-testnet.storage/${blobId}`;
 
