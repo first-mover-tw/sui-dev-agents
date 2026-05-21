@@ -184,10 +184,33 @@ function checkRules({ scope, banners, matrix, installed }) {
   return failures;
 }
 
+function printSummary({ banners, matrix, installed }) {
+  console.log('\nSummary:');
+  const seen = new Set();
+  const rows = [];
+  for (const row of matrix) {
+    const key = `${row.skill}\0${row.pkg}`;
+    seen.add(key);
+    const b = banners[row.skill];
+    const banner = b && !b.error ? b.targets.find(t => t.pkg === row.pkg)?.tested ?? '-' : '-';
+    rows.push([row.skill, row.pkg, `banner=${banner}`, `matrix=${row.tested}`, `installed=${installed[row.pkg] ?? '<missing>'}`]);
+  }
+  for (const [skillPath, b] of Object.entries(banners)) {
+    if (!b || b.error) continue;
+    for (const t of b.targets) {
+      const key = `${skillPath}\0${t.pkg}`;
+      if (seen.has(key)) continue;
+      rows.push([skillPath, t.pkg, `banner=${t.tested}`, 'matrix=<missing>', `installed=${installed[t.pkg] ?? '<missing>'}`]);
+    }
+  }
+  for (const r of rows) console.log('  ' + r.join('  '));
+}
+
 async function main() {
   const inputs = await loadInputs(ROOT);
   const failures = checkRules(inputs);
   for (const f of failures) console.log(f);
+  if (failures.length > 0) printSummary(inputs);
   return failures.length === 0 ? 0 : 1;
 }
 

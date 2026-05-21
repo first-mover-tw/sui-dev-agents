@@ -294,3 +294,15 @@ test('happy path: all rules pass', () => {
   const r = run(root);
   assert.equal(r.code, 0, r.stdout);
 });
+
+test('failure output includes summary table', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.');
+  writePkgJson(root, { '@mysten/sui': '2.16.0' });
+  writeMatrix(root, [{ skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/sui', kind: 'primary', tested: '2.17.0', accepted: '^2.16', lastVerified: '2026-05-21', tag: '' }]);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /Summary:/);
+  assert.match(r.stdout, /skills\/sui-foo\/SKILL\.md\s+@mysten\/sui\s+banner=2\.17\.0\s+matrix=2\.17\.0\s+installed=2\.16\.0/);
+});
