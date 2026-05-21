@@ -5,6 +5,17 @@ All notable changes to the SUI Dev Agents plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2026-05-21
+
+### Changed
+- **Breaking (skill content): `sui-deepbook` rewritten V2 → V3.** Replaces the legacy `deepbook::clob_v2` / `AccountCap` model with V3 (`Pool` + `BalanceManager` + `TradeProof` + DEEP-token fees). Users copying V2 snippets from earlier versions will need to migrate — the new skill documents `DeepBookClient` / `DeepBookAdminClient`, Margin trading (MarginManager/Pool/TPSL with Pyth price feeds), the Indexer REST API, and the testnet Predict market module.
+
+### Added
+- **CI: TS snippet type-check pipeline.** New `scripts/ci/snippets/` harness extracts every ` ```ts ` / ` ```typescript ` block from skill markdown and runs `tsc --noEmit` against the real installed `@mysten/*` `.d.ts` surface. A `known-failures.txt` baseline freezes existing fragment-continuation failures; CI fails only on *new* hallucinations. Wired into `.github/workflows/validate.yml`.
+
+### Fixed
+- **16 hallucinated SDK APIs caught by the new pipeline** across skills — including `tx.pure(raw)` → typed `tx.pure.u64/.bool/.id/.address`, JSON-RPC response shapes (`.data` / `.nextCursor` / `coinObjectId`) → gRPC shapes (`.objects` / `.cursor` / `objectId`), non-existent `client.subscribeEvent`, wrong SuiNS API surface, and `Ed25519Keypair.export()` → `.getSecretKey()`. Full list in commit `105c1c7`.
+
 ## [2.9.2] - 2026-05-21
 
 ### Fixed
