@@ -29,3 +29,15 @@ jobs:
           cache-dependency-path: scripts/ci/snippets/package.json
       - name: Type-check skill code blocks
         run: ./scripts/ci/check-snippets.sh
+
+  check-compat-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run compat matrix check
+        run: bash scripts/ci/check-compat-matrix.sh
+      - name: Run check script self-tests
+        run: node --test scripts/ci/tests/check-compat-matrix.test.mjs
