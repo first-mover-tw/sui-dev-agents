@@ -45,8 +45,7 @@ import {
 
 async function registerPasskey() {
   const provider = new BrowserPasskeyProvider('My SUI App', {
-    rpName: 'My SUI App',
-    rpId: window.location.hostname,
+    rp: { name: 'My SUI App', id: window.location.hostname },
     authenticatorSelection: {
       authenticatorAttachment: 'platform',   // Face ID / Touch ID / Windows Hello
       userVerification: 'required',
@@ -81,8 +80,7 @@ async function registerPasskey() {
 ```typescript
 function restorePasskeySigner(): PasskeyKeypair {
   const provider = new BrowserPasskeyProvider('My SUI App', {
-    rpName: 'My SUI App',
-    rpId: window.location.hostname,
+    rp: { name: 'My SUI App', id: window.location.hostname },
   });
 
   const publicKey = Buffer.from(localStorage.getItem('pk_pubkey')!, 'base64');

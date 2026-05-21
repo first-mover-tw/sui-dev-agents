@@ -99,9 +99,9 @@ async function placeBuyOrder(
     target: `${DEEPBOOK_PACKAGE}::clob_v2::place_limit_order`,
     arguments: [
       tx.object(poolId),
-      tx.pure(price),
-      tx.pure(quantity),
-      tx.pure(true), // is_bid
+      tx.pure.u64(BigInt(price)),
+      tx.pure.u64(BigInt(quantity)),
+      tx.pure.bool(true), // is_bid
       tx.object(accountCapId)
     ],
     typeArguments: ['0x2::sui::SUI', '0x...::USDC']

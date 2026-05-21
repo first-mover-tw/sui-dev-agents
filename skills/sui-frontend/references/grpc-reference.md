@@ -140,11 +140,14 @@ In SDK v2, `SuiClient` from `@mysten/sui/client` is **removed**. Use `SuiGrpcCli
 // ✅ v2
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-const client = new SuiGrpcClient({ url: 'https://fullnode.testnet.sui.io:443' });
+const client = new SuiGrpcClient({
+  network: 'testnet',
+  baseUrl: 'https://fullnode.testnet.sui.io:443',
+});
 
 // Methods are under .core namespace
-const object = await client.core.getObject({ id: '0x...', include: { content: true } });
-const coins = await client.core.getCoins({ owner: '0x...' });
+const object = await client.core.getObject({ objectId: '0x...', include: { content: true } });
+const coins = await client.core.listCoins({ owner: '0x...' });
 ```
 
 > **Note:** All client methods now live under `client.core.*`. The `options` parameter is renamed to `include` (e.g., `include: { content: true }` instead of `options: { showContent: true }`).

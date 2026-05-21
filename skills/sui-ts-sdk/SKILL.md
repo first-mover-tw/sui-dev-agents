@@ -32,6 +32,7 @@ npm install @mysten/sui.js
 All imports use subpath exports from `@mysten/sui`:
 
 ```typescript
+// @check:skip — contrasts correct vs deliberately-wrong imports
 // correct subpath imports
 import { Transaction } from '@mysten/sui/transactions';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
@@ -82,6 +83,7 @@ For legacy JSON-RPC, GraphQL clients, and gRPC service clients, see [references/
 A Programmable Transaction Block (PTB) is built using the `Transaction` class. The class was renamed from `TransactionBlock` at v1.0:
 
 ```typescript
+// @check:skip — contrasts correct vs deliberately-wrong class name
 // correct
 import { Transaction } from '@mysten/sui/transactions';
 const tx = new Transaction();

@@ -88,6 +88,7 @@ v2 of `@mysten/sui` is ESM-only. To migrate:
 v2 introduces `$extend()` for composing ecosystem SDKs onto the client:
 
 ```typescript
+// @check:skip — illustrative placeholder method calls
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { walrus } from '@mysten/walrus';
 import { suins } from '@mysten/suins';
@@ -96,7 +97,7 @@ const client = new SuiGrpcClient({ network: 'mainnet', baseUrl: 'https://fullnod
   .$extend(walrus())
   .$extend(suins());
 
-// Now client has walrus and suins methods
+// Now client has walrus and suins methods (placeholder methods — see each SDK's docs)
 await client.walrus.doSomething();
 await client.suins.getName('0xAddress');
 ```

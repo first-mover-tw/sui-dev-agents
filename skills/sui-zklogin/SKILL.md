@@ -61,16 +61,20 @@ import {
   getExtendedEphemeralPublicKey,
 } from '@mysten/sui/zklogin';
 
-const suiClient = new SuiGrpcClient({ network: 'devnet' });
+const suiClient = new SuiGrpcClient({
+  network: 'devnet',
+  baseUrl: 'https://fullnode.devnet.sui.io:443',
+});
 
 const ephemeral = Ed25519Keypair.generate();
-const { epoch } = await suiClient.core.getCurrentEpoch();
+const { systemState } = await suiClient.core.getCurrentSystemState();
+const epoch = systemState.epoch;
 const maxEpoch = Number(epoch) + 2;                     // valid for ~2 epochs
 const randomness = generateRandomness();                // string
 const nonce = generateNonce(ephemeral.getPublicKey(), maxEpoch, randomness);
 
 // Persist these — you need them after the OAuth redirect.
-sessionStorage.setItem('zk_ephemeral', ephemeral.export().privateKey);
+sessionStorage.setItem('zk_ephemeral', ephemeral.getSecretKey());
 sessionStorage.setItem('zk_maxEpoch', String(maxEpoch));
 sessionStorage.setItem('zk_randomness', randomness);
 ```

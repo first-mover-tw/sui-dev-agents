@@ -17,3 +17,15 @@ jobs:
 
       - name: Check skill SDK import consistency
         run: ./scripts/ci/check-skill-consistency.sh
+
+  type-check-snippets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/ci/snippets/package.json
+      - name: Type-check skill code blocks
+        run: ./scripts/ci/check-snippets.sh

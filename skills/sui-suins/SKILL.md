@@ -76,20 +76,25 @@ public fun resolve(name: String): Option<address> {
 ## Frontend Integration
 
 ```typescript
-import { SuiNSClient } from '@suins/sdk';
+import { SuinsClient } from '@mysten/suins';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 
-const suins = new SuiNSClient({ network: 'mainnet' });
+const client = new SuiGrpcClient({
+  network: 'mainnet',
+  baseUrl: 'https://fullnode.mainnet.sui.io:443',
+});
+const suins = new SuinsClient({ client, network: 'mainnet' });
 
-// Resolve name to address
+// Resolve name to address via NameRecord
 async function resolveName(name: string): Promise<string | null> {
-  const address = await suins.getAddress(name);
-  return address;
+  const record = await suins.getNameRecord(name);
+  return record?.targetAddress ?? null;
 }
 
-// Reverse lookup: address to name
+// Reverse lookup: address to default name (provided by SuiGrpcClient core)
 async function getName(address: string): Promise<string | null> {
-  const name = await suins.getName(address);
-  return name;
+  const res = await client.core.defaultNameServiceName({ address });
+  return res.data.name;
 }
 
 // Register new name

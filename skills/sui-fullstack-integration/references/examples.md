@@ -100,11 +100,11 @@ export class MarketplaceAPI {
       target: `${this.packageId}::listing::create_listing`,
       arguments: [
         tx.object(params.nft_id),
-        tx.pure(params.price, 'u64'),
+        tx.pure.u64(BigInt(params.price)),
       ],
     });
 
-    return txb;
+    return tx;
   }
 
   /**
@@ -121,23 +121,23 @@ export class MarketplaceAPI {
       ],
     });
 
-    return txb;
+    return tx;
   }
 
   /**
    * Fetch listing by ID
    */
   async getListing(listingId: string): Promise<Listing | null> {
-    const object = await this.client.core.getObject({
-      id: listingId,
-      include: { content: true },
+    const { object } = await this.client.core.getObject({
+      objectId: listingId,
+      include: { json: true },
     });
 
-    if (!object.data || object.data.content?.dataType !== 'moveObject') {
+    if (!object?.json) {
       return null;
     }
 
-    const fields = object.data.content.fields as any;
+    const fields = object.json as any;
 
     return {
       id: listingId,
@@ -178,7 +178,10 @@ export function useMarketplaceAPI() {
 
 ## Event Subscriptions
 
+> **Note**: `SuiGrpcClient` does **not** expose `subscribeEvent`. JSON-RPC pub/sub is removed in SDK v2. For live events, use an indexer service (custom or [sui-indexer-alt](https://github.com/MystenLabs/sui)) or poll `queryEvents` periodically. The snippet below is illustrative only.
+
 ```typescript
+// @check:skip
 // frontend/src/hooks/useContractEvents.ts
 import { useEffect, useState } from 'react';
 import { useCurrentClient } from '@mysten/dapp-kit-react';

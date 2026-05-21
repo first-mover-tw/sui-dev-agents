@@ -105,11 +105,11 @@ sponsoredTx.setSender(senderAddress);
 sponsoredTx.setGasOwner(sponsorAddress);
 
 // Sponsor picks gas coins
-const { data: sponsorCoins } = await client.core.listCoins({
+const { objects: sponsorCoins } = await client.core.listCoins({
   owner: sponsorAddress,
 });
 sponsoredTx.setGasPayment(sponsorCoins.slice(0, 1).map(c => ({
-  objectId: c.coinObjectId,
+  objectId: c.objectId,
   version: c.version,
   digest: c.digest,
 })));
@@ -276,8 +276,8 @@ async function getAllOwnedObjects(
       limit: 50,
     });
 
-    allObjects.push(...page.data);
-    cursor = page.nextCursor ?? null;
+    allObjects.push(...page.objects);
+    cursor = page.cursor ?? null;
     hasMore = page.hasNextPage;
   }
 
@@ -309,8 +309,8 @@ async function getAllCoins(
       limit: 50,
     });
 
-    allCoins.push(...page.data);
-    cursor = page.nextCursor ?? null;
+    allCoins.push(...page.objects);
+    cursor = page.cursor ?? null;
     hasMore = page.hasNextPage;
   }
 

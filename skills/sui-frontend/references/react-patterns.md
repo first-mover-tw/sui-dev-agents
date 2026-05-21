@@ -38,7 +38,7 @@ function Balance() {
   if (isPending) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const sui = Number(data.totalBalance) / 1_000_000_000;
+  const sui = Number(data.balance.balance) / 1_000_000_000;
   return <p>Balance: {sui.toFixed(4)} SUI</p>;
 }
 ```
@@ -73,26 +73,25 @@ function OwnedNFTs() {
   const account = useCurrentAccount();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ['getOwnedObjects', account?.address],
+    queryKey: ['listOwnedObjects', account?.address],
     queryFn: ({ pageParam }) =>
-      client.getOwnedObjects({
+      client.core.listOwnedObjects({
         owner: account!.address,
         cursor: pageParam ?? null,
-        filter: { StructType: '0xPKG::nft::NFT' },
-        options: { showContent: true },
+        type: '0xPKG::nft::NFT',
       }),
-    initialPageParam: undefined,
+    initialPageParam: undefined as string | null | undefined,
     getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.nextCursor : undefined,
+      lastPage.hasNextPage ? lastPage.cursor : undefined,
     enabled: !!account,
   });
 
-  const allObjects = data?.pages.flatMap((page) => page.data) ?? [];
+  const allObjects = data?.pages.flatMap((page) => page.objects) ?? [];
 
   return (
     <div>
       {allObjects.map((obj) => (
-        <NFTCard key={obj.data?.objectId} object={obj} />
+        <NFTCard key={obj.objectId} object={obj} />
       ))}
       {hasNextPage && (
         <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
@@ -177,7 +176,7 @@ function NetworkSwitcher() {
   const dAppKit = useDAppKit();
 
   return (
-    <select value={network} onChange={(e) => dAppKit.switchNetwork(e.target.value)}>
+    <select value={network} onChange={(e) => dAppKit.switchNetwork(e.target.value as 'testnet' | 'mainnet')}>
       <option value="mainnet">Mainnet</option>
       <option value="testnet">Testnet</option>
     </select>

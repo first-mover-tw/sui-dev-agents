@@ -115,7 +115,7 @@ async function listNFT(kioskId: string, nftId: string, price: number) {
       tx.object(kioskId),
       tx.object(kioskOwnerCapId),
       tx.object(nftId),
-      tx.pure(price)
+      tx.pure.u64(BigInt(price))
     ],
     typeArguments: [`${PACKAGE_ID}::nft::NFT`]
   });
@@ -136,7 +136,7 @@ async function purchaseNFT(
     target: '0x2::kiosk::purchase',
     arguments: [
       tx.object(kioskId),
-      tx.pure(nftId),
+      tx.pure.id(nftId),
       tx.object(paymentCoinId)
     ],
     typeArguments: [`${PACKAGE_ID}::nft::NFT`]
