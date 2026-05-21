@@ -137,3 +137,160 @@ test('parseMatrix rejects missing separator row', () => {
   const md = '| Skill | Package | Kind | Tested | Accepted | Last verified | Notes-tag |\n\n| skills/x/SKILL.md | @mysten/x | primary | 1.0.0 | ^1.0 | 2026-05-21 | — |\n';
   assert.throws(() => parseMatrix(md), /separator row missing or malformed/);
 });
+
+function writeSkill(root, name, banner) {
+  mkdirSync(join(root, 'skills', name), { recursive: true });
+  writeFileSync(join(root, 'skills', name, 'SKILL.md'), banner + '\n');
+}
+function writeScope(root, lines) {
+  writeFileSync(join(root, 'scripts', 'ci', 'compat-scope.txt'), lines.join('\n') + '\n');
+}
+function writePkgJson(root, deps) {
+  writeFileSync(join(root, 'scripts', 'ci', 'snippets', 'package.json'),
+    JSON.stringify({ dependencies: deps }));
+}
+function writeMatrix(root, rows) {
+  const head = '| Skill | Package | Kind | Tested | Accepted | Last verified | Notes-tag |\n|---|---|---|---|---|---|---|\n';
+  const body = rows.map(r => `| ${r.skill} | ${r.pkg} | ${r.kind} | ${r.tested} | ${r.accepted} | ${r.lastVerified} | ${r.tag || '—'} |`).join('\n');
+  writeFileSync(join(root, 'skills', 'sui-compat-matrix', 'references', 'sdk-compat-matrix.md'), head + body + '\n');
+}
+
+test('R1: missing Targets line in scoped skill fails', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', '# foo\nno targets here');
+  writePkgJson(root, {});
+  writeMatrix(root, []);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R1\] skills\/sui-foo\/SKILL\.md: missing Targets line/);
+});
+
+test('R3: banner triple missing from matrix fails', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.');
+  writePkgJson(root, { '@mysten/sui': '2.17.0' });
+  writeMatrix(root, []);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R3\] skills\/sui-foo\/SKILL\.md @mysten\/sui: missing matrix row/);
+});
+
+test('R4: matrix row for out-of-scope skill fails', () => {
+  const root = makeFixture();
+  writeScope(root, []);
+  writePkgJson(root, {});
+  writeMatrix(root, [{ skill: 'skills/sui-ghost/SKILL.md', pkg: '@mysten/sui', kind: 'primary', tested: '2.17.0', accepted: '^2.16', lastVerified: '2026-05-21', tag: '' }]);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R4\] matrix row skills\/sui-ghost\/SKILL\.md @mysten\/sui: skill not in scope/);
+});
+
+test('R5: matrix tested ≠ banner tested fails', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.');
+  writePkgJson(root, { '@mysten/sui': '2.17.0' });
+  writeMatrix(root, [{ skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/sui', kind: 'primary', tested: '2.16.0', accepted: '^2.16', lastVerified: '2026-05-21', tag: '' }]);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R5\] skills\/sui-foo\/SKILL\.md @mysten\/sui: matrix=2\.16\.0 banner=2\.17\.0/);
+});
+
+test('R6: primary not installed fails', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.');
+  writePkgJson(root, {});
+  writeMatrix(root, [{ skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/sui', kind: 'primary', tested: '2.17.0', accepted: '^2.16', lastVerified: '2026-05-21', tag: '' }]);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R6\] skills\/sui-foo\/SKILL\.md @mysten\/sui: installed=<missing> tested=2\.17\.0/);
+});
+
+test('R6: primary installed mismatch fails', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.');
+  writePkgJson(root, { '@mysten/sui': '2.16.0' });
+  writeMatrix(root, [{ skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/sui', kind: 'primary', tested: '2.17.0', accepted: '^2.16', lastVerified: '2026-05-21', tag: '' }]);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R6\] skills\/sui-foo\/SKILL\.md @mysten\/sui: installed=2\.16\.0 tested=2\.17\.0/);
+});
+
+test('R7: peer installed mismatch fails; not-installed OK', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.');
+  writePkgJson(root, { '@mysten/sui': '2.16.0' });
+  writeMatrix(root, [{ skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/sui', kind: 'peer', tested: '2.17.0', accepted: '^2.16', lastVerified: '2026-05-21', tag: '' }]);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R7\] skills\/sui-foo\/SKILL\.md @mysten\/sui: installed=2\.16\.0 tested=2\.17\.0/);
+});
+
+test('missing matrix file produces descriptive error', () => {
+  const root = makeFixture();
+  writeFileSync(join(root, 'scripts', 'ci', 'compat-scope.txt'), '');
+  writeFileSync(join(root, 'scripts', 'ci', 'snippets', 'package.json'), '{"dependencies":{}}');
+  // intentionally do NOT write matrix
+  const r = run(root);
+  assert.equal(r.code, 2);
+  assert.match(r.stderr + r.stdout, /matrix file not found/);
+});
+
+test('R1: malformed Targets line surfaces parse error', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: bogus');
+  writePkgJson(root, {});
+  writeMatrix(root, []);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R1\] skills\/sui-foo\/SKILL\.md: bad Targets line/);
+});
+
+test('R5: matrix accepted ≠ banner accepted fails', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.');
+  writePkgJson(root, { '@mysten/sui': '2.17.0' });
+  writeMatrix(root, [{ skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/sui', kind: 'primary', tested: '2.17.0', accepted: '^1.0', lastVerified: '2026-05-21', tag: '' }]);
+  const r = run(root);
+  assert.equal(r.code, 1);
+  assert.match(r.stdout, /\[R5\] skills\/sui-foo\/SKILL\.md @mysten\/sui: matrix accepted=\^1\.0 banner accepted=\^2\.16/);
+});
+
+test('parseMatrix stops at end of empty compat table (no leak to later tables)', () => {
+  const md = MATRIX_HEAD +
+    '\n## Another section\n\n' +
+    '| col1 | col2 |\n|---|---|\n| a | b |\n';
+  const rows = parseMatrix(md);
+  assert.equal(rows.length, 0);
+});
+
+test('parseMatrix stops at end of compat table (later tables ignored)', () => {
+  const md = MATRIX_HEAD +
+    '| skills/x/SKILL.md | @mysten/x | primary | 1.0.0 | ^1.0 | 2026-05-21 | — |\n' +
+    '\n' +
+    '## Another section\n\n' +
+    '| col1 | col2 |\n|---|---|\n| a | b |\n';
+  const rows = parseMatrix(md);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].pkg, '@mysten/x');
+});
+
+test('happy path: all rules pass', () => {
+  const root = makeFixture();
+  writeScope(root, ['skills/sui-foo']);
+  writeSkill(root, 'sui-foo', 'Targets: `@mysten/sui` 2.17.0 (^2.16), `@mysten/kiosk` 1.2.6 (^1.2). Tested: 2026-05-21.');
+  writePkgJson(root, { '@mysten/sui': '2.17.0', '@mysten/kiosk': '1.2.6' });
+  writeMatrix(root, [
+    { skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/sui', kind: 'primary', tested: '2.17.0', accepted: '^2.16', lastVerified: '2026-05-21', tag: '' },
+    { skill: 'skills/sui-foo/SKILL.md', pkg: '@mysten/kiosk', kind: 'primary', tested: '1.2.6', accepted: '^1.2', lastVerified: '2026-05-21', tag: 'no-grpc' },
+  ]);
+  const r = run(root);
+  assert.equal(r.code, 0, r.stdout);
+});
