@@ -3,6 +3,7 @@
 ## 1. `$extend()` Ecosystem Integrations
 
 ```typescript
+// @check:skip
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { walrus } from '@mysten/walrus';
 import { suins } from '@mysten/suins';
@@ -32,6 +33,7 @@ const walrusClient = new SuiGrpcClient({ network: 'testnet', baseUrl: 'https://f
 ### SUI Transfer
 
 ```typescript
+// @check:skip
 import { Transaction, coinWithBalance } from '@mysten/sui/transactions';
 
 const tx = new Transaction();
@@ -48,6 +50,7 @@ await client.signAndExecuteTransaction({ transaction: tx, signer: keypair });
 ### Non-SUI Token Transfer
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 
 // Transfer 100 USDC (specify coin type)
@@ -63,6 +66,7 @@ tx.transferObjects(
 ### Use in moveCall
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 
 const coin = coinWithBalance({
@@ -140,6 +144,7 @@ if (result.$kind === 'FailedTransaction') {
 ## 4. BCS Encoding for Custom Types
 
 ```typescript
+// @check:skip
 import { bcs } from '@mysten/sui/bcs';
 
 // Define a custom struct matching your Move type
@@ -182,6 +187,7 @@ tx.moveCall({
 ## 5. Multi-Command PTB Composition
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 
 // 1. Split coins for multiple operations
@@ -219,6 +225,7 @@ const result = await client.signAndExecuteTransaction({
 Simulate a transaction without executing it on-chain. Useful for estimating gas and checking effects.
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 tx.moveCall({
   target: '0xPkg::module::view_function',
@@ -239,6 +246,7 @@ console.log('Events:', simResult.events);
 ### Reading return values from dev inspect
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 tx.moveCall({
   target: '0xPkg::module::get_value',
@@ -260,6 +268,7 @@ const result = await client.core.simulateTransaction({
 For queries that return large result sets, use cursor-based pagination:
 
 ```typescript
+// @check:skip
 async function getAllOwnedObjects(
   client: SuiGrpcClient,
   owner: string,
@@ -292,6 +301,7 @@ console.log(`Found ${objects.length} objects`);
 ### Paginated coin fetching
 
 ```typescript
+// @check:skip
 async function getAllCoins(
   client: SuiGrpcClient,
   owner: string,

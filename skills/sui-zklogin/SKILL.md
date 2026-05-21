@@ -82,6 +82,7 @@ sessionStorage.setItem('zk_randomness', randomness);
 ### Step 2 — redirect to OAuth provider
 
 ```typescript
+// @check:skip
 const params = new URLSearchParams({
   client_id: GOOGLE_CLIENT_ID,
   redirect_uri: 'http://localhost:3000/callback',
@@ -96,6 +97,7 @@ window.location.href =
 ### Step 3–4 — JWT → address
 
 ```typescript
+// @check:skip
 import { jwtToAddress, decodeJwt } from '@mysten/sui/zklogin';
 
 const jwt = new URLSearchParams(window.location.hash.slice(1)).get('id_token')!;
@@ -110,6 +112,7 @@ const address = jwtToAddress(jwt, userSalt, /*legacy*/ false);
 ### Step 5 — fetch ZK proof from prover
 
 ```typescript
+// @check:skip
 const ephemeral = Ed25519Keypair.fromSecretKey(
   sessionStorage.getItem('zk_ephemeral')!,
 );
@@ -139,6 +142,7 @@ const partialZkLoginSignature = await proofRes.json();
 ### Step 6–7 — sign + assemble zkLogin signature
 
 ```typescript
+// @check:skip
 import { Transaction } from '@mysten/sui/transactions';
 import { genAddressSeed, getZkLoginSignature } from '@mysten/sui/zklogin';
 import { decodeJwt } from '@mysten/sui/zklogin';

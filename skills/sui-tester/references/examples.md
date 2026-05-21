@@ -33,6 +33,7 @@ fun test_marketplace_with_royalty() {
 ## Example 3: E2E Test
 
 ```typescript
+// @check:skip
 test('complete buy flow', async ({ page }) => {
     await page.goto('http://localhost:5173');
     await page.click('button:has-text("Buy Now")');

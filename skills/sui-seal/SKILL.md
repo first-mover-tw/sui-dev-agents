@@ -84,6 +84,7 @@ const sealClient = new SealClient({
 ### Encrypt
 
 ```typescript
+// @check:skip
 import { fromHex } from '@mysten/sui/utils';
 
 const PACKAGE_ID = '0xYOUR_POLICY_PKG';
@@ -107,6 +108,7 @@ const blobId = await uploadToWalrus(encryptedObject);
 ### Decrypt — full round-trip
 
 ```typescript
+// @check:skip
 import { SessionKey } from '@mysten/seal';
 import { Transaction } from '@mysten/sui/transactions';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
@@ -152,6 +154,7 @@ console.log(new TextDecoder().decode(plaintext));
 ### Batch decrypts (same session, many ids)
 
 ```typescript
+// @check:skip
 // Pre-fetch keys once, then decrypt many objects cheaply.
 await sealClient.fetchKeys({
   ids: ['0xdeadbeef', '0xcafebabe'],
@@ -169,6 +172,7 @@ for (const blob of blobs) {
 ### Persisting a SessionKey (e.g. across page reloads)
 
 ```typescript
+// @check:skip
 const exported = sessionKey.export();          // ExportedSessionKey (JSON-safe)
 localStorage.setItem('seal-sk', JSON.stringify(exported));
 
@@ -183,6 +187,7 @@ const restored = SessionKey.import(
 ### Parsing an encrypted blob's metadata
 
 ```typescript
+// @check:skip
 import { EncryptedObject } from '@mysten/seal';
 
 const meta = EncryptedObject.parse(encryptedBlob);

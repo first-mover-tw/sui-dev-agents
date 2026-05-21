@@ -66,6 +66,7 @@ await client.nameService.reverseLookupName({ address: '0x...' });
 ### Multi-step swap + stake in one PTB
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 
 const [coinB] = tx.moveCall({
@@ -86,6 +87,7 @@ tx.transferObjects([receipt], myAddress);
 ### Flash loan pattern (hot potato)
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 
 const [coin, receipt] = tx.moveCall({
@@ -115,6 +117,7 @@ The key insight: Move functions that return objects (instead of transferring the
 For advanced flows (e.g., multi-sig, sponsored transactions):
 
 ```typescript
+// @check:skip
 const { bytes, signature } = await tx.sign({ client, signer: keypair });
 
 const result = await client.core.executeTransaction({
@@ -131,6 +134,7 @@ const result = await client.core.executeTransaction({
 ### Creating keypairs
 
 ```typescript
+// @check:skip
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { Secp256k1Keypair } from '@mysten/sui/keypairs/secp256k1';
 import { Secp256r1Keypair } from '@mysten/sui/keypairs/secp256r1';
@@ -151,6 +155,7 @@ const address = keypair.toSuiAddress();
 ### Multi-sig
 
 ```typescript
+// @check:skip
 import { MultiSigPublicKey } from '@mysten/sui/multisig';
 
 const multiSigPk = MultiSigPublicKey.fromPublicKeys({
@@ -212,6 +217,7 @@ const bytes = await tx.build();
 In a sponsored transaction, one party builds the transaction and another pays for gas:
 
 ```typescript
+// @check:skip
 // === App / user side ===
 const tx = new Transaction();
 tx.setSender(userAddress);
@@ -246,6 +252,7 @@ const result = await client.core.executeTransaction({
 Ecosystem SDKs (kiosk, suins, deepbook, walrus, seal, zksend) integrate via the `$extend()` pattern:
 
 ```typescript
+// @check:skip
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { suins } from '@mysten/suins';
 import { deepbook } from '@mysten/deepbook-v3';

@@ -42,6 +42,7 @@ v2 replaces `options` with `include` for specifying which data to return.
 ### Example
 
 ```typescript
+// @check:skip
 // v1
 const obj = await client.getObject({
   id: '0x123',

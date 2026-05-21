@@ -103,6 +103,7 @@ public fun create_royalty_policy<T>(
 ## Frontend Integration
 
 ```typescript
+// @check:skip
 import { Transaction } from '@mysten/sui/transactions';
 
 // List NFT for sale

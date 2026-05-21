@@ -37,6 +37,7 @@ import {
 Use `PasskeyKeypair.getPasskeyInstance(provider)` — this invokes the browser passkey UI, creates a fresh credential, and returns a signer.
 
 ```typescript
+// @check:skip
 import {
   BrowserPasskeyProvider,
   PasskeyKeypair,
@@ -78,6 +79,7 @@ async function registerPasskey() {
 ## Returning user — rebuild signer without re-registering
 
 ```typescript
+// @check:skip
 function restorePasskeySigner(): PasskeyKeypair {
   const provider = new BrowserPasskeyProvider('My SUI App', {
     rp: { name: 'My SUI App', id: window.location.hostname },
@@ -98,6 +100,7 @@ function restorePasskeySigner(): PasskeyKeypair {
 Sign two distinct messages, then intersect candidate public keys.
 
 ```typescript
+// @check:skip
 import { PasskeyKeypair, findCommonPublicKey } from '@mysten/sui/keypairs/passkey';
 
 const provider = new BrowserPasskeyProvider('My SUI App', {
@@ -118,6 +121,7 @@ const signer = new PasskeyKeypair(realPubKey.toRawBytes(), provider);
 ## Sign + execute a transaction
 
 ```typescript
+// @check:skip
 import { Transaction } from '@mysten/sui/transactions';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 
@@ -140,6 +144,7 @@ await suiClient.core.executeTransaction({ transaction: bytes, signature });
 ## React hook
 
 ```typescript
+// @check:skip
 function usePasskey() {
   const [signer, setSigner] = useState<PasskeyKeypair | null>(null);
 

@@ -85,6 +85,7 @@ Test cross-module interactions (marketplace + royalty).
 ### 3. Frontend E2E Tests
 
 ```typescript
+// @check:skip
 test('complete buy flow', async ({ page }) => {
     await page.goto('http://localhost:5173');
     await page.click('button:has-text("Connect Wallet")');

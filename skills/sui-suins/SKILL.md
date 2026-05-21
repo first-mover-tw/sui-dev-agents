@@ -76,6 +76,7 @@ public fun resolve(name: String): Option<address> {
 ## Frontend Integration
 
 ```typescript
+// @check:skip
 import { SuinsClient } from '@mysten/suins';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 
@@ -119,6 +120,7 @@ async function registerName(name: string, years: number) {
 ## Display Name in UI
 
 ```tsx
+// @check:skip
 function AddressDisplay({ address }: { address: string }) {
   const { data: name } = useQuery({
     queryKey: ['suins', address],

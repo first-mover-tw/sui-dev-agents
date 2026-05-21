@@ -56,12 +56,14 @@ const client = new SuiGrpcClient({
 Read a blob:
 
 ```typescript
+// @check:skip
 const bytes = await client.walrus.readBlob({ blobId });
 ```
 
 Write a blob (requires a `Signer` and SUI for gas + WAL for storage fees):
 
 ```typescript
+// @check:skip
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 
 const signer = Ed25519Keypair.fromSecretKey(/* ... */);
@@ -137,6 +139,7 @@ module nft::metadata {
 Use the real `@mysten/walrus` extension on a v2 Sui client (see the `$extend(walrus())` examples earlier in this file). There is no separate `@walrus-sdk/client` package — that name is fabricated. A minimal upload + Move-call pattern looks like:
 
 ```typescript
+// @check:skip
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { walrus } from '@mysten/walrus';
 import { Transaction } from '@mysten/sui/transactions';

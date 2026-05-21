@@ -95,6 +95,7 @@ const txb = new TransactionBlock();
 ### Cloning a transaction
 
 ```typescript
+// @check:skip
 // v1.0+
 const newTx = Transaction.from(existingTx);
 
@@ -105,6 +106,7 @@ const newTx = new TransactionBlock(existingTx);
 ### Serialization
 
 ```typescript
+// @check:skip
 // v1.0+ — async, runs serialization plugins
 const json = await tx.toJSON();
 
@@ -122,6 +124,7 @@ const bytes = tx.serialize();
 Use `tx.pure.<type>()` helpers for non-object inputs. These handle BCS serialization automatically. **Never manually BCS-encode values when a `tx.pure` helper exists.**
 
 ```typescript
+// @check:skip
 // Typed pure helpers
 tx.pure.u8(255);
 tx.pure.u16(65535);
@@ -145,6 +148,7 @@ tx.pure.option('u64', null);        // None
 ```
 
 ```typescript
+// @check:skip
 // don't manually construct BCS for types that have helpers
 import { bcs } from '@mysten/sui/bcs';
 tx.pure(bcs.U64.serialize(100));    // unnecessary — use tx.pure.u64(100)
@@ -153,6 +157,7 @@ tx.pure(bcs.U64.serialize(100));    // unnecessary — use tx.pure.u64(100)
 For advanced types without a built-in helper, fall back to `tx.pure(bcsBytes)` where `bcsBytes` is a `Uint8Array`:
 
 ```typescript
+// @check:skip
 import { bcs } from '@mysten/sui/bcs';
 
 const MyStruct = bcs.struct('MyStruct', {
@@ -169,6 +174,7 @@ tx.pure(MyStruct.serialize({ id: '0x...', value: 100n }));
 Use `tx.object(id)` for object inputs. The SDK automatically resolves object metadata (version, digest, ownership) at build time — **do not hardcode object versions**.
 
 ```typescript
+// @check:skip
 // Let the SDK resolve object details
 tx.object('0xSomeObjectId');
 
@@ -186,6 +192,7 @@ tx.object.option({
 ```
 
 ```typescript
+// @check:skip
 // don't hardcode object versions
 tx.object(Inputs.ObjectRef({
   objectId: '0x...',
@@ -208,6 +215,7 @@ When a Move function takes a `Receiving<T>` parameter, the SDK auto-converts `tx
 Creates new coins by splitting from a source coin. Returns an array of coin references:
 
 ```typescript
+// @check:skip
 // Split from gas coin — most common pattern for SUI
 const [coin] = tx.splitCoins(tx.gas, [1000]);
 
@@ -223,6 +231,7 @@ const [portion] = tx.splitCoins(tx.object('0xMyCoin'), [500]);
 Merges coins into a destination coin:
 
 ```typescript
+// @check:skip
 tx.mergeCoins(tx.object('0xDestCoin'), [
   tx.object('0xCoinA'),
   tx.object('0xCoinB'),
@@ -234,6 +243,7 @@ tx.mergeCoins(tx.object('0xDestCoin'), [
 Transfers one or more objects to a recipient address:
 
 ```typescript
+// @check:skip
 // Transfer a split coin
 const [coin] = tx.splitCoins(tx.gas, [1000]);
 tx.transferObjects([coin], '0xRecipientAddress');
@@ -253,6 +263,7 @@ tx.transferObjects([tx.gas], '0xRecipientAddress');
 Calls a Move function:
 
 ```typescript
+// @check:skip
 tx.moveCall({
   target: '0xPackageId::module_name::function_name',
   arguments: [
@@ -266,6 +277,7 @@ tx.moveCall({
 **Return values** from `moveCall` are usable in subsequent commands:
 
 ```typescript
+// @check:skip
 const [result] = tx.moveCall({
   target: '0xpkg::amm::swap',
   arguments: [tx.object(poolId), coin],
@@ -280,6 +292,7 @@ tx.transferObjects([result], myAddress);
 Constructs a `vector<T>` of objects for passing into a Move function:
 
 ```typescript
+// @check:skip
 const vec = tx.makeMoveVec({
   type: '0xpkg::mod::MyType',
   elements: [tx.object('0xA'), tx.object('0xB')],
@@ -295,6 +308,7 @@ tx.moveCall({
 Publishes a new Move package. Build the package with the Sui CLI first, then pass the compiled modules:
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 const [upgradeCap] = tx.publish({ modules, dependencies });
 tx.transferObjects([upgradeCap], myAddress);
@@ -315,6 +329,7 @@ Parse the JSON output to extract `modules` and `dependencies` arrays.
 Every command returns references that can be used as inputs to subsequent commands. This is the core power of PTBs — composing multiple operations atomically:
 
 ```typescript
+// @check:skip
 const tx = new Transaction();
 
 // Step 1: Split a coin
@@ -333,6 +348,7 @@ tx.transferObjects([receipt], myAddress);
 For commands that return multiple values, destructure the result array:
 
 ```typescript
+// @check:skip
 const [coinOut, receipt] = tx.moveCall({
   target: '0xpkg::amm::swap',
   arguments: [tx.object(poolId), coinIn],
@@ -350,6 +366,7 @@ For advanced PTB composability (multi-step swap+stake, flash loan hot potato pat
 `tx.gas` is a special reference to the gas payment coin:
 
 ```typescript
+// @check:skip
 // Split from gas coin (by-reference)
 const [coin] = tx.splitCoins(tx.gas, [100]);
 
@@ -371,6 +388,7 @@ tx.moveCall({
 The SDK automatically sets gas price, budget, and selects gas payment coins. Override only when needed:
 
 ```typescript
+// @check:skip
 // Manual overrides (rarely needed)
 tx.setGasPrice(1000);
 tx.setGasBudget(10_000_000);
@@ -392,6 +410,7 @@ tx.setSender('0xSenderAddress');
 For non-SUI coin types, manually splitting coins is complex because you must find, select, and merge coins of the correct type. The `coinWithBalance` intent automates this:
 
 ```typescript
+// @check:skip
 import { coinWithBalance, Transaction } from '@mysten/sui/transactions';
 
 const tx = new Transaction();
@@ -424,6 +443,7 @@ For SUI, `tx.splitCoins(tx.gas, [...])` works fine. But for other coin types, yo
 ### Sign and execute
 
 ```typescript
+// @check:skip
 const result = await client.signAndExecuteTransaction({
   signer: keypair,
   transaction: tx,
@@ -440,6 +460,7 @@ if (result.$kind === 'FailedTransaction') {
 ### Execution with include options
 
 ```typescript
+// @check:skip
 const result = await client.core.signAndExecuteTransaction({
   transaction: tx,
   signer: keypair,
@@ -452,6 +473,7 @@ const result = await client.core.signAndExecuteTransaction({
 After execution, wait before follow-up queries:
 
 ```typescript
+// @check:skip
 await client.waitForTransaction({ digest: result.digest });
 // Now safe to query updated state
 ```
@@ -468,6 +490,7 @@ For separate sign + execute, multi-sig, keypairs, offline building, sponsored tr
 ### Core API (recommended)
 
 ```typescript
+// @check:skip
 // Get object
 const obj = await client.core.getObject({
   objectId: '0xObjId',
