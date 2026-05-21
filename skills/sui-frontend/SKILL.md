@@ -7,11 +7,9 @@ description: Sui frontend dApp development with @mysten/dapp-kit-react (React) a
 
 ## SDK Versions
 
-Targets: `@mysten/sui` ^2.0, `@mysten/dapp-kit-react` ^2.0, `@mysten/dapp-kit-core` ^1.3. Last verified: 2026-05-21.
+Targets: `@mysten/sui` 2.17.0 (^2.0), `@mysten/dapp-kit-react` 2.0.3 (^2.0), `@mysten/dapp-kit-core` 1.3.2 (^1.3). Tested: 2026-05-21.
 
-Before installing, run `npm ls @mysten/sui` — if you already have `@mysten/sui@1.x` from `seal`, `walrus`, or legacy `@mysten/dapp-kit`, do not add a 2.x package on top. Either upgrade those peers to 1.x-compatible-with-sui-2.x releases, or stay fully on the 1.x line. Mixing produces dual-sui installs with confusing type errors.
-
-In 2.x the package is split into two entries: hooks and provider come from `@mysten/dapp-kit-react`, while UI components (`ConnectButton`, `ConnectModal`) come from `@mysten/dapp-kit-react/ui`. Importing `ConnectButton` from the package root will fail with "is not exported" — this is the most common 1.x → 2.x migration error.
+**Compatibility notes:** Before installing, run `npm ls @mysten/sui` — if you already have `@mysten/sui@1.x` from `seal`, `walrus`, or legacy `@mysten/dapp-kit`, do not add a 2.x package on top. Remediation: either upgrade those peers to versions compatible with sui 2.x, or stay fully on the 1.x line — don't mix. UI components moved to `@mysten/dapp-kit-react/ui` in 2.x — importing `ConnectButton` from the package root will fail with "is not exported".
 
 ---
 

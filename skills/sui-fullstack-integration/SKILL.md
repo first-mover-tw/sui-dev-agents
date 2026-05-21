@@ -7,6 +7,10 @@ description: Use when bridging Move contracts to TypeScript — generating TS ty
 
 > **Scope:** This skill covers Move ↔ TypeScript bridging: type generation, event handling, ABI wrappers. For dApp UI setup and wallet integration, use the `sui-frontend` skill. For PTB construction and SDK client patterns, use the `sui-ts-sdk` skill.
 
+Targets: `@mysten/sui` 2.17.0 (^2.16), `@mysten/kiosk` 1.2.6 (^1.2). Tested: 2026-05-21.
+
+**Compatibility notes:** `@mysten/kiosk@1.2.x` accepts only `SuiJsonRpcClient | SuiGraphQLClient`, so the kiosk example in this skill instantiates a JSON-RPC client even though other examples use gRPC. Re-check on the next kiosk minor bump — once kiosk types `SuiGrpcClient`, the example can be migrated.
+
 **Seamlessly integrate Move smart contracts with frontend applications.**
 
 ## Overview
@@ -104,15 +108,10 @@ project/
 - Extend client capabilities with `$extend()` for ecosystem integration:
 
 ```typescript
-// @check:skip
-// Note: @mysten/kiosk 1.2.6 (verified 2026-05-21) types KioskCompatibleClient as
-// `SuiJsonRpcClient | SuiGraphQLClient` — SuiGrpcClient NOT supported by $extend(kiosk()).
-// Use SuiJsonRpcClient for $extend(kiosk()), or construct KioskClient directly:
-// new KioskClient({ client, network }). Re-check on next @mysten/kiosk minor bump.
-import { SuiGrpcClient } from '@mysten/sui/grpc';
+import { SuiJsonRpcClient, getJsonRpcFullnodeUrl } from '@mysten/sui/jsonRpc';
 import { kiosk } from '@mysten/kiosk';
 
-const client = new SuiGrpcClient({ network: 'mainnet', baseUrl: 'https://fullnode.mainnet.sui.io:443' })
+const client = new SuiJsonRpcClient({ url: getJsonRpcFullnodeUrl('mainnet'), network: 'mainnet' })
   .$extend(kiosk());
 ```
 

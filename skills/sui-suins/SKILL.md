@@ -9,7 +9,9 @@ description: Use when integrating SuiNS (SUI Name Service) — resolving .sui na
 
 ## SDK Versions
 
-Targets: `@mysten/suins` ^1.1, `@mysten/sui` ^2.16. Last verified: 2026-05-21.
+Targets: `@mysten/suins` 1.1.4 (^1.1), `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.
+
+**Compatibility notes:** `@mysten/sui` is a peer dependency. Use `SuinsClient.getNameRecord(name): Promise<NameRecord | null>` (NameRecord has `targetAddress`) — there is no `getAddress` / `getName`. Reverse lookup goes through `client.core.defaultNameServiceName({ address })`.
 
 ## Overview
 

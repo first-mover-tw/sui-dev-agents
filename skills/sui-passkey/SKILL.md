@@ -9,9 +9,9 @@ description: Use when implementing WebAuthn passkeys or biometric authentication
 
 ## SDK Versions
 
-Targets: `@mysten/sui` ^2.0 (passkey sub-export at `@mysten/sui/keypairs/passkey`). Last verified: 2026-05-21.
+Targets: `@mysten/sui` 2.17.0 (^2.0). Tested: 2026-05-21.
 
-> Do **NOT** import passkey symbols from `@mysten/wallet-standard`. wallet-standard exports zero passkey APIs. Everything passkey-related lives in `@mysten/sui/keypairs/passkey`.
+**Compatibility notes:** The passkey API lives at the `@mysten/sui/keypairs/passkey` sub-export — there is no separate `@mysten/passkey` package. Do **NOT** import passkey symbols from `@mysten/wallet-standard` (it exports zero passkey APIs).
 
 ## Real exports
 

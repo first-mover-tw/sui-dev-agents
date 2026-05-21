@@ -1,0 +1,10 @@
+skills/sui-ts-sdk
+skills/sui-frontend
+skills/sui-deepbook
+skills/sui-kiosk
+skills/sui-seal
+skills/sui-walrus
+skills/sui-suins
+skills/sui-passkey
+skills/sui-zklogin
+skills/sui-fullstack-integration
