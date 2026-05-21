@@ -105,9 +105,10 @@ project/
 
 ```typescript
 // @check:skip
-// Note: @mysten/kiosk 1.2.x extension is typed for KioskCompatibleClient (JSON-RPC client).
-// Until @mysten/kiosk publishes a SuiGrpcClient-compatible registration, use SuiJsonRpcClient
-// for $extend(kiosk()), or construct KioskClient directly: new KioskClient({ client, network }).
+// Note: @mysten/kiosk 1.2.6 (verified 2026-05-21) types KioskCompatibleClient as
+// `SuiJsonRpcClient | SuiGraphQLClient` — SuiGrpcClient NOT supported by $extend(kiosk()).
+// Use SuiJsonRpcClient for $extend(kiosk()), or construct KioskClient directly:
+// new KioskClient({ client, network }). Re-check on next @mysten/kiosk minor bump.
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { kiosk } from '@mysten/kiosk';
 
