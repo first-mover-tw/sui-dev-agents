@@ -76,7 +76,7 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 
 ### 🧩 Ecosystem Integrations
 
-`/sui-kiosk` (NFT marketplace) · `/sui-zklogin` (ZK auth) · `/sui-deepbook` (DEX) · `/sui-walrus` (storage) · `/sui-passkey` (WebAuthn) · `/sui-suins` (name service) · `/sui-seal` (threshold encryption & access control) · `/sui-nautilus` (TEE off-chain compute) · `/sui-indexer` (data pipelines)
+`/sui-kiosk` (NFT marketplace) · `/sui-zklogin` (ZK auth) · `/sui-deepbook` (CLOB DEX + margin + predict) · `/sui-walrus` (storage) · `/sui-passkey` (WebAuthn) · `/sui-suins` (name service) · `/sui-seal` (threshold encryption & access control) · `/sui-nautilus` (TEE off-chain compute) · `/sui-indexer` (data pipelines)
 
 ### 🔌 MCP Server + Agent Wallet
 
