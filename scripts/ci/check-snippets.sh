@@ -46,3 +46,7 @@ if [ -n "${STALE// /}" ]; then
 fi
 
 echo "✅ Snippet type-check passed ($(echo "$ACTUAL" | grep -c . || true) known-failing files, no regressions)."
+
+# Gate the @check:skip blocks too: their bodies are intentionally skipped, but a
+# fabricated @mysten package/subpath/export must never hide there. Imports-only re-check.
+node check-skip-imports.mjs

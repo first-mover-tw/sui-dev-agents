@@ -39,9 +39,7 @@ import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 
 import { TransactionBlock } from '@mysten/sui.js'; // wrong: old package name (deprecated, removed at v1.0)
-
-// wrong: importing from package root
-import { Transaction } from '@mysten/sui';
+import { Transaction } from '@mysten/sui'; // wrong: no root export — import from a subpath like @mysten/sui/transactions
 ```
 
 **ESM-only (v2+)**: Set `"type": "module"` in `package.json` and update `tsconfig.json`:

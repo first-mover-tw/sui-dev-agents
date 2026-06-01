@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["tmp-skip-imports/**/*.ts", "tmp-skip-imports/**/*.tsx"]
+}

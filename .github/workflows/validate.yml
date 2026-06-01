@@ -29,6 +29,8 @@ jobs:
           cache-dependency-path: scripts/ci/snippets/package.json
       - name: Type-check skill code blocks
         run: ./scripts/ci/check-snippets.sh
+      - name: Run skip-import gate self-tests
+        run: node --test scripts/ci/tests/check-skip-imports.test.mjs
 
   check-compat-matrix:
     runs-on: ubuntu-latest
