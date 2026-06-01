@@ -200,6 +200,8 @@ This is an open-source project for the SUI developer community. Contributions ar
 - **New platform guides** — Add to `docs/platforms/` and update the platform README
 - **Skill improvements** — Edit `skills/*/SKILL.md` with better prompts or patterns
 
+PRs run CI (`.github/workflows/validate.yml`): plugin-structure validation, skill code-block type-checking + a `@check:skip` import gate against hallucinated `@mysten/*` APIs, and SDK compat-matrix drift detection. Before editing skill code, see [`scripts/ci/README.md`](scripts/ci/README.md) — it covers the `@check:skip` syntax and marker rules. Run the checks locally with `bash scripts/ci/check-snippets.sh` and `bash scripts/ci/check-compat-matrix.sh`.
+
 ---
 
 **From idea to production-ready SUI dApp — guided every step of the way.**

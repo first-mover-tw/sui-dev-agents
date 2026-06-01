@@ -423,7 +423,11 @@ sui-dev-agents/
 │   ├── check-sui-env.sh
 │   ├── protocol-version-check.sh
 │   ├── gas-report.sh
-│   ├── ci/validate-plugin.sh
+│   ├── ci/                            # CI gates (see scripts/ci/README.md)
+│   │   ├── validate-plugin.sh
+│   │   ├── check-skill-consistency.sh
+│   │   ├── check-compat-matrix.sh
+│   │   └── snippets/                  # code-block type-check + @check:skip import gate
 │   └── hooks/                         # 7 hook scripts
 │
 ├── docs/
