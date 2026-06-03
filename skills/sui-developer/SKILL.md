@@ -93,14 +93,16 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI v1.72.2 Updates (Protocol 124)
+## SUI Protocol 125 Updates (mainnet v1.72.3+, testnet v1.73.0)
 
-**Key changes affecting Move development (as of March 2026):**
+**Key changes affecting Move development (as of June 2026):**
 
 ### Platform & Runtime
 
-- **gRPC Data Access (GA):** gRPC is the primary data access method. JSON-RPC is deprecated (removal April 2026) — Quorum Driver for transaction submission is **fully disabled**. Use **Transaction Driver** exclusively.
-- **Display V2 (Activated):** Display Registry (system object `0xd`) is live on all networks. JSON-RPC and GraphQL now prioritize Display V2 lookups over legacy Display v1. Use `sui::display::DisplayRegistry` for new projects.
+- **gRPC Data Access (GA):** gRPC is the primary data access method. JSON-RPC is deprecated (**permanent deactivation 2026-07-31**) — Quorum Driver for transaction submission is **fully disabled**. Use **Transaction Driver** exclusively. Migrate reads to gRPC/GraphQL before the cutoff.
+- **Address Balances (Mainnet, P125):** Native address-held balances are live on mainnet for supported coin types. For those, PTBs can debit/credit address balances directly without manual `splitCoins`/`mergeCoins` coin-object juggling. This is an *additional* path — Move entry functions and SDK APIs that take `Coin<T>` still require coin objects, so don't drop coin handling wholesale.
+- **Gasless Stablecoin Transfers (Mainnet, P125, rolling out):** Accumulator + coin reservations enable sponsored stablecoin (USDC) transfers without the sender holding SUI for gas.
+- **Display V2 (Activated):** Display Registry (system object `0xd`) is live on all networks. JSON-RPC and GraphQL now prioritize Display V2 lookups over legacy Display v1. Use the `sui::display_registry` module (the legacy `sui::display` module is deprecated): `display_registry::new_with_publisher<T>(registry, &publisher, ctx)` or `display_registry::new<T>(registry, internal::permit<T>(), ctx)` → both return `(Display<T>, DisplayCap<T>)`; update with `display_registry::set(&mut d, &cap, name, value)` then `display_registry::share(d)`.
 - **Address Aliases (Mainnet):** Human-readable address mappings now enabled on mainnet (`v1.72.2+`).
 - **Adaptive Concurrency Control:** Indexing framework replaces fixed worker counts with automatic scaling. `Processor::FANOUT` is **removed** — use `ConcurrencyConfig` enum instead.
 - **Display Registry in APIs:** JSON-RPC (`showDisplay`) and GraphQL now prioritize Display Registry (V2) over legacy Display v1. New `MoveValue.asVector` for paginating vector data in GraphQL.

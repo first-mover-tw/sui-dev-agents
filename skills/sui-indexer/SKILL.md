@@ -282,6 +282,7 @@ let service = Service::builder()
 
 | Version | Change |
 |---------|--------|
+| v1.73 (Protocol 125) | Testnet v1.73.0 / mainnet P125 (v1.72.3+). JSON-RPC permanent deactivation **2026-07-31** — migrate indexer reads to gRPC / GraphQL before the cutoff |
 | v1.72 (Protocol 124) | `rpc-index` DB v4 — first start re-indexes full object history; added `pipeline-depth` for sequential pipelines |
 | v1.71 (Protocol 123) | `checkpoint_lag` / `checkpoint_buffer_size` **removed**; sequential pipelines use adaptive concurrency + `subscriber_channel_size` |
 | v1.69.1 (Protocol 119) | `IngestionClientTrait::fetch` → `checkpoint`; returns `CheckpointEnvelope` with `chain_id` |

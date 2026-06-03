@@ -26,12 +26,14 @@ sui-architect
 sui-full-stack  # → Phase 1: Architecture
 ```
 
-## SUI v1.72.2 Architecture Considerations (Protocol 124)
+## SUI Protocol 125 Architecture Considerations (mainnet v1.72.3+, testnet v1.73.0)
 
 When designing architectures, account for these recent platform changes:
 
-- **Protocol Version 124** (testnet v1.72.2, mainnet v1.71.1 / Protocol 123, May 2026)
-- **Data Access:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, Quorum Driver disabled, removal April 2026)
+- **Protocol Version 125** (mainnet v1.72.3+, testnet v1.73.0, June 2026)
+- **Data Access:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, Quorum Driver disabled, permanent deactivation 2026-07-31)
+- **Address Balances (Mainnet, P125):** Native address-held balances for supported coin types — PTBs can debit/credit them directly without manual coin select/split/merge. Additive, not a replacement: flows that take `Coin<T>` still need coin objects.
+- **Gasless Stablecoin Transfers (Mainnet, P125, rolling out):** Accumulator + coin reservations let users move USDC etc. without holding SUI for gas.
 - **Display V2 (Activated):** Display Registry (`0xd`) live on all networks — prioritized over legacy Display v1. Plan new projects around Display V2.
 - **Address Aliases (Mainnet):** Human-readable address mappings now live on mainnet.
 - **Adaptive Concurrency:** Indexing framework auto-scales workers; `Processor::FANOUT` removed → use `ConcurrencyConfig`.

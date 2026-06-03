@@ -9,7 +9,7 @@ description: Use when integrating DeepBook V3 — SUI's native CLOB DEX, margin 
 
 ## SDK Versions
 
-Targets: `@mysten/deepbook-v3` 1.4.0 (^1.3), `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.
+Targets: `@mysten/deepbook-v3` 1.4.1 (^1.3), `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-06-03.
 
 > Predict section re-verified against `deepbookv3@predict-testnet-4-16` source 2026-05-30 — Predict is a separate `deepbook_predict` Move package, not part of the npm SDK.
 
