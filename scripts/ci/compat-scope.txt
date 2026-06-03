@@ -7,4 +7,5 @@ skills/sui-walrus
 skills/sui-suins
 skills/sui-passkey
 skills/sui-zklogin
+skills/sui-enoki
 skills/sui-fullstack-integration

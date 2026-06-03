@@ -1,6 +1,6 @@
 # SUI Dev Agents
 
-**v2.9.2** — An open-source toolkit built for the SUI community to streamline blockchain development. Provides skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Aligned with **SUI CLI v1.72+** (Protocol 124, testnet v1.72.2 / mainnet v1.71.1 Protocol 123), **SUI SDK v2**, **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated, Quorum Driver disabled, removal April 2026). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
+**v2.9.2** — An open-source toolkit built for the SUI community to streamline blockchain development. Provides skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Aligned with **SUI CLI v1.72+** (Protocol 125, mainnet v1.72.3+ / testnet v1.73.0), **SUI SDK v2**, **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated, Quorum Driver disabled, permanent deactivation 2026-07-31). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
 
 Works with **Claude Code** (full plugin) and other AI development tools (rules-only) — see [Platform Guides](docs/platforms/).
 
@@ -76,7 +76,7 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 
 ### 🧩 Ecosystem Integrations
 
-`/sui-kiosk` (NFT marketplace) · `/sui-zklogin` (ZK auth) · `/sui-deepbook` (CLOB DEX + margin + predict) · `/sui-walrus` (storage) · `/sui-passkey` (WebAuthn) · `/sui-suins` (name service) · `/sui-seal` (threshold encryption & access control) · `/sui-nautilus` (TEE off-chain compute) · `/sui-indexer` (data pipelines)
+`/sui-kiosk` (NFT marketplace) · `/sui-zklogin` (ZK auth) · `/sui-deepbook` (CLOB DEX + margin + predict) · `/sui-walrus` (storage) · `/sui-passkey` (WebAuthn) · `/sui-suins` (name service) · `/sui-seal` (threshold encryption & access control) · `/sui-enoki` (zkLogin-as-a-service + sponsored tx) · `/sui-nautilus` (TEE off-chain compute) · `/sui-indexer` (data pipelines)
 
 ### 🔌 MCP Server + Agent Wallet
 
@@ -153,7 +153,7 @@ Skills can be configured via `.sui-full-stack.json`:
 - **Architecture:** `docs/ARCHITECTURE.md` — Component design
 - **Platform Guides:** `docs/platforms/` — Installation for 14 AI tools
 - **Commands:** `commands/*.md` — 9 command references
-- **Skills:** `skills/*/SKILL.md` — 25 skill docs
+- **Skills:** `skills/*/SKILL.md` — 26 skill docs
 - **Agents:** `agents/*.md` — 19 agent definitions
 - **Rules:** `rules/**/*.md` — 5 coding conventions
 - **MCP Server:** `mcp-server/` — 14 gRPC tools source
