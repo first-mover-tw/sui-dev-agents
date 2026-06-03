@@ -1,6 +1,6 @@
 ---
 name: sui-security-guard
-description: Use when setting up security scanning, detecting leaked secrets/API keys, implementing pre-commit hooks, or running security checklists on SUI projects. Triggers on "security scan", "detect secrets", "pre-commit hook", "security audit setup", "API key leaked", or any defensive security setup task. For offensive/adversarial testing (attack vectors, exploit discovery), use sui-red-team instead.
+description: Use when setting up security scanning, detecting leaked secrets/API keys, implementing pre-commit hooks, or auditing a Sui Move contract for security/architecture/quality issues. Triggers on "security scan", "detect secrets", "pre-commit hook", "security audit setup", "API key leaked", and on contract-level review requests like "audit this contract", "review access control", "is this Move safe", "check for vulnerabilities", "Move security review" — these load the SEC/DES/PAT/TST/QA/CFG finding registry in references/move-security-findings.md. For offensive/adversarial testing (attack vector discovery, writing exploits/PoCs), use sui-red-team instead. For Move style/idiom quality (non-security), use move-code-quality.
 ---
 
 # SUI Security Guard
@@ -92,8 +92,18 @@ Before deployment, verify:
 - [ ] AdminCap / UpgradeCap properly guarded (not public transfer)
 - [ ] Pre-commit hook installed and active
 
+## Move Contract Audit (deep review)
+
+For a structured security/architecture review of Move source — beyond secret scanning —
+use **[`references/move-security-findings.md`](references/move-security-findings.md)**: a 40-check
+finding registry (SEC / DES / PAT / TST / QA / CFG) with S1–S4 severities and a 6-phase workflow,
+distilled from MystenLabs' Move-code-review skill. Load it when the task is "audit this contract",
+"review access control", "is this Move safe", or any contract-level security analysis. Supports
+scoped reviews — report only the requested ID prefixes.
+
 ## Integration
 
 - **Called by:** `sui-full-stack` (throughout development)
-- For Move contract security analysis, use `sui-red-team`
-- For code quality / Move best practices, use `move-code-quality`
+- For deep Move-contract auditing, use `references/move-security-findings.md` (above)
+- For offensive/adversarial testing (attack vectors, exploits), use `sui-red-team`
+- For code quality / Move style best practices, use `move-code-quality`
