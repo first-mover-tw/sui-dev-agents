@@ -370,6 +370,7 @@ Automatically runs Fast mode checks on file changes.
 - [reference.md](references/reference.md) - Common patterns library, complete security checklist
 - [examples.md](references/examples.md) - Complete generated code examples, TypeScript integration
 - [scripts/](scripts/) - Quality check implementation scripts
+- [object-model.md](references/object-model.md) — Read when deciding derived objects vs dynamic fields, implementing transfer-to-object (`Receiving<T>`), or reasoning about why a PTB went hot
 
 ---
 
