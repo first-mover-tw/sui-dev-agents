@@ -296,6 +296,10 @@ module example::paywall {
 **`KeyServerConfig.url` — wrong field.**
 - Servers are referenced by their on-chain object ID: `{ objectId: '0x…', weight: 1 }`. There is no `url` field. (For committee-mode servers, supply `aggregatorUrl`.)
 
+## See Also
+
+- [advanced-apis.md](references/advanced-apis.md) — Read when you need derived keys without full decrypt, session-key export/reuse across reloads, decoding `EncryptedObject` metadata, or enumerating key servers / public keys (seal ≥1.1.3)
+
 ## Resources
 
 - [Seal Documentation](https://seal.mystenlabs.com/)
