@@ -141,3 +141,4 @@ const { digest } = await enoki.executeSponsoredTransaction({
 - Enoki docs: https://docs.enoki.mystenlabs.com
 - Enoki Portal (API keys, app config): https://portal.enoki.mystenlabs.com
 - Source: `@mysten/enoki` (MystenLabs/ts-sdks `packages/enoki`)
+- Related: `@mysten/enoki-connect` (`registerEnokiConnectWallets`, `EnokiConnectWallet`), *experimental* — lets a dApp connect to Enoki-powered wallets via the wallet standard. Register it through dApp Kit; see [sui-wallet](../sui-wallet/SKILL.md).

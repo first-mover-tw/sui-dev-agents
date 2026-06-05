@@ -554,6 +554,11 @@ await client.movePackageService.getFunction({ packageId: '0x2', moduleName: 'coi
 - [references/reference.md](references/reference.md) - Complete v1-to-v2 API mapping
 - [references/examples.md](references/examples.md) - Advanced PTB examples and patterns
 
+### Related @mysten packages (niche / pre-1.0, not yet covered in depth)
+
+- `@mysten/payment-kit` (`PaymentKitClient`, `paymentKit` client `$extend()` plugin, payment URIs), *experimental* — structured on-chain payment flows. Reach for it instead of hand-rolling coin transfers when you need payment-request semantics.
+- `@mysten/pas` (`PASClient`) — Permissioned Assets Standard; regulated/compliance-gated asset transfers. Niche.
+
 ## See Also
 
 - [ptbs-advanced.md](references/ptbs-advanced.md) — Read when building a sponsored transaction, reading pruned/archival history, or mapping a use-case to the right client API

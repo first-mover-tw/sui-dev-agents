@@ -36,3 +36,10 @@ All tools follow **dry-run → approve → execute**:
 
 - **This skill (MCP wallet)** → agent automation, backend scripts, CI/CD, headless ops
 - **sui-frontend (dApp Kit)** → browser wallet signing, user-facing UI with wallet connect
+
+## Ecosystem wallet connectors (dApp Kit registration)
+
+For browser apps, register these alongside dApp Kit's wallet standard — none replace the MCP flow above:
+
+- **Slush** — `@mysten/slush-wallet` (`registerSlushWallet`, `SlushWallet`). Mysten's first-party wallet.
+- **Enoki Connect** — `@mysten/enoki-connect` (`registerEnokiConnectWallets`, `EnokiConnectWallet`), *experimental*. Lets an app connect to Enoki-powered wallets; see [sui-enoki](../sui-enoki/SKILL.md) for the zkLogin/sponsored side.
