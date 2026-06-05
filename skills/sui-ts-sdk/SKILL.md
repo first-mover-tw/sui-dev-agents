@@ -553,3 +553,7 @@ await client.movePackageService.getFunction({ packageId: '0x2', moduleName: 'coi
 - [references/advanced-patterns.md](references/advanced-patterns.md) - Execution, keypairs, offline building, sponsored tx, extensions, v1→v2 migration, common mistakes
 - [references/reference.md](references/reference.md) - Complete v1-to-v2 API mapping
 - [references/examples.md](references/examples.md) - Advanced PTB examples and patterns
+
+## See Also
+
+- [ptbs-advanced.md](references/ptbs-advanced.md) — Read when building a sponsored transaction, reading pruned/archival history, or mapping a use-case to the right client API
