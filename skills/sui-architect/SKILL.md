@@ -287,7 +287,7 @@ Don't proceed until user confirms.
 - [reference.md](references/reference.md) - Template library, security considerations, advanced configuration
 - [examples.md](references/examples.md) - Complete Q&A walkthrough, full specification example
 - [templates/](templates/) - All project templates (NFT, DeFi, GameFi, DAO)
-- [../sui-developer/references/object-model.md](../sui-developer/references/object-model.md) — Read when choosing object ownership for parallel execution (owned/derived parallelize; shared serializes) or derived vs dynamic-field storage
+- [../sui-developer/references/object-model.md](../sui-developer/references/object-model.md) — Read when choosing object ownership for parallel execution (owned/derived parallelize; shared by `&` parallelizes, by `&mut`/value serializes) or derived vs dynamic-field storage
 
 ---
 

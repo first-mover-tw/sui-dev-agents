@@ -83,7 +83,7 @@ on-chain readable structured storage.
 
 The pattern: create "box" objects at *derived addresses* (one box per index key), then
 transfer items *to the box*. Off-chain, you enumerate a box's contents with
-`listOwnedObjects(owner = derived_addr)` — paginated, type-filterable, and with no BCS
+`client.core.listOwnedObjects({ owner: derived_addr })` — paginated, type-filterable, and with no BCS
 decoding needed because each item is a first-class object the RPC already understands.
 On-chain, you access items by accepting them with `Receiving<T>` and
 `transfer::public_receive`, holding a `&mut UID` of the box (the box's mutable `UID` is
