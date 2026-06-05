@@ -172,3 +172,21 @@ async fn main() -> anyhow::Result<()> {
     service.main().await
 }
 ```
+
+## Archival reads
+
+This section is about the **query side**, not ingestion. Do not confuse it with the `StoreIngestionClient` / checkpoint-archive-bucket content above (see the backfill example using `sui-testnet-checkpoints`). The archival-query facts here come from MystenLabs/skills `accessing-data/archival.md`.
+
+Full nodes enforce limited retention (pruning) for scalability and performance, so they only hold a recent window of transactions, checkpoints, and object versions. Past the pruning horizon, a full node returns "not found". The **Archival Service** is the query-side service that retains and serves that pruned history — old transactions, old checkpoints, and old object versions (point-in-time object state).
+
+**Core rule: gRPC does NOT fall back to archival.** A full node serving gRPC will never proxy or fall back to the Archival Service. For any data beyond a full node's retention window over gRPC, you must query the archival service **directly** at its own endpoint URL. The Archival Service exposes the **same** `LedgerService` gRPC API as a full node, so point any existing gRPC client at it instead of a full node — no code changes beyond the target URL. Public archival gRPC endpoints: mainnet `archive.mainnet.sui.io:443`, testnet `archive.testnet.sui.io:443`. These public endpoints have **strict rate limits**.
+
+**GraphQL** can route to archival, but only when the operator has explicitly deployed GraphQL paired with an Archival Service. This is not automatic; if unconfigured, GraphQL falls back to its Postgres DB, which may itself have limited retention.
+
+**Disambiguation — Archival Store vs Checkpoint store:**
+- **Archival Store / Archival Service** (this section): query-side, serves pruned reads to gRPC/GraphQL clients at `archive.*.sui.io:443`.
+- **Checkpoint store** (the `StoreIngestionClient` content above): GCS/S3 buckets (e.g. `gs://mysten-mainnet-checkpoints-use4`, `sui-testnet-checkpoints`) — the canonical checkpoint archive used for **ingestion/backfill**. For a custom `sui-indexer-alt` backfill, point the ingestion source at the **GCS checkpoint bucket**, NOT at the archival service.
+
+**Common mistakes:**
+- Assuming full nodes hold the whole history — they do not; queries past the pruning horizon return "not found".
+- Assuming gRPC full nodes fall back to archival — they do NOT; hit `archive.*.sui.io:443` directly.
