@@ -24,7 +24,7 @@ let value = payment.value();
 let balance = payment.into_balance();
 pool.reserve.join(balance);
 
-// BEST — chained
+// BEST — chained (payment must be a `mut` binding for `.split`, which takes `&mut Coin<T>`)
 let balance = payment.split(amount, ctx).into_balance();
 ```
 
@@ -57,9 +57,10 @@ Collection index syntax: `vec_map::get(&map, &key)` → `&map[&key]`.
 String literals — quoted form directly:
 
 ```move
-let s = string::utf8(b"hello");   // WRONG
-let s = "hello";                  // CORRECT (UTF-8 String)
-let ascii = b"hello".to_ascii_string(); // explicit ASCII when needed
+use std::string::utf8; let s = utf8(b"hello");  // WRONG — don't import std::string::utf8
+let s = b"hello".to_string();                    // CORRECT (matches move-code-quality checklist)
+let ascii = b"hello".to_ascii_string();          // explicit ASCII when needed
+// Move 2024 also accepts quoted literals directly where supported: let s = "hello";
 ```
 
 Struct unpack — `..` to ignore unused fields:

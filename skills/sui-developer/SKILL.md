@@ -371,6 +371,7 @@ Automatically runs Fast mode checks on file changes.
 - [examples.md](references/examples.md) - Complete generated code examples, TypeScript integration
 - [scripts/](scripts/) - Quality check implementation scripts
 - [object-model.md](references/object-model.md) — Read when deciding derived objects vs dynamic fields, implementing transfer-to-object (`Receiving<T>`), or reasoning about why a PTB went hot
+- [move-idioms.md](references/move-idioms.md) — Read when writing Move 2024 code: method (dot) syntax, naming conventions (Cap/event/getter/hot-potato/field-key), and PTB-composable function design (no `public entry`, return-don't-transfer, param order). Audit counterpart: the `move-code-quality` skill.
 
 ---
 
