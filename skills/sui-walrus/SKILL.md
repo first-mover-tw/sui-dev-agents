@@ -208,6 +208,10 @@ function NFTImage({ blobId }: { blobId: string }) {
 
 Query latest Walrus docs via the in-repo `sui-docs-query` skill (not an SDK function — invoke the skill from Claude Code with args like `type=docs target=walrus query="blob upload API and storage patterns"`).
 
+## See Also
+
+- [advanced-apis.md](references/advanced-apis.md) — Read when working with WalrusFile/WalrusBlob, batching small files via quilts (`encodeQuilt`), converting blob IDs (int ↔ string), or needing network package-config constants (walrus ≥1.1.7)
+
 ---
 
 **Decentralized, permanent storage for your SUI NFTs and dApps!**
