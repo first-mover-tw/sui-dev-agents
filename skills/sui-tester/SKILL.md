@@ -231,4 +231,4 @@ Test execution targets:
 - E2E tests: <10 minutes
 - Full suite: <15 minutes
 
-See [reference.md](references/reference.md) for complete test patterns and [examples.md](references/examples.md) for test examples.
+See [reference.md](references/reference.md) for complete test patterns and [examples.md](references/examples.md) for test examples. For installing the CLI, localnet setup, or faucet tokens, see the **sui-install** skill.

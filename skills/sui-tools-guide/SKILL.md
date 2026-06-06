@@ -252,4 +252,6 @@ const toolInfo = await sui_docs_query({
 
 ---
 
+For first-time environment setup (install Sui CLI, configure client, faucet), see the **sui-install** skill.
+
 **Choose the right tools, build faster, leverage the SUI ecosystem!**

@@ -94,4 +94,4 @@ sui client upgrade --gas-budget 200000000 --upgrade-capability <UPGRADE_CAP_ID>
 
 ❌ **Not updating frontend package IDs** — frontend calls old package, all transactions fail. Automate package ID updates in `.env` post-deployment.
 
-See [reference.md](references/reference.md) for upgrade compatibility rules and [examples.md](references/examples.md) for deployment scripts.
+See [reference.md](references/reference.md) for upgrade compatibility rules and [examples.md](references/examples.md) for deployment scripts. If the CLI is missing or you hit `client/server api version mismatch`, see the **sui-install** skill.
