@@ -65,6 +65,7 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 
 | Phase | Skill | What it does |
 |-------|-------|-------------|
+| Setup | `/sui-install` | Install Sui CLI (suiup), manage versions, fix version mismatch, client setup |
 | Design | `/sui-architect` | Architecture spec generation |
 | Code | `/sui-developer` | Move contract dev + quality checks |
 | SDK | `/sui-ts-sdk` | TypeScript SDK v2 — PTB, queries, sponsored tx |
@@ -153,7 +154,7 @@ Skills can be configured via `.sui-full-stack.json`:
 - **Architecture:** `docs/ARCHITECTURE.md` — Component design
 - **Platform Guides:** `docs/platforms/` — Installation for 14 AI tools
 - **Commands:** `commands/*.md` — 9 command references
-- **Skills:** `skills/*/SKILL.md` — 26 skill docs
+- **Skills:** `skills/*/SKILL.md` — 27 skill docs
 - **Agents:** `agents/*.md` — 19 agent definitions
 - **Rules:** `rules/**/*.md` — 5 coding conventions
 - **MCP Server:** `mcp-server/` — 14 gRPC tools source
