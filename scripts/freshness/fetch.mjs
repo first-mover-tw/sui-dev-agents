@@ -19,28 +19,39 @@ function parseLastModified(headers) {
   return m ? m[1].trim() : null
 }
 
+// Resolve default-branch HEAD sha. If branch is null, look up the repo's default_branch first.
+async function commitMarker(repo, branch, run) {
+  let b = branch
+  if (!b) {
+    const d = await run('gh', ['api', `repos/${repo}`, '--jq', '.default_branch'])
+    if (d.code === 0 && d.stdout.trim()) b = d.stdout.trim()
+  }
+  if (b) {
+    const r = await run('gh', ['api', `repos/${repo}/commits/${b}`, '--jq', '.sha'])
+    if (r.code === 0 && r.stdout.trim()) return r.stdout.trim()
+  }
+  // fallback: repo's actual default branch if the declared one 404'd
+  const d = await run('gh', ['api', `repos/${repo}`, '--jq', '.default_branch'])
+  if (d.code === 0 && d.stdout.trim() && d.stdout.trim() !== b) {
+    const r = await run('gh', ['api', `repos/${repo}/commits/${d.stdout.trim()}`, '--jq', '.sha'])
+    if (r.code === 0 && r.stdout.trim()) return r.stdout.trim()
+  }
+  return ERROR_MARKER
+}
+
 export async function fetchMarker(source, run) {
   try {
     if (source.kind === 'release') {
       const r = await run('gh', ['api', `repos/${source.repo}/releases/latest`, '--jq', '.tag_name'])
-      if (r.code !== 0 || !r.stdout.trim()) {
-        // fallback: newest tag
-        const t = await run('gh', ['api', `repos/${source.repo}/tags?per_page=1`, '--jq', '.[0].name'])
-        if (t.code === 0 && t.stdout.trim()) return t.stdout.trim()
-        return ERROR_MARKER
-      }
-      return r.stdout.trim()
+      if (r.code === 0 && r.stdout.trim()) return r.stdout.trim()
+      // fallback 1: newest tag
+      const t = await run('gh', ['api', `repos/${source.repo}/tags?per_page=1`, '--jq', '.[0].name'])
+      if (t.code === 0 && t.stdout.trim() && t.stdout.trim() !== 'null') return t.stdout.trim()
+      // fallback 2: default-branch commit SHA (repos with neither releases nor tags)
+      return commitMarker(source.repo, null, run)
     }
     if (source.kind === 'commit') {
-      let r = await run('gh', ['api', `repos/${source.repo}/commits/${source.branch}`, '--jq', '.sha'])
-      if (r.code !== 0 || !r.stdout.trim()) {
-        // fallback: repo's actual default branch
-        const d = await run('gh', ['api', `repos/${source.repo}`, '--jq', '.default_branch'])
-        if (d.code === 0 && d.stdout.trim()) {
-          r = await run('gh', ['api', `repos/${source.repo}/commits/${d.stdout.trim()}`, '--jq', '.sha'])
-        }
-      }
-      return (r.code === 0 && r.stdout.trim()) ? r.stdout.trim() : ERROR_MARKER
+      return commitMarker(source.repo, source.branch, run)
     }
     if (source.kind === 'page') {
       const r = await run('curl', ['-sIL', '--max-time', '15', source.url])
