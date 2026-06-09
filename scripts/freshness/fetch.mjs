@@ -2,14 +2,23 @@
 import { spawn } from 'node:child_process'
 import { ERROR_MARKER } from './core.mjs'
 
-// default real runner
+// default real runner — bounded by a hard timeout so a hung `gh`/`curl`
+// can never block session start (the SessionStart hook must never hang).
+const RUN_TIMEOUT_MS = 20000
+
 export function realRunner(cmd, args) {
   return new Promise((resolve) => {
-    const p = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] })
+    const p = spawn(cmd, args, {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: RUN_TIMEOUT_MS,
+      killSignal: 'SIGKILL',
+    })
     let stdout = '', stderr = ''
     p.stdout.on('data', d => (stdout += d))
     p.stderr.on('data', d => (stderr += d))
-    p.on('close', code => resolve({ code, stdout, stderr }))
+    // On timeout, Node kills the child and 'close' fires with a non-null signal
+    // and code === null -> treated as failure (-> ERROR_MARKER) downstream.
+    p.on('close', (code, signal) => resolve({ code: code == null ? 1 : code, stdout, stderr, signal }))
     p.on('error', err => resolve({ code: 1, stdout: '', stderr: String(err) }))
   })
 }

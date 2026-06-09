@@ -35,8 +35,17 @@ async function main() {
   // live fetch all sources
   const entries = await Promise.all(SOURCES.map(async s => [s.id, await fetchMarker(s, realRunner)]))
   const fresh = Object.fromEntries(entries)
+  const errored = Object.values(fresh).filter(v => v === ERROR_MARKER).length
   const { drift, changed } = compareMarkers(cache.markers, fresh)
   const nowISO = new Date(now).toISOString().slice(0, 10)
+
+  // Total failure (gh auth / network down): never report all-green, never refresh
+  // the TTL — leave cache untouched so the NEXT session retries instead of being
+  // suppressed for 24h. Only fires when EVERY source errored.
+  if (errored === SOURCES.length) {
+    process.stdout.write('⚠️ SUI freshness: all sources unreachable (network / `gh auth`?). Will retry next session.\n')
+    return
+  }
 
   if (drift) {
     // record pending; DO NOT advance markers (they advance only after integration).
@@ -50,7 +59,8 @@ async function main() {
     const merged = { ...cache.markers }
     for (const [id, v] of Object.entries(fresh)) if (v !== ERROR_MARKER) merged[id] = v
     await writeFile(CACHE, JSON.stringify({ markers: merged, lastFullCheck: now, lastFullCheckISO: nowISO }, null, 2))
-    process.stdout.write(renderStatus({ drift: false, lastFullCheckISO: nowISO, markers: merged }) + '\n')
+    const note = errored > 0 ? ` (${errored} source(s) errored, will recheck)` : ''
+    process.stdout.write(renderStatus({ drift: false, lastFullCheckISO: nowISO, markers: merged }) + note + '\n')
   }
 }
 
