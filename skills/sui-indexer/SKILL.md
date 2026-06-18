@@ -22,6 +22,8 @@ The SUI Indexing Framework (`sui-indexer-alt-framework`) lets you build custom d
 | Real-time price feeds | | ✓ |
 | Cross-object correlation at scale | | ✓ |
 
+> **GraphQL tx-forensics (P126+):** `Address.asTransactionObject(transactionDigest: String): TransactionObject` returns how an address (read as an object ID) was referenced by a given tx (`ObjectChange | ConsensusObjectRead`); `transactionDigest` is optional when scoped under a `Transaction`/`TransactionEffects`/`Event`. Use this over a custom indexer for one-off "how was this object touched" lookups.
+
 ## Architecture
 
 ```
