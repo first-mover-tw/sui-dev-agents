@@ -20,7 +20,7 @@ sui client publish --dry-run --gas-budget 100000000
 sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 ```
 
-## SUI Protocol 125 Deployment Updates (mainnet v1.72.3+, testnet v1.73.0)
+## SUI Protocol 126 Deployment Updates (mainnet v1.73.2, testnet v1.73.1+)
 
 **RPC Migration (CRITICAL):**
 - **JSON-RPC is deprecated** — permanent deactivation 2026-07-31. Quorum Driver fully disabled.
@@ -34,7 +34,7 @@ sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 | Testnet | `grpc.testnet.sui.io:443` |
 | Devnet  | `grpc.devnet.sui.io:443` |
 
-**Protocol 125 Notes:**
+**Protocol 126 Notes:**
 - **New Move VM (Testnet):** Active on testnet. Account for gas metering differences in cross-network testing.
 - **Offline Bytecode Dump:** `sui move build --dump --no-tree-shaking` works offline — enables air-gapped deployment pipelines.
 - **Compatibility verification** enabled by default (was opt-in).

@@ -16,7 +16,7 @@ This skill provides comprehensive testing across all layers:
 - **Property-Based Tests** - Test invariants with random inputs
 - **Gas Benchmarks** - Measure and track gas consumption
 
-## SUI Protocol 125 Testing Updates (mainnet v1.72.3+, testnet v1.73.0)
+## SUI Protocol 126 Testing Updates (mainnet v1.73.2, testnet v1.73.1+)
 
 **Key changes affecting testing (June 2026):**
 - **Regex Test Filtering:** Test filtering uses regex. Use `sui move test --filter "regex_pattern"` for precise test selection.

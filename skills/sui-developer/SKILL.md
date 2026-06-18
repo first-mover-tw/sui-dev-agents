@@ -93,7 +93,7 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI Protocol 125 Updates (mainnet v1.72.3+, testnet v1.73.0)
+## SUI Protocol 126 Updates (mainnet v1.73.2, testnet v1.73.1+)
 
 **Key changes affecting Move development (as of June 2026):**
 
