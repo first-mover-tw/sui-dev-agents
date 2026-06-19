@@ -240,15 +240,7 @@ sui-walrus
 sui-zklogin
 ```
 
-Query latest tool updates:
-```typescript
-// @check:skip
-const toolInfo = await sui_docs_query({
-  type: "docs",
-  target: "walrus",
-  query: "latest features and API updates"
-});
-```
+For the latest tool features and API updates, use the **sui-docs-query** skill (Context7 MCP).
 
 ---
 

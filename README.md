@@ -1,6 +1,6 @@
 # SUI Dev Agents
 
-**v2.9.2** — An open-source toolkit built for the SUI community to streamline blockchain development. Provides skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Aligned with **SUI CLI v1.72+** (Protocol 125, mainnet v1.72.3+ / testnet v1.73.0), **SUI SDK v2**, **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated, Quorum Driver disabled, permanent deactivation 2026-07-31). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
+**v2.9.2** — An open-source toolkit built for the SUI community to streamline blockchain development. Provides skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Aligned with **SUI CLI v1.73+** (Protocol 126, mainnet v1.73.2 / testnet v1.73.1+), **SUI SDK v2**, **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated, Quorum Driver disabled, permanent deactivation 2026-07-31). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
 
 Works with **Claude Code** (full plugin) and other AI development tools (rules-only) — see [Platform Guides](docs/platforms/).
 
@@ -67,9 +67,11 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 |-------|-------|-------------|
 | Setup | `/sui-install` | Install Sui CLI (suiup), manage versions, fix version mismatch, client setup |
 | Design | `/sui-architect` | Architecture spec generation |
+| Design | `/sui-tools-guide` | Choose the right tool/library (Walrus vs IPFS, zkLogin vs Passkey, …) |
 | Code | `/sui-developer` | Move contract dev + quality checks |
 | SDK | `/sui-ts-sdk` | TypeScript SDK v2 — PTB, queries, sponsored tx |
 | Frontend | `/sui-frontend` | React/Next.js + dApp Kit v2 wallet integration |
+| Integration | `/sui-fullstack-integration` | Move↔TS type generation, ABI wrappers, event listeners, E2E wiring |
 | Test | `/sui-tester` | Unit, integration, E2E, gas benchmarks, coverage analysis |
 | Deploy | `/sui-deployer` | Staged rollout: devnet → testnet → mainnet |
 | Quality | `/move-code-quality` | Move Book code quality checklist |
@@ -78,6 +80,10 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 ### 🧩 Ecosystem Integrations
 
 `/sui-kiosk` (NFT marketplace) · `/sui-zklogin` (ZK auth) · `/sui-deepbook` (CLOB DEX + margin + predict) · `/sui-walrus` (storage) · `/sui-passkey` (WebAuthn) · `/sui-suins` (name service) · `/sui-seal` (threshold encryption & access control) · `/sui-enoki` (zkLogin-as-a-service + sponsored tx) · `/sui-nautilus` (TEE off-chain compute) · `/sui-indexer` (data pipelines)
+
+### 🛠️ Utilities
+
+`/sui-docs-query` (SUI/Move docs lookup via Context7 MCP) · `/sui-wallet` (agent/headless wallet ops via MCP tools)
 
 ### 🔌 MCP Server + Agent Wallet
 

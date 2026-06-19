@@ -123,15 +123,7 @@ const client = new SuiJsonRpcClient({ url: getJsonRpcFullnodeUrl('mainnet'), net
 
 This skill is invoked by `sui-full-stack` after Phase 2 (contracts) and Phase 3 (frontend).
 
-Query latest integration patterns:
-```typescript
-// @check:skip
-const patterns = await sui_docs_query({
-  type: "github",
-  target: "dapp-kit",
-  query: "transaction building patterns"
-});
-```
+For the latest dApp Kit transaction-building patterns, use the **sui-docs-query** skill (Context7 MCP).
 
 ## Common Mistakes
 

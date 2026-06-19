@@ -97,30 +97,11 @@ Suggest relevant SUI tools based on requirements:
 - Cross-chain → `sui-nautilus`
 - Custom data pipeline / historical analytics → `sui-indexer`
 
-Query latest integration patterns:
-```typescript
-// @check:skip
-const info = await sui_docs_query({
-  type: "docs",
-  target: "kiosk",
-  query: "Transfer policy implementation"
-});
-```
+For the latest integration patterns (e.g. transfer-policy implementation), use the **sui-docs-query** skill (Context7 MCP).
 
 ### Phase 5: Best Practice References
 
-Query similar projects for patterns:
-```typescript
-// @check:skip
-const references = await sui_docs_query({
-  type: "github",
-  target: "sui-core",
-  query: "NFT marketplace example Kiosk",
-  options: {
-    include_examples: true
-  }
-});
-```
+For reference implementations and example projects, use the **sui-docs-query** skill (Context7 MCP) — e.g. "NFT marketplace example Kiosk".
 
 ### Phase 6: Architecture Design Presentation
 

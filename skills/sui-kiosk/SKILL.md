@@ -188,15 +188,7 @@ async function purchaseNFT(
 - **Problem:** Free listings bypass royalty enforcement
 - **Fix:** Enforce minimum price in transfer policy rules
 
-Query Kiosk docs:
-```typescript
-// @check:skip
-const kioskInfo = await sui_docs_query({
-  type: "docs",
-  target: "kiosk",
-  query: "transfer policy and royalty implementation"
-});
-```
+For current Kiosk transfer-policy/royalty docs, use the **sui-docs-query** skill (Context7 MCP).
 
 ---
 

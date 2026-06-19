@@ -175,15 +175,7 @@ function AddressDisplay({ address }: { address: string }) {
 - **Problem:** Phishing via name squatting
 - **Fix:** Verify name ownership on-chain before trusting
 
-Query SuiNS docs:
-```typescript
-// @check:skip
-const suinsInfo = await sui_docs_query({
-  type: "github",
-  target: "suins",
-  query: "name registration and resolution API"
-});
-```
+For the current SuiNS registration/resolution API, use the **sui-docs-query** skill (Context7 MCP).
 
 ---
 

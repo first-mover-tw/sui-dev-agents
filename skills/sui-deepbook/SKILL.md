@@ -326,7 +326,7 @@ const summary = await fetch(
 - ❌ Current orderbook depth → SDK (`getLevel2Range`) — it's live RPC
 - ❌ Your open orders → SDK (`accountOpenOrders`)
 
-> Endpoint surface evolves; canonical reference is https://docs.sui.io/onchain-finance/deepbookv3/deepbookv3-indexer. Use `sui_docs_query` for the current list before hard-coding.
+> Endpoint surface evolves; canonical reference is https://docs.sui.io/onchain-finance/deepbookv3/deepbookv3-indexer. Use the `sui-docs-query` skill for the current list before hard-coding.
 
 ## DeepBook Predict
 
@@ -475,16 +475,7 @@ tx.moveCall({
 
 ## Discovery
 
-Need current contract addresses, indexer endpoints, or Predict launch status?
-
-```typescript
-// @check:skip — sui_docs_query is an agent tool, not real TS API
-const info = await sui_docs_query({
-  type: 'docs',
-  target: 'deepbook',
-  query: 'v3 mainnet contract-information balance manager package id',
-});
-```
+Need current contract addresses, indexer endpoints, or Predict launch status? Use the **sui-docs-query** skill (Context7 MCP) — e.g. "v3 mainnet contract-information balance manager package id".
 
 Reference URLs (canonical, check for updates):
 - Protocol: https://docs.sui.io/onchain-finance/deepbookv3/deepbook

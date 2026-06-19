@@ -543,33 +543,11 @@ Create custom templates in:
 
 ### With sui-docs-query
 
-```typescript
-// @check:skip
-// Query Kiosk documentation
-const kioskDocs = await sui_docs_query({
-  type: "docs",
-  target: "kiosk",
-  query: "transfer policy best practices"
-});
-
-// Include in spec
-spec.integrations.kiosk = {
-  documentation: kioskDocs,
-  version: kioskDocs.version
-};
-```
+When the spec touches an ecosystem component (Kiosk, SuiNS, DeepBook, …), use the **sui-docs-query** skill (Context7 MCP) to pull current best practices — e.g. "transfer policy best practices" — and fold the findings into the relevant section of the spec.
 
 ### With sui-developer
 
-```typescript
-// @check:skip
-// After spec generation, pass to developer
-await sui_developer({
-  spec_file: "docs/specs/2024-01-28-project-spec.md",
-  mode: "generate_from_spec",
-  quality_mode: "strict"
-});
-```
+After the architecture spec is finalized, hand it to the **sui-developer** skill to generate the Move modules from the spec file.
 
 ---
 

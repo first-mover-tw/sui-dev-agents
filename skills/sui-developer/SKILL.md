@@ -184,12 +184,8 @@ Generate complete module structure from architecture spec:
 // Read specification
 const spec = readSpec("docs/specs/project-spec.md")
 
-// Query latest Move patterns
-const patterns = await sui_docs_query({
-  type: "docs",
-  target: "sui-core",
-  query: "Move module structure best practices"
-})
+// Query latest Move patterns first — invoke the `sui-docs-query` skill
+// (routes to Context7 MCP) with "Move module structure best practices"
 
 // Generate modules
 for (const module of spec.modules) {
@@ -220,17 +216,7 @@ const ADMIN_KEY: address = @0x123;
 public struct AdminCap has key { id: UID }
 ```
 
-Query latest APIs to detect deprecations:
-
-```typescript
-// @check:skip
-const versionInfo = await sui_docs_query({
-  type: "version",
-  target: "sui"
-});
-
-// Warn if using deprecated functions
-```
+To detect deprecations, check current API/version behavior via the **sui-docs-query** skill (Context7 MCP) before flagging functions as deprecated.
 
 ### 3. Frontend Integration
 
@@ -238,16 +224,9 @@ For TypeScript type generation from Move ABI, event design for frontends, and co
 
 ### 4. Best Practices Enforcement
 
-Query and apply latest Move best practices:
+Query and apply latest Move best practices via the **sui-docs-query** skill (Context7 MCP), then check code against them:
 
-```typescript
-// @check:skip
-const practices = await sui_docs_query({
-  type: "docs",
-  target: "sui-core",
-  query: "Move programming best practices patterns"
-});
-
+```text
 // Check code against practices
 // - Proper error handling
 // - Event emissions
@@ -364,7 +343,7 @@ Automatically runs Fast mode checks on file changes.
 
 ❌ **Not querying latest Move patterns**
 - **Problem:** Using deprecated APIs, outdated patterns
-- **Fix:** Call sui_docs_query() before implementing complex features
+- **Fix:** Use the `sui-docs-query` skill before implementing complex features
 
 ## See Also
 
