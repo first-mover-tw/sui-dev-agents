@@ -83,12 +83,9 @@ const sealClient = new SealClient({
 
 ```typescript
 // @check:skip
-import { fromHex } from '@mysten/sui/utils';
-
 const PACKAGE_ID = '0xYOUR_POLICY_PKG';
-// `id` is the IBE identity. Convention: bytes that the on-chain
-// seal_approve* function will validate (e.g. allowlist object id || nonce).
-const id = fromHex('deadbeef'); // hex string of the identity bytes
+// `id` is the IBE identity, passed as a hex string. Convention: bytes that the
+// on-chain seal_approve* function will validate (e.g. allowlist object id || nonce).
 
 const { encryptedObject, key } = await sealClient.encrypt({
   threshold: 2,                    // 2-of-3 key servers
@@ -110,6 +107,7 @@ const blobId = await uploadToWalrus(encryptedObject);
 import { SessionKey } from '@mysten/seal';
 import { Transaction } from '@mysten/sui/transactions';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
+import { fromHex } from '@mysten/sui/utils';
 
 // 1. Create a session key. The user signs a personal message under the hood
 //    (signer can be any Signer — Ed25519, EnokiSigner, PasskeyKeypair, etc.).

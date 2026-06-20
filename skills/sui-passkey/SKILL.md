@@ -101,11 +101,10 @@ Sign two distinct messages, then intersect candidate public keys.
 
 ```typescript
 // @check:skip
-import { PasskeyKeypair, findCommonPublicKey } from '@mysten/sui/keypairs/passkey';
+import { BrowserPasskeyProvider, PasskeyKeypair, findCommonPublicKey } from '@mysten/sui/keypairs/passkey';
 
 const provider = new BrowserPasskeyProvider('My SUI App', {
-  rpName: 'My SUI App',
-  rpId: window.location.hostname,
+  rp: { name: 'My SUI App', id: window.location.hostname },
 });
 
 const msg1 = new TextEncoder().encode('recover-1');

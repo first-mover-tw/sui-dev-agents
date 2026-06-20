@@ -20,6 +20,8 @@ zkLogin lets users:
 - No seed phrases — wallet derived from `(iss, aud, sub, salt)`
 - ZK proof hides which OAuth user owns which SUI address
 
+> **Self-hosted vs. hosted.** This skill covers running the zkLogin flow yourself (your own salt service + Mysten's prover over HTTP). If you'd rather not manage proving, salt, or the OAuth plumbing, use [sui-enoki](../sui-enoki/SKILL.md) — Mysten's hosted zkLogin-as-a-service (also bundles sponsored/gasless transactions).
+
 ## Real API surface (from `@mysten/sui/zklogin`)
 
 ```typescript
