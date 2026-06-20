@@ -232,72 +232,10 @@ public fun place_bid<Base, Quote>(
 
 ## Margin trading
 
-DeepBook Margin adds leverage on top of any CLOB pool via separate objects. The SDK exposes a full surface but the high-level moving parts are:
-
-- **`MarginPool`** — per-asset lending pool. LPs deposit base/quote, borrowers pay interest.
-- **`MarginManager`** — a leveraged position; analogous to BalanceManager but with debt.
-- **`MarginRegistry`** — global registry of supported margin pools.
-- **`PoolProxy`** — wraps a regular DeepBook `Pool` so margin orders route through it without bypassing CLOB matching.
-- **Pyth oracles** — health checks use Pyth price feeds; the SDK exposes `SuiPythClient` + `mainnetPythConfigs`.
-- **`MarginTPSL`** — conditional take-profit / stop-loss orders that auto-fire when oracle price crosses a trigger.
-
-### Skeleton: open a leveraged long
-
-Two-transaction flow: **(A)** create + initialize + share the margin manager once, **(B)** in later txs reference it by `managerKey` to deposit / borrow / trade.
-
-```typescript
-// @check:skip — fragment, continues from Quick Start §1
-
-// === Transaction A: one-time setup ===
-const txA = new Transaction();
-const { manager, initializer } = dbClient.marginManager.newMarginManagerWithInitializer('SUI_USDC')(txA);
-txA.add(dbClient.marginManager.depositDuringInitialization({
-  manager,
-  poolKey: 'SUI_USDC',
-  coinType: 'USDC',
-  amount: 1000, // human units
-}));
-txA.add(dbClient.marginManager.shareMarginManager('SUI_USDC', manager, initializer));
-// → register the resulting shared object as 'MY_MM' in your config map
-
-// === Transaction B: borrow + place margin order ===
-const tx = new Transaction();
-
-// 1. Borrow against the collateral (use borrowBase / borrowQuote, not generic borrow)
-tx.add(dbClient.marginManager.borrowQuote('MY_MM', 3000)); // 3x leverage on quote (USDC)
-
-// 2. Place a margin limit order through the pool proxy
-tx.add(
-  dbClient.poolProxy.placeMarginLimitOrder({
-    poolKey: 'SUI_USDC',
-    marginManagerKey: 'MY_MM',
-    clientOrderId: 'm-1',
-    price: 2.15,
-    quantity: 1500,
-    isBid: true,
-    payWithDeep: true,
-  }),
-);
-
-// 5. Optional: attach a stop-loss
-tx.add(
-  dbClient.marginTPSL.addConditionalOrder({
-    marginManagerKey: 'MY_MM',
-    poolKey: 'SUI_USDC',
-    triggerPrice: 1.90,
-    isStopLoss: true,
-    // ... order params for the unwind leg
-  }),
-);
-```
-
-**Health & liquidation:** read margin state with `dbClient.getMarginManagerState('MY_MM')` → returns assets, debts, and a health factor. Below 1.0 → liquidatable via `marginLiquidations`.
-
-### Margin pitfalls
-
-- Pyth price feeds have a max age (`PRICE_INFO_OBJECT_MAX_AGE_MS`). Stale feeds → reverted orders. Always refresh in the same PTB.
-- Interest accrues continuously; `borrow()` returns shares, not a fixed amount.
-- TPSL triggers are *permissionless* — any keeper can fire them once the condition is met. Don't rely on yourself being the executor.
+DeepBook Margin adds leverage on top of any CLOB pool via separate objects
+(`MarginManager`, `MarginPool`, `PoolProxy`, Pyth oracles, `MarginTPSL`). For the
+full setup → borrow → place-margin-order → TPSL flow, health/liquidation reads,
+and margin pitfalls, see **[references/margin.md](references/margin.md)**.
 
 ## DeepBook Indexer
 
@@ -429,17 +367,12 @@ tx.moveCall({
 - **POST_ONLY for makers.** Use `OrderType.POST_ONLY` for market-making strategies to avoid accidentally crossing the spread and paying taker fees.
 - **Batch in a PTB.** Cancel-and-replace, multi-leg market making, deposit + place — group into one Transaction; the SDK's `tx.add(...)` composition pattern is built for this.
 - **Self-matching policy matters.** If a single BalanceManager runs both sides of a strategy, set `CANCEL_TAKER` (default-allowed self-matches waste fees).
-- **Pyth freshness for margin.** Refresh price-info objects in the same PTB that opens/modifies a margin position.
 
 ## Common mistakes
 
 ❌ **Using `SuiClient` / `getFullnodeUrl` (v1 SDK)**
 - **Problem:** Both were removed in `@mysten/sui` v2 (current); imports fail at type-check, RPC client is wrong shape.
 - **Fix:** `import { SuiGrpcClient } from '@mysten/sui/grpc'`; construct with `{ network, baseUrl }`. The DeepBook SDK is built against the gRPC client, not the legacy JSON-RPC one.
-
-❌ **Importing Pyth from `@pythnetwork/pyth-sui-js`**
-- **Problem:** Mismatched types vs. what `MarginManagerContract` expects; extra dependency.
-- **Fix:** `import { SuiPythClient, SuiPriceServiceConnection } from '@mysten/deepbook-v3'` — the DeepBook SDK re-exports the Pyth pieces wired to its own config (`mainnetPythConfigs`, `testnetPythConfigs`).
 
 ❌ **Mixing V2 (`clob_v2`) examples with V3 imports**
 - **Problem:** `clob_v2::place_limit_order` doesn't exist on the V3 deployment; LLMs hallucinate this constantly.
@@ -464,14 +397,6 @@ tx.moveCall({
 ❌ **Querying orderbook depth from the indexer**
 - **Problem:** Indexer is eventually consistent and lags live state; you'll quote stale prices.
 - **Fix:** Live state → `getLevel2Range` / `midPrice`. Indexer → historical + aggregates only.
-
-❌ **Building margin without refreshing Pyth in the same PTB**
-- **Problem:** Health check uses a stale price object; transaction reverts on `EPriceTooOld`.
-- **Fix:** Include `pythClient.updatePriceFeeds(...)` (or SDK equivalent) in the same Transaction as the margin op.
-
-❌ **Assuming TPSL is your private executor**
-- **Problem:** Trigger fires when *anyone* sees the condition met; treating it like a private cron leads to surprises.
-- **Fix:** Design with permissionless execution in mind — pre-fund the TPSL leg's collateral, expect external keepers to fire.
 
 ## Discovery
 
