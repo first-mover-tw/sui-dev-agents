@@ -7,8 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.11.0] - 2026-06-21
+
+### Added
+- **New skill `sui-install`** — Sui CLI install via `suiup`, version-mismatch resolution, and client setup (27 docs; registered in the README Setup lifecycle row).
+- **New skill `sui-enoki`** — zkLogin-as-a-service + sponsored transactions over the `@mysten/enoki` `EnokiClient`/`EnokiFlow` surface; cross-linked with `sui-zklogin`.
+- **New skill `sui-compat-matrix`** — `@mysten/*` SDK version source-of-truth plus the version-bump SOP, CI-enforced.
+- **SUI upstream freshness system** — `scripts/freshness/detect.mjs` entry (24h cache gate, drift/pending detection, never-block, release→commit fallback), a 15-source upstream registry, pure compare/render/cache-gate logic with tests, injectable `gh`/`curl` marker fetchers, and a Layer 2 deep-investigation runbook (gemini→codex + suiup).
+- **CI: compat-matrix checker** — strict Targets-line and matrix-table grammar parsers, rules R1–R9 (including matrix→banner consistency and duplicate-row rejection) with fixture-based tests, wired into `validate.yml` with a failure summary table.
+- `sui-security-guard`: Move contract finding registry.
+- Advanced-API references: `sui-seal` (1.1.3 new exports), `sui-walrus` (1.1.7 new exports), `sui-ts-sdk` (advanced PTB + archival reads), `sui-developer`/`sui-architect` (object-model deep reference), and a `sui-developer` write-time Move 2024 idiom reference.
+- One-line mentions for `enoki-connect` / `slush` / `payment-kit` / `pay` (C2 coverage).
+
 ### Changed
-- **Renamed skill `sui-fullstack-integration` → `sui-move-ts-bridge`** (Move↔TS bridge: type generation, event handling, ABI wrappers; disambiguates from the `sui-full-stack` orchestrator). Updated slug, directory, subagent, cross-links, and compat-matrix paths.
+- **Breaking (skill content): Renamed skill `sui-fullstack-integration` → `sui-move-ts-bridge`** (Move↔TS bridge: type generation, event handling, ABI wrappers; disambiguates from the `sui-full-stack` orchestrator). Updated slug, directory, subagent, cross-links, and compat-matrix paths.
+- **SUI banners bumped Protocol 125 → 126** (mainnet v1.73.2), with Display V2 module fix and deepbook 1.4.1 alignment.
+- `sui-nautilus` rewritten against the real `MystenLabs/nautilus` repo.
+- Normalized 10 skill banners to the strict Targets + Compatibility-notes grammar.
+- Large reference extractions (SKILL → `references/*.md` + stub) across `sui-deepbook` (margin / predict / indexer), `sui-frontend` (non-React integration), `sui-indexer`, and `sui-ts-sdk`; added fence-aware TOCs to 8 reference files >300L.
+- README banner synced to Protocol 126; `/sui-compat-matrix` and `/sui-install` added to the lifecycle table.
+
+### Fixed
+- **P3 polish**: removed `sui-seal` dead `fromHex` block (relocated import to decrypt), corrected `sui-passkey` `rp:{name,id}` typing, added the missing `sui-zklogin` → `sui-enoki` cross-reference.
+- `sui-suins`: replaced fabricated `registry::register` Move/TS with the real `SuinsTransaction.register`.
+- `sui-kiosk`: replaced broken raw-purchase TS with `KioskTransaction.purchaseAndResolve`.
+- `sui-ts-sdk`: replaced wrong sponsored-tx block with a pointer to the canonical `fromKind` flow; fixed §10 sponsored attribution.
+- **P1 audit fixes**: test runner correctness, README coverage, and dropped the fictional `sui_docs_query` API.
+- Corrected hallucinated APIs and bumped `deepbook-v3` / `wallet-standard`.
+- Freshness runner bounded with a timeout and guarded against an all-error false-green.
+- Snippet type-check baseline: skipped 100 illustrative blocks (baseline 100 → 0).
+- Portable Title Case in `generate-subagents.sh`.
 
 ## [2.10.0] - 2026-05-21
 
