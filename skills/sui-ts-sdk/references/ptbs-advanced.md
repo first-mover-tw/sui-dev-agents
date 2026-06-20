@@ -27,6 +27,8 @@ In a sponsored transaction one party (the **sender**) authorizes the PTB content
 
 **App ↔ wallet handoff.** When handing a transaction from app code to a wallet, pass `tx.serialize()` (the JSON form) or the `Transaction` instance itself — do NOT pass `tx.build()` bytes. Passing the unbuilt transaction lets the wallet perform its own gas coin selection and budget dry-run, which it cannot do once you have already built fixed bytes.
 
+For the complete runnable dual-sign flow (build kind-only → `fromKind` → both parties sign → execute), see [examples.md §3](examples.md#3-sponsored-transaction-complete-flow).
+
 ## Archival reads
 
 Full nodes prune historical data for scalability, so reads of old state must go to a separate query-side service. The Archival Service is that service, and it is NOT transparently reachable through a full node.
