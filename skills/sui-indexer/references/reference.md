@@ -1,5 +1,39 @@
 # SUI Indexer Framework Reference
 
+## Table of Contents
+
+- [Contents](#contents)
+- [Type Definitions](#type-definitions)
+  - [CheckpointEnvelope](#checkpointenvelope)
+  - [CheckpointData](#checkpointdata)
+  - [CheckpointTransaction](#checkpointtransaction)
+- [Traits](#traits)
+  - [IngestionClientTrait](#ingestionclienttrait)
+  - [Processor](#processor)
+- [Service Builder API](#service-builder-api)
+  - [Service Methods](#service-methods)
+- [Ingestion Client Implementations](#ingestion-client-implementations)
+  - [StoreIngestionClient (recommended)](#storeingestionclient-recommended)
+- [Processor Examples](#processor-examples)
+  - [Event Processor](#event-processor)
+  - [Object State Tracker](#object-state-tracker)
+  - [Pipeline Composition](#pipeline-composition)
+- [Quick Start](#quick-start)
+  - [1. Set up project](#1-set-up-project)
+  - [2. Implement processor](#2-implement-processor)
+  - [3. Wire up main](#3-wire-up-main)
+  - [4. Run](#4-run)
+- [Advanced Patterns](#advanced-patterns)
+  - [Multi-Processor Parallel Pipelines](#multi-processor-parallel-pipelines)
+  - [Backfill Strategy](#backfill-strategy)
+  - [Concurrency Control](#concurrency-control)
+  - [Sequential pipeline tuning (1.71+)](#sequential-pipeline-tuning-171)
+  - [Metrics & Monitoring](#metrics--monitoring)
+- [Archival reads](#archival-reads)
+
+---
+
+
 > Framework: `sui-indexer-alt-framework` from MystenLabs/sui repository
 > Aligned with: Protocol 126 (testnet v1.73.1+ / mainnet v1.73.2)
 

@@ -1,5 +1,18 @@
 # Code Examples
 
+## Table of Contents
+
+- [Type Generation Script](#type-generation-script)
+- [Contract API Wrapper](#contract-api-wrapper)
+- [React Hooks Integration](#react-hooks-integration)
+- [Event Subscriptions](#event-subscriptions)
+- [Development Environment Script](#development-environment-script)
+- [Error Handling](#error-handling)
+- [Complete Marketplace Component](#complete-marketplace-component)
+
+---
+
+
 Detailed code examples for each integration pattern.
 
 ## Type Generation Script

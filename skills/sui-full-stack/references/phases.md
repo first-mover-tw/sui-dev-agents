@@ -1,5 +1,22 @@
 # Phase Details
 
+## Table of Contents
+
+- [Phase 0: Project Initialization](#phase-0-project-initialization)
+- [Phase 1: Architecture Planning](#phase-1-architecture-planning)
+- [Phase 2: Smart Contract Development](#phase-2-smart-contract-development)
+- [Phase 3: Frontend Development (Optional)](#phase-3-frontend-development-optional)
+- [Phase 4: Integration](#phase-4-integration)
+- [Phase 5: Testing](#phase-5-testing)
+- [Phase 6: Deployment](#phase-6-deployment)
+- [Phase 7: Documentation (Optional)](#phase-7-documentation-optional)
+- [Stage Management](#stage-management)
+- [Quality Gates](#quality-gates)
+- [Automation Behaviors](#automation-behaviors)
+
+---
+
+
 Detailed workflow for each development phase.
 
 ## Phase 0: Project Initialization

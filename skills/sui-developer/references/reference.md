@@ -1,5 +1,50 @@
 # SUI Developer - Reference Guide
 
+## Table of Contents
+
+- [Common Move Patterns Library](#common-move-patterns-library)
+  - [Pattern 1: Capability-Based Administration](#pattern-1-capability-based-administration)
+  - [Pattern 2: One-Time Witness (OTW) Pattern](#pattern-2-one-time-witness-otw-pattern)
+  - [Pattern 3: Shared Object with Versioning](#pattern-3-shared-object-with-versioning)
+  - [Pattern 4: Dynamic Fields for Extensibility](#pattern-4-dynamic-fields-for-extensibility)
+  - [Pattern 5: Safe Math Operations](#pattern-5-safe-math-operations)
+  - [Pattern 6: Event-Driven Architecture](#pattern-6-event-driven-architecture)
+  - [Pattern 7: Pausable Contract](#pattern-7-pausable-contract)
+  - [Pattern 8: Enum Pattern (Move 2024)](#pattern-8-enum-pattern-move-2024)
+  - [Pattern 9: Pure Functions & Composability](#pattern-9-pure-functions--composability)
+  - [Pattern 10: Balance Burn (Send to Zero Address)](#pattern-10-balance-burn-send-to-zero-address)
+  - [Pattern 11: Witness & Capability Authorization](#pattern-11-witness--capability-authorization)
+  - [Pattern 12: PTB-Composable Object Returns (Hot Potato)](#pattern-12-ptb-composable-object-returns-hot-potato)
+- [Complete Security Checklist](#complete-security-checklist)
+  - [Access Control](#access-control)
+  - [Integer Safety](#integer-safety)
+  - [Object Safety](#object-safety)
+  - [Capability Safety](#capability-safety)
+  - [Event Completeness](#event-completeness)
+  - [Gas Optimization](#gas-optimization)
+  - [Error Handling](#error-handling)
+  - [Documentation](#documentation)
+- [Security Patterns Reference](#security-patterns-reference)
+  - [Reentrancy Protection](#reentrancy-protection)
+  - [Front-Running Protection](#front-running-protection)
+  - [Shared Object Race Conditions](#shared-object-race-conditions)
+  - [Authorization Bypass](#authorization-bypass)
+- [Gas Optimization Patterns](#gas-optimization-patterns)
+  - [Pattern 1: Cache Vector Length](#pattern-1-cache-vector-length)
+  - [Pattern 2: Use Table for Large Collections](#pattern-2-use-table-for-large-collections)
+  - [Pattern 3: Batch Operations](#pattern-3-batch-operations)
+  - [Pattern 4: Minimize Storage](#pattern-4-minimize-storage)
+- [Testing Patterns (Move 2024)](#testing-patterns-move-2024)
+  - [Basic Test Structure](#basic-test-structure)
+  - [Key Testing APIs](#key-testing-apis)
+- [Frontend Integration Patterns](#frontend-integration-patterns)
+  - [Event Design for Frontend](#event-design-for-frontend)
+  - [TypeScript Type Mapping](#typescript-type-mapping)
+- [Advanced Configuration Options](#advanced-configuration-options)
+
+---
+
+
 Complete reference for Move patterns, security checks, and best practices.
 
 ## Common Move Patterns Library

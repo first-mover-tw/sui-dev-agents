@@ -1,5 +1,18 @@
 # Sui TS SDK — Advanced Examples
 
+## Table of Contents
+
+- [1. `$extend()` Ecosystem Integrations](#1-extend-ecosystem-integrations)
+- [2. `coinWithBalance` Examples](#2-coinwithbalance-examples)
+- [3. Sponsored Transaction Complete Flow](#3-sponsored-transaction-complete-flow)
+- [4. BCS Encoding for Custom Types](#4-bcs-encoding-for-custom-types)
+- [5. Multi-Command PTB Composition](#5-multi-command-ptb-composition)
+- [6. Dev Inspect (Dry Run)](#6-dev-inspect-dry-run)
+- [7. Paginated Query Pattern](#7-paginated-query-pattern)
+
+---
+
+
 ## 1. `$extend()` Ecosystem Integrations
 
 ```typescript

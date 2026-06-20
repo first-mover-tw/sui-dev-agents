@@ -1,5 +1,43 @@
 # SUI Architect - Reference Guide
 
+## Table of Contents
+
+- [Template Library](#template-library)
+  - [NFT Marketplace Template](#nft-marketplace-template)
+  - [DeFi AMM Template](#defi-amm-template)
+  - [GameFi Template](#gamefi-template)
+  - [DAO Template](#dao-template)
+- [Module Design Patterns](#module-design-patterns)
+  - [1. Capability-Based Access Control](#1-capability-based-access-control)
+  - [2. Shared Object Pattern](#2-shared-object-pattern)
+  - [3. Dynamic Fields for Extensibility](#3-dynamic-fields-for-extensibility)
+  - [4. Event-Driven Architecture](#4-event-driven-architecture)
+- [Security Best Practices](#security-best-practices)
+  - [1. Access Control](#1-access-control)
+  - [2. Integer Safety](#2-integer-safety)
+  - [3. Reentrancy Protection](#3-reentrancy-protection)
+  - [4. Payment Verification](#4-payment-verification)
+  - [5. Emergency Controls](#5-emergency-controls)
+- [Security Threat Model Template](#security-threat-model-template)
+- [Specification Document Template](#specification-document-template)
+  - [Executive Summary](#executive-summary)
+  - [Architecture Diagram](#architecture-diagram)
+  - [Mermaid Dependency Diagram](#mermaid-dependency-diagram)
+- [Advanced Configuration](#advanced-configuration)
+  - [Custom Template Path](#custom-template-path)
+  - [Question Customization](#question-customization)
+  - [Documentation Generation](#documentation-generation)
+- [Integration Patterns](#integration-patterns)
+  - [With sui-docs-query](#with-sui-docs-query)
+  - [With sui-developer](#with-sui-developer)
+- [Gas Optimization Patterns](#gas-optimization-patterns)
+  - [1. Use Vectors Wisely](#1-use-vectors-wisely)
+  - [2. Batch Operations](#2-batch-operations)
+  - [3. Minimize Storage](#3-minimize-storage)
+
+---
+
+
 Complete reference for templates, patterns, and advanced configurations.
 
 ## Template Library

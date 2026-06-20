@@ -1,5 +1,15 @@
 # SUI Architect - Complete Examples
 
+## Table of Contents
+
+- [Example 1: NFT Marketplace - Complete Q&A Walkthrough](#example-1-nft-marketplace---complete-qa-walkthrough)
+- [Example 2: DeFi AMM - Generated Specification (Abbreviated)](#example-2-defi-amm---generated-specification-abbreviated)
+- [Example 3: GameFi Project - Architecture Sections](#example-3-gamefi-project---architecture-sections)
+- [Example 4: DAO Governance - Complete Workflow](#example-4-dao-governance---complete-workflow)
+
+---
+
+
 Real-world walkthroughs of the architecture planning process.
 
 ## Example 1: NFT Marketplace - Complete Q&A Walkthrough
