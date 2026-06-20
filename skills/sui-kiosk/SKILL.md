@@ -107,6 +107,7 @@ public fun create_royalty_policy<T>(
 ```typescript
 // @check:skip
 import { Transaction } from '@mysten/sui/transactions';
+import { KioskTransaction } from '@mysten/kiosk';
 
 // List NFT for sale
 async function listNFT(kioskId: string, nftId: string, price: number) {
@@ -126,34 +127,38 @@ async function listNFT(kioskId: string, nftId: string, price: number) {
   return await signAndExecute({ transaction: tx });
 }
 
-// Purchase NFT
+// Purchase an NFT from a kiosk.
+//
+// `kiosk::purchase` returns a `TransferRequest` hot-potato that MUST be resolved
+// against the item's TransferPolicy (royalty, lock, etc.) or the transaction
+// aborts — you cannot just drop it. `KioskTransaction.purchaseAndResolve` runs
+// the purchase AND resolves every policy rule for you, so never hand-roll the
+// `transfer_policy::confirm_request` call. The buyer needs their own kiosk to
+// receive the item.
 async function purchaseNFT(
-  kioskId: string,
-  nftId: string,
-  paymentCoinId: string,
-  policyId: string
+  itemId: string,
+  price: string,
+  sellerKioskId: string
 ) {
+  const { kioskOwnerCaps } = await kioskClient.getOwnedKiosks({ address: buyer });
+
   const tx = new Transaction();
+  // The buyer needs a kiosk to receive the item: reuse an existing one, or
+  // create a fresh kiosk in the same tx (`finalize()` shares it and returns the
+  // cap to the signer). `kioskOwnerCaps[0]` alone would be `undefined` for a
+  // first-time buyer.
+  const kioskTx = kioskOwnerCaps.length
+    ? new KioskTransaction({ transaction: tx, kioskClient, cap: kioskOwnerCaps[0] })
+    : new KioskTransaction({ transaction: tx, kioskClient }).create();
 
-  tx.moveCall({
-    target: '0x2::kiosk::purchase',
-    arguments: [
-      tx.object(kioskId),
-      tx.pure.id(nftId),
-      tx.object(paymentCoinId)
-    ],
-    typeArguments: [`${PACKAGE_ID}::nft::NFT`]
+  await kioskTx.purchaseAndResolve({
+    itemType: `${PACKAGE_ID}::nft::NFT`,
+    itemId,
+    price,
+    sellerKiosk: sellerKioskId,
   });
 
-  // Confirm transfer policy
-  tx.moveCall({
-    target: '0x2::transfer_policy::confirm_request',
-    arguments: [
-      tx.object(policyId),
-      // ... transfer request
-    ]
-  });
-
+  kioskTx.finalize();
   return await signAndExecute({ transaction: tx });
 }
 ```
