@@ -106,18 +106,14 @@ The `declare module` augmentation is what makes `useDAppKit()` and other hooks r
 
 ## 3. Network & Client Configuration
 
-`createDAppKit` accepts these key options:
+`createDAppKit` (see §2 for the full instance file) accepts these key options:
 
-```tsx
-// @check:skip
-createDAppKit({
-  networks: ['testnet', 'mainnet'],       // which networks your app supports
-  defaultNetwork: 'testnet',              // starting network
-  createClient: (network) =>              // called once per network
-    new SuiGrpcClient({ network, baseUrl: GRPC_URLS[network] }),
-  autoConnect: true,                      // default: true — restores last wallet on reload
-});
-```
+| Option | Description |
+|--------|-------------|
+| `networks` | Which networks your app supports (e.g. `['testnet', 'mainnet']`) |
+| `defaultNetwork` | Starting network |
+| `createClient` | Called once per network — return a `SuiGrpcClient` for that network |
+| `autoConnect` | Default `true` — restores the last connected wallet on reload |
 
 **Use `SuiGrpcClient` here** — unlike the deprecated `@mysten/dapp-kit`, the new package is built for gRPC. Do not pass `SuiJsonRpcClient` to `createClient`.
 
