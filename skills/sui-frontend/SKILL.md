@@ -1,6 +1,6 @@
 ---
 name: sui-frontend
-description: Sui frontend dApp development with @mysten/dapp-kit-react (React) and @mysten/dapp-kit-core (Vue, vanilla JS, other frameworks). Use when building browser apps that connect to Sui wallets, query on-chain data, or execute transactions. Use alongside the sui-ts-sdk skill for PTB construction patterns.
+description: Sui frontend dApp development with @mysten/dapp-kit-react (React) and @mysten/dapp-kit-core (Vue, vanilla JS, other frameworks). Use when building browser apps that connect to Sui wallets, add a ConnectButton or wallet-connection UI, query on-chain data, execute or sign transactions in the browser, or migrate off the deprecated @mysten/dapp-kit package. Use alongside the sui-ts-sdk skill for PTB construction patterns.
 ---
 
 # Sui Frontend Skill
