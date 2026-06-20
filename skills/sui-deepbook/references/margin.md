@@ -1,8 +1,9 @@
 # DeepBook V3 — Margin Trading
 
 > Part of the **sui-deepbook** skill. Leverage layer on top of any CLOB pool.
-> Read this when the task involves leverage, MarginManager, perpetuals, Pyth
-> health checks, or take-profit / stop-loss.
+> Read this when the task involves leverage (leveraged spot / CLOB margin — not
+> perpetual futures), MarginManager, Pyth health checks, or take-profit /
+> stop-loss.
 
 DeepBook Margin adds leverage on top of any CLOB pool via separate objects. The SDK exposes a full surface but the high-level moving parts are:
 
