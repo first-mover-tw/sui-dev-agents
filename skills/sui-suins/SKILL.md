@@ -49,31 +49,50 @@ query { nameRecord(name: "alice.sui") { ... } }
 
 ### Register Name
 
-```move
-use suins::registry;
+On-chain registration is a multi-step PTB through the SuiNS payment package
+(price quote → payment intent → receipt → NFT), which is exactly why
+`@mysten/suins` ships `SuinsTransaction.register` — it builds the whole PTB for
+you. There is no single `registry::register` Move call to target.
 
-public fun register_name(
-    name: String,
-    duration_years: u64,
-    payment: Coin<SUI>,
-    ctx: &mut TxContext
-) {
-    registry::register(
-        name,
-        duration_years,
-        payment,
-        ctx
-    );
+```typescript
+// @check:skip
+import { SuinsClient, SuinsTransaction } from '@mysten/suins';
+import { Transaction } from '@mysten/sui/transactions';
+
+const suinsClient = new SuinsClient({ client, network: 'mainnet' });
+
+async function registerName(domain: string, years: number) {
+  const tx = new Transaction();
+  const suinsTx = new SuinsTransaction(suinsClient, tx);
+
+  // `register` builds the full payment PTB and returns the finalized name NFT.
+  // `coinConfig` picks the payment asset. USDC is the base asset (priced
+  // directly, no oracle), so it needs no Pyth feed — the simplest path.
+  // `coin` is the payment Coin<USDC> input covering the price.
+  //
+  // Paying in SUI or NS instead requires their Pyth price feed: pass a
+  // `priceInfoObjectId` (the SDK throws "Price info object ID is required for
+  // non-base asset purchases" without it). See the SuiNS SDK registration guide
+  // for price quoting (getPriceList / calculatePrice) and the Pyth plumbing.
+  const nft = suinsTx.register({
+    domain,
+    years,
+    coinConfig: suinsClient.config.coins.USDC,
+    coin,
+  });
+
+  // Optional: point the name at the owner immediately.
+  suinsTx.setTargetAddress({ nft, address: owner });
+
+  tx.transferObjects([nft], owner);
+  return await signAndExecute({ transaction: tx });
 }
 ```
 
 ### Resolve Name to Address
 
-```move
-public fun resolve(name: String): Option<address> {
-    registry::lookup(name)
-}
-```
+Resolution is a read — do it off-chain via the SDK (`getNameRecord`) or GraphQL
+(see below), not from Move. The SDK example is in **Frontend Integration**.
 
 ## Frontend Integration
 
@@ -100,23 +119,9 @@ async function getName(address: string): Promise<string | null> {
   return res.data.name;
 }
 
-// Register new name
-async function registerName(name: string, years: number) {
-  const tx = new Transaction();
-
-  const [coin] = tx.splitCoins(tx.gas, [tx.pure(calculateCost(years))]);
-
-  tx.moveCall({
-    target: `${SUINS_PACKAGE}::registry::register`,
-    arguments: [
-      tx.pure(name),
-      tx.pure(years),
-      coin
-    ]
-  });
-
-  return await signAndExecute({ transaction: tx });
-}
+// To register a name, use `SuinsTransaction.register` — see the Register Name
+// section above. Registration is a payment PTB built by the SDK, not a single
+// Move call.
 ```
 
 ## Display Name in UI
