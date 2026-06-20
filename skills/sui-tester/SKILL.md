@@ -62,6 +62,16 @@ sui move test --filter "test_.*listing"
 
 ## Test Types
 
+Aim for a test pyramid — most coverage cheap and fast at the bottom, a few expensive checks at the top:
+
+```
+          E2E Tests (5%)
+         /            \
+    Integration (15%)
+       /                \
+   Unit Tests (80%)
+```
+
 ### 1. Move Unit Tests
 
 ```move
@@ -69,11 +79,14 @@ sui move test --filter "test_.*listing"
 fun test_create_listing() {
     let seller = @0xA;
     let mut scenario = test_scenario::begin(seller);
-    
-    // Create and verify listing
-    let listing = create_listing(nft, 1000, ctx);
+
+    // Reusable helpers keep setup DRY across tests
+    let nft = create_test_nft(&mut scenario);
+    let listing = create_listing(nft, 1000, scenario.ctx());
+
     assert!(price(&listing) == 1000, 0);
-    
+    assert!(seller(&listing) == seller, 1);
+
     test_scenario::end(scenario);
 }
 ```
@@ -89,7 +102,8 @@ Test cross-module interactions (marketplace + royalty).
 test('complete buy flow', async ({ page }) => {
     await page.goto('http://localhost:5173');
     await page.click('button:has-text("Connect Wallet")');
-    // ... complete user journey
+    await page.click('button:has-text("Buy Now")');
+    await expect(page.locator('text=Purchase successful')).toBeVisible();
 });
 ```
 
@@ -231,4 +245,4 @@ Test execution targets:
 - E2E tests: <10 minutes
 - Full suite: <15 minutes
 
-See [reference.md](references/reference.md) for complete test patterns and [examples.md](references/examples.md) for test examples. For installing the CLI, localnet setup, or faucet tokens, see the **sui-install** skill.
+For installing the CLI, localnet setup, or faucet tokens, see the **sui-install** skill.
