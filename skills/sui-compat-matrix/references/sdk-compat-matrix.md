@@ -20,8 +20,8 @@ Canonical source-of-truth for `@mysten/*` versions across in-scope skills. See `
 | skills/sui-suins/SKILL.md | @mysten/sui | peer | 2.17.0 | ^2.16 | 2026-05-21 | — |
 | skills/sui-passkey/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.0 | 2026-05-21 | sub-export:passkey |
 | skills/sui-zklogin/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.0 | 2026-05-21 | sub-export:zklogin |
-| skills/sui-fullstack-integration/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.16 | 2026-05-21 | — |
-| skills/sui-fullstack-integration/SKILL.md | @mysten/kiosk | primary | 1.2.6 | ^1.2 | 2026-05-21 | no-grpc |
+| skills/sui-move-ts-bridge/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.16 | 2026-05-21 | — |
+| skills/sui-move-ts-bridge/SKILL.md | @mysten/kiosk | primary | 1.2.6 | ^1.2 | 2026-05-21 | no-grpc |
 | skills/sui-enoki/SKILL.md | @mysten/enoki | primary | 1.0.8 | ^1.0 | 2026-06-03 | — |
 | skills/sui-enoki/SKILL.md | @mysten/sui | peer | 2.17.0 | ^2.16 | 2026-06-03 | — |
 

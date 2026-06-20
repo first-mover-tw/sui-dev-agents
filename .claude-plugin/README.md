@@ -90,7 +90,7 @@ For specific tasks, invoke skills directly:
 #### Infrastructure Subagents (3)
 - `sui-docs-query-subagent` - Documentation queries
 - `sui-security-guard-subagent` - Security scanning
-- `sui-fullstack-integration-subagent` - Contract-frontend integration
+- `sui-move-ts-bridge-subagent` - Contract-frontend integration
 
 ## Skills Reference
 
@@ -104,7 +104,7 @@ For specific tasks, invoke skills directly:
 | **sui-frontend** | Building TypeScript/React dApps |
 | **sui-deployer** | Deploying to devnet/testnet/mainnet |
 | **sui-tester** | Testing contracts and integration |
-| **sui-fullstack-integration** | Connecting contracts to frontend |
+| **sui-move-ts-bridge** | Connecting contracts to frontend |
 
 ### Ecosystem Integration Skills (8)
 

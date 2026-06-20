@@ -18,7 +18,7 @@ Provide integration patterns and code for SUI ecosystem tools (Kiosk, Walrus, zk
 | DEX integration | sui-deepbook-subagent | sui-deepbook |
 | NFT protocol | sui-nft-protocol-subagent | sui-nft-protocol |
 | Multi-signature | sui-multisig-subagent | sui-multisig |
-| Full integration | sui-fullstack-integration-subagent | sui-fullstack-integration |
+| Full integration | sui-move-ts-bridge-subagent | sui-move-ts-bridge |
 
 ## Coordination Pattern
 

@@ -340,7 +340,7 @@ Full migration table in [references/react-patterns.md](references/react-patterns
 
 ### Called By
 - `sui-full-stack` (Phase 3: Frontend development)
-- `sui-fullstack-integration` (contract-frontend integration)
+- `sui-move-ts-bridge` (contract-frontend integration)
 
 ### Calls
 - `sui-ts-sdk` - PTB construction patterns

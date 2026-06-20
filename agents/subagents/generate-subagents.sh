@@ -19,7 +19,7 @@ subagents=(
   "sui-deepbook:sui-deepbook:sui-ecosystem-agent"
   "sui-nft-protocol:sui-nft-protocol:sui-ecosystem-agent"
   "sui-multisig:sui-multisig:sui-ecosystem-agent"
-  "sui-fullstack-integration:sui-fullstack-integration:sui-ecosystem-agent"
+  "sui-move-ts-bridge:sui-move-ts-bridge:sui-ecosystem-agent"
 )
 
 for entry in "${subagents[@]}"; do

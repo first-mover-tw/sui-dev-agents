@@ -20,7 +20,7 @@ sui-full-stack:
        - Setup React + TypeScript
        - Wallet integration
        - Git commit
-  → Phase 4: Call sui-fullstack-integration
+  → Phase 4: Call sui-move-ts-bridge
        - Generate types
        - Create API wrappers
   → Phase 5: Call sui-tester

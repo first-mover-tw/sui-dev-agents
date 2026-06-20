@@ -1,0 +1,16 @@
+{
+  "agent_id": "sui-move-ts-bridge-subagent",
+  "name": "Sui Move Ts Bridge Subagent",
+  "version": "1.0.0",
+  "description": "Executes the sui-move-ts-bridge skill.",
+  "capabilities": [
+    "skill_execution",
+    "progress_reporting",
+    "state_updates"
+  ],
+  "skill": "sui-move-ts-bridge",
+  "reports_to": [
+    "sui-ecosystem-agent"
+  ],
+  "prompt_template": "Execute the sui-move-ts-bridge skill following its instructions exactly. Report progress to sui-ecosystem-agent. Update state file after completion."
+}

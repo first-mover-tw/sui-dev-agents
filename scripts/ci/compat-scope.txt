@@ -8,4 +8,4 @@ skills/sui-suins
 skills/sui-passkey
 skills/sui-zklogin
 skills/sui-enoki
-skills/sui-fullstack-integration
+skills/sui-move-ts-bridge

@@ -17,7 +17,7 @@
     "sui-deepbook-subagent",
     "sui-nft-protocol-subagent",
     "sui-multisig-subagent",
-    "sui-fullstack-integration-subagent"
+    "sui-move-ts-bridge-subagent"
   ],
   "reports_to": [
     "sui-supreme",
@@ -37,7 +37,7 @@
     "sui-deepbook",
     "sui-nft-protocol",
     "sui-multisig",
-    "sui-fullstack-integration"
+    "sui-move-ts-bridge"
   ],
   "prompt_template": "./sui-ecosystem-agent-prompt.md"
 }

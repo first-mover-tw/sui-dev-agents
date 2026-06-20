@@ -39,7 +39,7 @@
     "./agents/sui-passkey-subagent.md",
     "./agents/sui-docs-query-subagent.md",
     "./agents/sui-security-guard-subagent.md",
-    "./agents/sui-fullstack-integration-subagent.md",
+    "./agents/sui-move-ts-bridge-subagent.md",
     "./agents/supreme/sui-supreme-prompt.md",
     "./agents/core/sui-core-agent-prompt.md",
     "./agents/development/sui-development-agent-prompt.md",

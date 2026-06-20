@@ -13,7 +13,7 @@ This skill assists with writing production-ready SUI Move code through:
 - Code generation from specifications
 - Multi-level quality checks (Fast/Standard/Strict)
 - Real-time development suggestions
-- Frontend-friendly contract design (see sui-fullstack-integration for TS type generation)
+- Frontend-friendly contract design (see sui-move-ts-bridge for TS type generation)
 
 ## Quick Start
 
@@ -220,7 +220,7 @@ To detect deprecations, check current API/version behavior via the **sui-docs-qu
 
 ### 3. Frontend Integration
 
-For TypeScript type generation from Move ABI, event design for frontends, and contract API wrappers, use the **sui-fullstack-integration** skill.
+For TypeScript type generation from Move ABI, event design for frontends, and contract API wrappers, use the **sui-move-ts-bridge** skill.
 
 ### 4. Best Practices Enforcement
 

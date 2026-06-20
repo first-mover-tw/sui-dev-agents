@@ -1,6 +1,6 @@
 ---
 name: sui-full-stack
-description: Use when starting a new SUI project from scratch or need end-to-end workflow orchestration (architecture → contracts → frontend → testing → deployment). This is the PROJECT ORCHESTRATOR that routes to specialized skills per phase. Triggers on "new project", "start from scratch", "full workflow", "what's the next step", or any multi-phase SUI development task. Do NOT use for Move↔TypeScript integration tasks (type generation, event handling) — that's sui-fullstack-integration.
+description: Use when starting a new SUI project from scratch or need end-to-end workflow orchestration (architecture → contracts → frontend → testing → deployment). This is the PROJECT ORCHESTRATOR that routes to specialized skills per phase. Triggers on "new project", "start from scratch", "full workflow", "what's the next step", or any multi-phase SUI development task. Do NOT use for Move↔TypeScript integration tasks (type generation, event handling) — that's sui-move-ts-bridge.
 ---
 
 # SUI Full-Stack Development
@@ -15,7 +15,7 @@ This is the main orchestrator skill that guides you through the entire SUI devel
 2. **Phase 1**: Architecture Planning (`sui-architect`)
 3. **Phase 2**: Smart Contract Development (`sui-developer`)
 4. **Phase 3**: Frontend Development (`sui-frontend`) - Optional
-5. **Phase 4**: Integration (`sui-fullstack-integration`)
+5. **Phase 4**: Integration (`sui-move-ts-bridge`)
 6. **Phase 5**: Testing (`sui-tester`)
 7. **Phase 6**: Deployment (`sui-deployer`)
 8. **Phase 7**: Documentation Generation - Optional
@@ -63,7 +63,7 @@ sui-full-stack --stage testing
 
 ### Phase 4: Integration
 
-- Call `sui-fullstack-integration`
+- Call `sui-move-ts-bridge`
 - Generate TypeScript types from Move ABI
 - Set up event listeners and dev environment
 - If project needs historical data aggregation or custom analytics, call `sui-indexer` to set up a data pipeline (PostgreSQL + checkpoint processor)
@@ -111,7 +111,7 @@ This skill orchestrates:
 | `sui-architect` | 1 | Architecture planning |
 | `sui-developer` | 2 | Move development |
 | `sui-frontend` | 3 | Frontend setup |
-| `sui-fullstack-integration` | 4 | Type generation |
+| `sui-move-ts-bridge` | 4 | Type generation |
 | `sui-tester` | 5 | Comprehensive testing |
 | `sui-deployer` | 6 | Multi-network deployment |
 | `sui-tools-guide` | All | Tool selection |

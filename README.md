@@ -71,7 +71,7 @@ Red Team simulates real attack vectors against your Move contracts — reentranc
 | Code | `/sui-developer` | Move contract dev + quality checks |
 | SDK | `/sui-ts-sdk` | TypeScript SDK v2 — PTB, queries, sponsored tx |
 | Frontend | `/sui-frontend` | React/Next.js + dApp Kit v2 wallet integration |
-| Integration | `/sui-fullstack-integration` | Move↔TS type generation, ABI wrappers, event listeners, E2E wiring |
+| Integration | `/sui-move-ts-bridge` | Move↔TS type generation, ABI wrappers, event listeners, E2E wiring |
 | Test | `/sui-tester` | Unit, integration, E2E, gas benchmarks, coverage analysis |
 | Deploy | `/sui-deployer` | Staged rollout: devnet → testnet → mainnet |
 | Quality | `/move-code-quality` | Move Book code quality checklist |

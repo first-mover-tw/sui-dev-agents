@@ -1,9 +1,9 @@
 ---
-name: sui-fullstack-integration
+name: sui-move-ts-bridge
 description: Use when bridging Move contracts to TypeScript — generating TS types from Move ABI, creating contract API wrappers, subscribing to on-chain events, or building E2E integration tests. Triggers on "generate types from Move", "event listener", "contract ABI", "Move to TypeScript", "subscribe to events", "ABI wrapper", or any Move↔frontend bridging task. This is the CONTRACT-TO-CODE BRIDGE, not project setup (sui-full-stack) or UI/wallet (sui-frontend).
 ---
 
-# SUI Fullstack Integration
+# SUI Move ↔ TypeScript Bridge
 
 > **Scope:** This skill covers Move ↔ TypeScript bridging: type generation, event handling, ABI wrappers. For dApp UI setup and wallet integration, use the `sui-frontend` skill. For PTB construction and SDK client patterns, use the `sui-ts-sdk` skill.
 

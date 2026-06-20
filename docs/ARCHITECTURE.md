@@ -108,7 +108,7 @@ Development Workflow (8)
 ├── sui-developer
 ├── sui-ts-sdk
 ├── sui-frontend
-├── sui-fullstack-integration
+├── sui-move-ts-bridge
 ├── sui-tester
 ├── sui-deployer
 └── move-code-quality
@@ -177,7 +177,7 @@ sui-supreme (Supreme Orchestrator)
 │   ├── sui-tester-subagent
 │   ├── sui-deployer-subagent
 │   ├── sui-red-team-subagent
-│   └── sui-fullstack-integration-subagent
+│   └── sui-move-ts-bridge-subagent
 │
 └── sui-ecosystem-agent (Ecosystem Integrations)
     ├── sui-kiosk-subagent
@@ -379,7 +379,7 @@ sui-dev-agents/
 │   ├── sui-suins/
 │   ├── sui-seal/
 │   ├── sui-nautilus/
-│   └── sui-fullstack-integration/
+│   └── sui-move-ts-bridge/
 │
 ├── agents/                            # 19 agents (1 supreme + 4 category + 14 subagents)
 │   ├── sui-supreme.md

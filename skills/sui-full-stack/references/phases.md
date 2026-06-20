@@ -265,7 +265,7 @@ Changes:
 ```
 "Ready to integrate frontend and contracts?"
 
-→ Call sui-fullstack-integration
+→ Call sui-move-ts-bridge
 
 This will:
   1. Generate TypeScript types from Move ABI
