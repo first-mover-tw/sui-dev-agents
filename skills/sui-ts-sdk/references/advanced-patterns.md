@@ -214,36 +214,19 @@ const bytes = await tx.build();
 
 ## Sponsored Transactions
 
-In a sponsored transaction, one party builds the transaction and another pays for gas:
+In a sponsored transaction the sender authorizes the PTB content while a
+different party (the sponsor) pays gas. The correct flow splits the PTB from its
+gas data using `build({ onlyTransactionKind: true })` + `Transaction.fromKind` —
+do NOT full-`build` then override the gas owner, which resolves the sender's gas
+only to discard it.
 
-```typescript
-// @check:skip
-// === App / user side ===
-const tx = new Transaction();
-tx.setSender(userAddress);
-// ... add commands ...
+- **Concept / why** (kind-only split, sponsor safety, who-submits): see
+  [ptbs-advanced.md](ptbs-advanced.md#sponsored-transactions).
+- **Complete runnable dual-sign code**: see
+  [examples.md](examples.md#3-sponsored-transaction-complete-flow).
 
-// Serialize for the sponsor
-const txBytes = await tx.build({ client });
-
-// === Sponsor side ===
-const sponsoredTx = Transaction.from(txBytes);
-sponsoredTx.setGasOwner(sponsorAddress);
-sponsoredTx.setGasPayment(sponsorCoins);
-sponsoredTx.setGasBudget(10_000_000);
-
-// Both parties sign
-const { signature: userSig } = await sponsoredTx.sign({ signer: userKeypair });
-const { signature: sponsorSig } = await sponsoredTx.sign({ signer: sponsorKeypair });
-
-// Execute with both signatures
-const result = await client.core.executeTransaction({
-  transaction: await sponsoredTx.build({ client }),
-  signatures: [userSig, sponsorSig],
-});
-```
-
-**Important**: When a sponsor pays for gas, the gas coin belongs to the sponsor. Avoid using `tx.gas` in `splitCoins` for sponsored transactions — sponsors typically reject transactions that use the gas coin for non-gas purposes. Use `coinWithBalance` instead.
+The sponsored-tx pitfalls (`tx.gas` in `splitCoins`, `coinWithBalance` +
+`setSender`) are covered under [Common Mistakes](#common-mistakes) below.
 
 ---
 
