@@ -35,13 +35,8 @@ When designing architectures, account for these recent platform changes:
 - **Address Balances (Mainnet, P125):** Native address-held balances for supported coin types — PTBs can debit/credit them directly without manual coin select/split/merge. Additive, not a replacement: flows that take `Coin<T>` still need coin objects.
 - **Gasless Stablecoin Transfers (Mainnet, P125, rolling out):** Accumulator + coin reservations let users move USDC etc. without holding SUI for gas.
 - **Display V2 (Activated):** Display Registry (`0xd`) live on all networks — prioritized over legacy Display v1. Plan new projects around Display V2.
-- **Address Aliases (Mainnet):** Human-readable address mappings now live on mainnet.
-- **Adaptive Concurrency:** Indexing framework auto-scales workers; `Processor::FANOUT` removed → use `ConcurrencyConfig`.
 - **Balance API Split:** `coinBalance` (fungible coins only) and `addressBalance` (all balance types)
-- **TxContext Flexible Positioning:** Entry functions no longer require `TxContext` as the last parameter.
-- **poseidon_bn254:** Available on all networks for zero-knowledge proof applications.
-- **Entry Function Changes:** Signature check disabled; non-public entry functions cannot have hot-potato-entangled arguments.
-- **DeepBook Explicit Dependency:** Since v1.47, DeepBook must be added explicitly to `Move.toml`.
+- **Other platform/runtime notes (P126 + earlier rollouts):** entry-fn signature check disabled & non-public entry fns can't take hot-potato-entangled args; `TxContext` flexible positioning (no longer must be last param); `poseidon_bn254` on all networks; Adaptive Concurrency (`Processor::FANOUT` removed → `ConcurrencyConfig`); DeepBook explicit `Move.toml` dep (v1.47+); Address Aliases live on mainnet. Move-authoring depth → see sui-developer's Protocol 126 section.
 - **SDK Naming:** `@mysten/sui` (not `@mysten/sui.js`), `Transaction` (not `TransactionBlock`)
 
 ## Core Workflow
