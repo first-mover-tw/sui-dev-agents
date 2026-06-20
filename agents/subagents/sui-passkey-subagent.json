@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-passkey-subagent",
-  "name": "sui passkey Subagent",
+  "name": "Sui Passkey Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-passkey skill.",
   "capabilities": [

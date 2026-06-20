@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-architect-subagent",
-  "name": "sui architect Subagent",
+  "name": "Sui Architect Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-architect skill.",
   "capabilities": [

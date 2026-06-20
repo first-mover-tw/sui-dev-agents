@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-docs-query-subagent",
-  "name": "sui docs query Subagent",
+  "name": "Sui Docs Query Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-docs-query skill.",
   "capabilities": [

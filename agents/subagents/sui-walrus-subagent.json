@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-walrus-subagent",
-  "name": "sui walrus Subagent",
+  "name": "Sui Walrus Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-walrus skill.",
   "capabilities": [

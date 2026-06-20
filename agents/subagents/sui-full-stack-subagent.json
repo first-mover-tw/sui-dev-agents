@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-full-stack-subagent",
-  "name": "sui full stack Subagent",
+  "name": "Sui Full Stack Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-full-stack skill.",
   "capabilities": [

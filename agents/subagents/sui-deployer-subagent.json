@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-deployer-subagent",
-  "name": "sui deployer Subagent",
+  "name": "Sui Deployer Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-deployer skill.",
   "capabilities": [

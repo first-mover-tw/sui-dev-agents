@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-developer-subagent",
-  "name": "sui developer Subagent",
+  "name": "Sui Developer Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-developer skill.",
   "capabilities": [

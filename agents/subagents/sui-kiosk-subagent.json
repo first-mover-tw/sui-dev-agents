@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-kiosk-subagent",
-  "name": "sui kiosk Subagent",
+  "name": "Sui Kiosk Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-kiosk skill.",
   "capabilities": [

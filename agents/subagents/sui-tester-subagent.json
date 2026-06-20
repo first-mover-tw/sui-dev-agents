@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-tester-subagent",
-  "name": "sui tester Subagent",
+  "name": "Sui Tester Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-tester skill.",
   "capabilities": [

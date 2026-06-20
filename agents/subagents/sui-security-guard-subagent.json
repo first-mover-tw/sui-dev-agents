@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-security-guard-subagent",
-  "name": "sui security guard Subagent",
+  "name": "Sui Security Guard Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-security-guard skill.",
   "capabilities": [

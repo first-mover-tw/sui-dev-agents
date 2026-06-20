@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-oracle-subagent",
-  "name": "sui oracle Subagent",
+  "name": "Sui Oracle Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-oracle skill.",
   "capabilities": [

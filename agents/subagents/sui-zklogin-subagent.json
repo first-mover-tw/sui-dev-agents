@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-zklogin-subagent",
-  "name": "sui zklogin Subagent",
+  "name": "Sui Zklogin Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-zklogin skill.",
   "capabilities": [

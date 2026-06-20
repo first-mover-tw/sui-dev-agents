@@ -28,7 +28,7 @@ for entry in "${subagents[@]}"; do
   cat > "${subagent_id}-subagent.json" <<EOF
 {
   "agent_id": "${subagent_id}-subagent",
-  "name": "$(echo $subagent_id | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g') Subagent",
+  "name": "$(echo $subagent_id | awk -F- '{for(i=1;i<=NF;i++)$i=toupper(substr($i,1,1)) substr($i,2)}1' OFS=' ') Subagent",
   "version": "1.0.0",
   "description": "Executes the ${skill} skill.",
   "capabilities": [

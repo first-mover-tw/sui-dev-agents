@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-nft-protocol-subagent",
-  "name": "sui nft protocol Subagent",
+  "name": "Sui Nft Protocol Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-nft-protocol skill.",
   "capabilities": [

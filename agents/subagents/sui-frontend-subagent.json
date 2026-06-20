@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-frontend-subagent",
-  "name": "sui frontend Subagent",
+  "name": "Sui Frontend Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-frontend skill.",
   "capabilities": [

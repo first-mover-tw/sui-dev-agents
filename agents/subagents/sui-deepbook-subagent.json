@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-deepbook-subagent",
-  "name": "sui deepuook Subagent",
+  "name": "Sui Deepbook Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-deepbook skill.",
   "capabilities": [

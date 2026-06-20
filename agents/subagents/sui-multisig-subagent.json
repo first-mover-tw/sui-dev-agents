@@ -1,6 +1,6 @@
 {
   "agent_id": "sui-multisig-subagent",
-  "name": "sui multisig Subagent",
+  "name": "Sui Multisig Subagent",
   "version": "1.0.0",
   "description": "Executes the sui-multisig skill.",
   "capabilities": [
