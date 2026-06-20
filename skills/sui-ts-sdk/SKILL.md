@@ -303,22 +303,11 @@ tx.moveCall({
 
 ### publish
 
-Publishes a new Move package. Build the package with the Sui CLI first, then pass the compiled modules:
-
-```typescript
-// @check:skip
-const tx = new Transaction();
-const [upgradeCap] = tx.publish({ modules, dependencies });
-tx.transferObjects([upgradeCap], myAddress);
-```
-
-To get the `modules` and `dependencies`, run:
-
-```bash
-sui move build --dump-bytecode-as-base64 --path ./your_package
-```
-
-Parse the JSON output to extract `modules` and `dependencies` arrays.
+Publishing a Move package from TS is occasional and overlaps the **sui-deployer**
+skill. For the `tx.publish({ modules, dependencies })` pattern and the
+`sui move build --dump-bytecode-as-base64` step, see
+[references/advanced-patterns.md](references/advanced-patterns.md#publishing-a-package)
+or the sui-deployer skill.
 
 ---
 
@@ -476,10 +465,12 @@ await client.waitForTransaction({ digest: result.digest });
 // Now safe to query updated state
 ```
 
-For separate sign + execute, multi-sig, keypairs, offline building, sponsored transactions, client extensions, v1→v2 migration, and common mistakes, see:
+For separate sign + execute, multi-sig, keypairs, offline building, client extensions, v1→v2 migration, and common mistakes, see:
 - [references/advanced-patterns.md](references/advanced-patterns.md)
 - [references/reference.md](references/reference.md) - Complete v1-to-v2 API mapping
 - [references/examples.md](references/examples.md) - Advanced PTB examples and patterns
+
+For **sponsored transactions** specifically, see [references/ptbs-advanced.md](references/ptbs-advanced.md) (concept) and [references/examples.md](references/examples.md) §3 (complete code).
 
 ---
 
@@ -514,12 +505,9 @@ const fields = await client.core.listDynamicFields({ parentId: '0xParentObjId' }
 
 ### gRPC service clients (lower-level)
 
-```typescript
-// @check:skip — API surface overview with `...` placeholders, not runnable
-await client.ledgerService.getObject({ objectId: '0x...' });
-await client.transactionExecutionService.executeTransaction({ ... });
-await client.movePackageService.getFunction({ packageId: '0x2', moduleName: 'coin', name: 'transfer' });
-```
+For the lower-level service clients (`ledgerService`, `transactionExecutionService`,
+`movePackageService`, etc.), see
+[references/advanced-patterns.md](references/advanced-patterns.md#grpc-service-clients).
 
 ---
 
