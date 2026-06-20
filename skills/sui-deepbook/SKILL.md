@@ -237,32 +237,11 @@ and margin pitfalls, see **[references/margin.md](references/margin.md)**.
 
 ## DeepBook Indexer
 
-Off-chain REST service for historical and aggregate data (trades, volume, OHLCV, orderbook snapshots) that you can't cheaply derive from RPC. There is no SDK wrapper — fetch directly:
-
-```typescript
-// Mainnet base: https://deepbook-indexer.mainnet.mystenlabs.com
-// Predict (testnet): https://predict-server.testnet.mystenlabs.com
-
-// Common endpoints (canonical names — verify exact query-param spelling against current docs):
-//   GET /pools                              — all pools + metadata (tick_size, lot_size)
-//   GET /summary                            — per-pool 24h price/volume/quote summary
-//   GET /book_depth?pool_id=...             — live L2 depth snapshot
-//   GET /ohlcv?pool_id=...&interval=...     — candles
-//   GET /historical_volume?...              — volume by pool or balance manager
-
-const summary = await fetch(
-  'https://deepbook-indexer.mainnet.mystenlabs.com/summary',
-).then(r => r.json());
-```
-
-**When to use the indexer vs. SDK queries:**
-- ✅ Historical OHLCV / candles / volume → indexer
-- ✅ All trades for a balance manager over time → indexer
-- ✅ TVL, 24h volume per pool → indexer
-- ❌ Current orderbook depth → SDK (`getLevel2Range`) — it's live RPC
-- ❌ Your open orders → SDK (`accountOpenOrders`)
-
-> Endpoint surface evolves; canonical reference is https://docs.sui.io/onchain-finance/deepbookv3/deepbookv3-indexer. Use the `sui-docs-query` skill for the current list before hard-coding.
+Off-chain REST service for historical / aggregate data (OHLCV, volume, trade
+history, orderbook snapshots) that you can't cheaply derive from live RPC. Live
+state (current depth, your open orders) → SDK; historical / aggregates → indexer.
+For endpoints and the full indexer-vs-SDK guidance, see
+**[references/indexer.md](references/indexer.md)**.
 
 ## DeepBook Predict
 
@@ -306,10 +285,6 @@ see **[references/predict.md](references/predict.md)**.
 ❌ **Treating BalanceManager like a per-pool AccountCap**
 - **Problem:** Creating a new BalanceManager per pool replicates V2 thinking; wastes objects and fragments DEEP.
 - **Fix:** One BalanceManager per user (or per strategy) holds funds across all pools. That's the whole point of V3.
-
-❌ **Querying orderbook depth from the indexer**
-- **Problem:** Indexer is eventually consistent and lags live state; you'll quote stale prices.
-- **Fix:** Live state → `getLevel2Range` / `midPrice`. Indexer → historical + aggregates only.
 
 ## Discovery
 
