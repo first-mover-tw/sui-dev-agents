@@ -1,6 +1,6 @@
 ---
 name: sui-walrus
-description: Use when storing or retrieving files using Walrus — SUI's decentralized blob storage. Triggers on "Walrus", "blob storage", "upload file to chain", "decentralized storage", "store NFT image", "IPFS alternative on SUI", "where to store NFT metadata", "host a site on-chain", or any off-chain data storage needs on SUI. Also use for Walrus Sites (decentralized web hosting), storing game assets, media files, or when the user asks "where do I put large files on SUI".
+description: Use when storing or retrieving files using Walrus — SUI's decentralized blob storage. Triggers on "Walrus", "blob storage", "upload file to chain", "decentralized storage", "store NFT image", "IPFS alternative on SUI", "where to store NFT metadata", "host a site on-chain", or any off-chain data storage needs on SUI. Also use for Walrus Sites (decentralized web hosting), storing game assets, media files, or when the user asks "where do I put large files on SUI". Also covers Walrus Memory (the @mysten-incubation/memwal beta SDK) — trigger on "Walrus Memory", "portable agent memory", "AI agent memory", "agent memory layer", "store agent memories", or giving an AI agent durable cross-session memory.
 ---
 
 # SUI Walrus Integration
@@ -211,6 +211,7 @@ Query latest Walrus docs via the in-repo `sui-docs-query` skill (not an SDK func
 ## See Also
 
 - [advanced-apis.md](references/advanced-apis.md) — Read when working with WalrusFile/WalrusBlob, batching small files via quilts (`encodeQuilt`), converting blob IDs (int ↔ string), or needing network package-config constants (walrus ≥1.1.7)
+- [memory.md](references/memory.md) — Read when the user wants Walrus Memory / portable agent memory / AI agent memory (the `@mysten-incubation/memwal` beta SDK): an agent memory layer (store + SEAL-encrypt + onchain ownership + semantic recall) built on top of raw Walrus blob storage
 
 ---
 
