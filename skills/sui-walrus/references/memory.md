@@ -90,5 +90,8 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   `x-seal-session` bytes go on the wire) — but it can still sign Sui transactions from the delegate
   address, so keep it server-side and never ship it to a browser.
 - **Other useful calls:** `rememberBulk(items)` (≤20/call), `analyze(text)` (extract facts from
-  conversation), `restore(namespace, limit?=10)` (rebuild the local vector index from Walrus),
+  conversation — also takes an options form `analyze({ namespace, occurredAt })` where
+  `occurredAt?: string | Date` is sent as `occurred_at` via `Date.toISOString()`, omitted when
+  absent, and throws on an invalid Date; the server resolves relative dates like "yesterday"),
+  `restore(namespace, limit?=10)` (rebuild the local vector index from Walrus),
   `embed(text)`, `health()`, `compatibility()`.
