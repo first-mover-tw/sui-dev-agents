@@ -93,9 +93,16 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI Protocol 126 Updates (mainnet v1.73.2, testnet v1.73.1+)
+## SUI Protocol 127 Updates (testnet v1.74.0; mainnet v1.73.2 / P126)
 
 **Key changes affecting Move development (as of June 2026):**
+
+### Protocol 127 (testnet v1.74.0)
+
+- **Bulletproofs domain separation (breaking):** `sui::rangeproofs::verify_bulletproofs_ristretto255` is deprecated and now **always aborts**. Use `verify_bulletproofs_with_dst_ristretto255(proof, bits, commitments, dst, version)` — adds a domain-separation tag (`dst`, max length 64).
+- **Ristretto255 on testnet:** Ristretto255 group operations + Bulletproof range-proof verification moved from devnet-only to **devnet + testnet** (gas prices re-tuned).
+- **DKG fix:** P127 enables `always_advance_dkg_to_resolution` (corrects a bad P126 modification).
+- `sui::accumulator` gains `#[test_only] create_for_testing`.
 
 ### Platform & Runtime
 
@@ -125,6 +132,7 @@ See [scripts/](scripts/) for implementation details.
 - **Sui Gas Meter for Tests:** `sui move test` now uses the Sui gas meter (`v1.66.2+`), providing more accurate gas measurements.
 - **CLI Auto-completion:** Use `sui completion --generate [shell]` for shell auto-completion (`v1.66.2+`).
 - **Regex Test Filtering:** Test filtering now uses regex — use `sui move test --filter "regex_pattern"`.
+- **Move Linter:** `sui move lint` runs Move linters on the package (P127 / v1.74.0+). Default lints run in `sui move build`/`test`; `--no-lint` disables them, `--lint` enables extra linters.
 - **Move Formatter:** `sui move format` formats Move source via `prettier-move` (P126 / v1.73.1+). It's a passthrough — on first run it errors `prettier-move is not installed`; install once with `npm i -g prettier @mysten/prettier-plugin-move`, then `sui move format` (formats the package) works.
 
 ### GraphQL Breaking Changes (v1.71.1+)

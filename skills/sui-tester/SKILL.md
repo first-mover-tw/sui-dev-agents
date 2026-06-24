@@ -16,9 +16,11 @@ This skill provides comprehensive testing across all layers:
 - **Property-Based Tests** - Test invariants with random inputs
 - **Gas Benchmarks** - Measure and track gas consumption
 
-## SUI Protocol 126 Testing Updates (mainnet v1.73.2, testnet v1.73.1+)
+## SUI Protocol 127 Testing Updates (testnet v1.74.0; mainnet v1.73.2 / P126)
 
 **Key changes affecting testing (June 2026):**
+- **Move Linter (P127 / v1.74.0+):** `sui move lint` runs Move linters on the package. Lints also run in `sui move build`/`test` by default — `--no-lint` to skip, `--lint` for extra linters. Wire into CI alongside `sui move test`.
+- **gRPC `SimulateTransaction` gasless tier (P127):** now accepts `gas_price=0` for gasless-tier-eligible transactions instead of erroring — useful for sponsored-tx dry runs.
 - **Regex Test Filtering:** Test filtering uses regex. Use `sui move test --filter "regex_pattern"` for precise test selection.
 - **poseidon_bn254:** Available on all networks. Add tests for ZK-related functions using `sui::poseidon::poseidon_bn254`.
 - **TxContext Flexible Positioning:** `TxContext` can be in any argument position. Update integration tests if they assume last-position TxContext.

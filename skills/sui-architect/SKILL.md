@@ -26,17 +26,17 @@ sui-architect
 sui-full-stack  # → Phase 1: Architecture
 ```
 
-## SUI Protocol 126 Architecture Considerations (mainnet v1.73.2, testnet v1.73.1+)
+## SUI Protocol 127 Architecture Considerations (testnet v1.74.0; mainnet v1.73.2 / P126)
 
 When designing architectures, account for these recent platform changes:
 
-- **Protocol Version 126** (mainnet v1.73.2, testnet v1.73.1+, June 2026)
+- **Protocol Version 127** (testnet v1.74.0; mainnet still v1.73.2 / P126, June 2026) — enables `always_advance_dkg_to_resolution` (fixes P126), Ristretto255 group ops + Bulletproofs on testnet, timestamp-based epoch close on mainnet, gRPC `SimulateTransaction` accepts `gas_price=0` (gasless tier).
 - **Data Access:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, Quorum Driver disabled, permanent deactivation 2026-07-31)
 - **Address Balances (Mainnet, P125):** Native address-held balances for supported coin types — PTBs can debit/credit them directly without manual coin select/split/merge. Additive, not a replacement: flows that take `Coin<T>` still need coin objects.
 - **Gasless Stablecoin Transfers (Mainnet, P125, rolling out):** Accumulator + coin reservations let users move USDC etc. without holding SUI for gas.
 - **Display V2 (Activated):** Display Registry (`0xd`) live on all networks — prioritized over legacy Display v1. Plan new projects around Display V2.
 - **Balance API Split:** `coinBalance` (fungible coins only) and `addressBalance` (all balance types)
-- **Other platform/runtime notes (P126 + earlier rollouts):** entry-fn signature check disabled & non-public entry fns can't take hot-potato-entangled args; `TxContext` flexible positioning (no longer must be last param); `poseidon_bn254` on all networks; Adaptive Concurrency (`Processor::FANOUT` removed → `ConcurrencyConfig`); DeepBook explicit `Move.toml` dep (v1.47+); Address Aliases live on mainnet. Move-authoring depth → see sui-developer's Protocol 126 section.
+- **Other platform/runtime notes (P126 + earlier rollouts):** entry-fn signature check disabled & non-public entry fns can't take hot-potato-entangled args; `TxContext` flexible positioning (no longer must be last param); `poseidon_bn254` on all networks; Adaptive Concurrency (`Processor::FANOUT` removed → `ConcurrencyConfig`); DeepBook explicit `Move.toml` dep (v1.47+); Address Aliases live on mainnet. Move-authoring depth → see sui-developer's Protocol 127 section.
 - **SDK Naming:** `@mysten/sui` (not `@mysten/sui.js`), `Transaction` (not `TransactionBlock`)
 
 ## Core Workflow
