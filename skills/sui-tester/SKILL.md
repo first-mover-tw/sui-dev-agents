@@ -28,18 +28,25 @@ This skill provides comprehensive testing across all layers:
 - **Gas Re-benchmarking:** The New Move VM on testnet may produce different gas profiles compared to Protocol 118. If your tests assert specific gas values, re-run `sui move test --gas-limit` and update expected values.
 - **Decoded Object Inspection:** `sui client object` now shows decoded struct fields — useful for manual verification during integration tests.
 
-### Replay with sender impersonation (v1.72+)
+### Sender impersonation on a forked network (`sui-fork` + `--skip-signing`)
 
-The new `sui-fork` tool plus `sui replay --forking-mode` lets you replay a historical transaction while impersonating an arbitrary sender — useful for reproducing user-reported bugs without their keys.
+The `sui-fork` tool spins up a local network forked from mainnet/testnet/devnet state, then you submit transactions **unsigned** under any sender — useful for reproducing user-reported bugs without their keys. `sui-fork` is a separate crate in `MystenLabs/sui` (`crates/sui-fork`, subcommands `start` / `status` / `advance-clock` / `advance-checkpoint`); it's not shipped via `suiup`, build it with `cargo build -p sui-fork`.
 
 ```bash
-sui replay <tx-digest> \
-  --node https://graphql.devnet.sui.io/graphql \
-  --forking-mode impersonate \
-  --sender 0x<address>
+# 1. Start a local fork from testnet state
+sui-fork start --network testnet            # optional: --checkpoint <n> --data-dir <path>
+
+# 2. Point the CLI at the fork
+sui client new-env --alias local-fork --rpc http://127.0.0.1:9000
+sui client switch --env local-fork
+
+# 3. Submit a tx as an impersonated sender, unsigned
+sui client call --package <pkg> --module <mod> --function <fn> \
+  --sender 0x<address> \
+  --skip-signing                            # renamed from --forking-mode in v1.74.0
 ```
 
-Use this when an integration test needs to mimic real on-chain state under a specific signer.
+`--skip-signing` (a `sui client` tx flag, *not* a `sui replay` flag): "Submit the transaction without signatures for forked networks that support sender impersonation. Only intended for local forked-network testing." Use this when an integration test needs to mimic real on-chain state under a specific signer.
 
 ## Quick Start
 
