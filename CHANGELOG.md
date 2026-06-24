@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.11.1] - 2026-06-24
+
 ### Changed
 - **SUI banners bumped Protocol 126 → 127** (testnet v1.74.0; mainnet stays v1.73.2 / P126) across README + `sui-developer` / `sui-tester` / `sui-deployer` / `sui-architect` / `sui-indexer`. Added P127 deltas: Bulletproofs domain-separation (`verify_bulletproofs_with_dst_ristretto255`, old fn now aborts), Ristretto255 on testnet, `always_advance_dkg_to_resolution`, timestamp-based mainnet epoch close, gRPC `SimulateTransaction` `gas_price=0` gasless tier, new `sui move lint`.
+- **`sui-developer` JSON-RPC note** — documented the public JSON-RPC endpoint shutdown dates (Testnet week of July 6, Mainnet week of July 20, 2026), distinct from and earlier than the 2026-07-31 permanent deactivation.
+- **`sui-walrus` MemWal reference** — noted the `analyze({ namespace, occurredAt })` options form (`occurredAt` → `occurred_at` ISO string, server resolves relative dates), per published `@mysten-incubation/memwal@0.0.7`.
 
 ### Fixed
 - **`sui-tester` / `sui-red-team` sender-impersonation corrected** — replaced the fabricated `sui replay --forking-mode impersonate --sender` command with the real flow: `sui-fork start` (separate `crates/sui-fork` binary, build via `cargo build -p sui-fork`) → point CLI at the fork → `sui client call --sender 0x<addr> --skip-signing` (the `--forking-mode` flag was renamed to `--skip-signing` in v1.74.0; it is a `sui client` tx flag, not a `sui replay` flag).
