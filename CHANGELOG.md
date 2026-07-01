@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.11.2] - 2026-07-01
+
+### Changed
+- Bumped alignment to **SUI testnet v1.74.1 / Protocol 128** (mainnet stays v1.73.2 / Protocol 126). P128 adds explicit binary-pool bounds — no user-visible change.
+- Corrected version attribution for two CLI features that actually ship in **v1.74.1** (not v1.74.0), verified against the installed `sui 1.74.1` CLI:
+  - `sui move lint` command (`sui-developer`, `sui-tester`).
+  - `sui client call --forking-mode` → `--skip-signing` rename (`sui-red-team`, `sui-tester`).
+
 ## [2.11.1] - 2026-06-24
 
 ### Changed

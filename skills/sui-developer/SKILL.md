@@ -132,7 +132,7 @@ See [scripts/](scripts/) for implementation details.
 - **Sui Gas Meter for Tests:** `sui move test` now uses the Sui gas meter (`v1.66.2+`), providing more accurate gas measurements.
 - **CLI Auto-completion:** Use `sui completion --generate [shell]` for shell auto-completion (`v1.66.2+`).
 - **Regex Test Filtering:** Test filtering now uses regex — use `sui move test --filter "regex_pattern"`.
-- **Move Linter:** `sui move lint` runs Move linters on the package (P127 / v1.74.0+). Default lints run in `sui move build`/`test`; `--no-lint` disables them, `--lint` enables extra linters.
+- **Move Linter:** `sui move lint` runs Move linters on the package (P128 / v1.74.1+). Default lints run in `sui move build`/`test`; `--no-lint` disables them, `--lint` enables extra linters.
 - **Move Formatter:** `sui move format` formats Move source via `prettier-move` (P126 / v1.73.1+). It's a passthrough — on first run it errors `prettier-move is not installed`; install once with `npm i -g prettier @mysten/prettier-plugin-move`, then `sui move format` (formats the package) works.
 
 ### GraphQL Breaking Changes (v1.71.1+)

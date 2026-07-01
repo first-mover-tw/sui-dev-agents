@@ -19,7 +19,7 @@ This skill provides comprehensive testing across all layers:
 ## SUI Protocol 127 Testing Updates (testnet v1.74.0; mainnet v1.73.2 / P126)
 
 **Key changes affecting testing (June 2026):**
-- **Move Linter (P127 / v1.74.0+):** `sui move lint` runs Move linters on the package. Lints also run in `sui move build`/`test` by default — `--no-lint` to skip, `--lint` for extra linters. Wire into CI alongside `sui move test`.
+- **Move Linter (P128 / v1.74.1+):** `sui move lint` runs Move linters on the package. Lints also run in `sui move build`/`test` by default — `--no-lint` to skip, `--lint` for extra linters. Wire into CI alongside `sui move test`.
 - **gRPC `SimulateTransaction` gasless tier (P127):** now accepts `gas_price=0` for gasless-tier-eligible transactions instead of erroring — useful for sponsored-tx dry runs.
 - **Regex Test Filtering:** Test filtering uses regex. Use `sui move test --filter "regex_pattern"` for precise test selection.
 - **poseidon_bn254:** Available on all networks. Add tests for ZK-related functions using `sui::poseidon::poseidon_bn254`.
@@ -45,7 +45,7 @@ sui client switch --env local-fork
 # 3. Submit a tx as an impersonated sender, unsigned
 sui client call --package <pkg> --module <mod> --function <fn> \
   --sender 0x<address> \
-  --skip-signing                            # renamed from --forking-mode in v1.74.0
+  --skip-signing                            # renamed from --forking-mode in v1.74.1
 ```
 
 `--skip-signing` (a `sui client` tx flag, *not* a `sui replay` flag): "Submit the transaction without signatures for forked networks that support sender impersonation. Only intended for local forked-network testing." Use this when an integration test needs to mimic real on-chain state under a specific signer.
