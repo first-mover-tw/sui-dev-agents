@@ -164,5 +164,5 @@ context), `updateSessionKey(newSessionKey)` swaps it in.
 
 - `walrusStorageConfig: StorageConfig` — `{ publisher, aggregator, epochs }` OR `{ uploadRelay, aggregator, epochs }`. (Or pass a custom `storage` adapter instead.)
 - `sessionKeyConfig: SessionKeyConfig` — `{ address, ttlMin, mvrName?, signer? }`.
-- `sealConfig: SealConfig` — `{ threshold? }` (default `2`). Key **servers** are configured separately via `SealClient.asClientExtension({ serverConfigs })`, not here.
+- `sealConfig: SealConfig` — `{ threshold? }` (default `2`). Key **servers** are configured separately via `SealClient.asClientExtension({ serverConfigs })` (seal 0.9.x only — see landmine above), not here.
 - `packageConfig` — defaults to the network's `*_MESSAGING_PACKAGE_CONFIG`; override only for a custom deployment.
