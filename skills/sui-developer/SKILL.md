@@ -93,11 +93,11 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI Protocol 127 Updates (testnet v1.74.0; mainnet v1.73.2 / P126)
+## SUI Protocol 127 Updates (shipped testnet v1.74.0; testnet now v1.74.1 / P128, mainnet v1.73.2 / P126)
 
 **Key changes affecting Move development (as of June 2026):**
 
-### Protocol 127 (testnet v1.74.0)
+### Protocol 127 (shipped testnet v1.74.0)
 
 - **Bulletproofs domain separation (breaking):** `sui::rangeproofs::verify_bulletproofs_ristretto255` is deprecated and now **always aborts**. Use `verify_bulletproofs_with_dst_ristretto255(proof, bits, commitments, dst, version)` — adds a domain-separation tag (`dst`, max length 64).
 - **Ristretto255 on testnet:** Ristretto255 group operations + Bulletproof range-proof verification moved from devnet-only to **devnet + testnet** (gas prices re-tuned).

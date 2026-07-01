@@ -20,7 +20,7 @@ sui client publish --dry-run --gas-budget 100000000
 sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 ```
 
-## SUI Protocol 127 Deployment Updates (testnet v1.74.0; mainnet v1.73.2 / P126)
+## SUI Protocol 127 Deployment Updates (shipped testnet v1.74.0; testnet now v1.74.1 / P128, mainnet v1.73.2 / P126)
 
 **RPC Migration (CRITICAL):**
 - **JSON-RPC is deprecated** — permanent deactivation 2026-07-31. Quorum Driver fully disabled.
@@ -34,7 +34,7 @@ sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 | Testnet | `grpc.testnet.sui.io:443` |
 | Devnet  | `grpc.devnet.sui.io:443` |
 
-**Protocol 127 Notes (testnet v1.74.0):**
+**Protocol 127 Notes (shipped testnet v1.74.0):**
 - **Timestamp-based epoch close (P127 mainnet behavior):** When mainnet reaches P127 it switches to timestamp-based epoch close — no operator action required. (Mainnet is still P126 / v1.73.2 today; this is live on testnet v1.74.0.)
 - **New Move VM (Testnet):** Active on testnet. Account for gas metering differences in cross-network testing.
 - **Offline Bytecode Dump:** `sui move build --dump --no-tree-shaking` works offline — enables air-gapped deployment pipelines.
