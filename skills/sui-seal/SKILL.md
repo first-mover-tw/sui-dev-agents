@@ -1,6 +1,6 @@
 ---
 name: sui-seal
-description: Use when implementing data encryption, access control, or secrets management on SUI using the Seal protocol. Triggers on threshold encryption, data privacy, token-gated content, encrypted storage, decryption policies, paywall, gated access, encrypted NFT metadata, private data sharing, or any scenario requiring on-chain access control for off-chain data. Also use when the user mentions Seal, pay-to-decrypt, "only NFT holders can see", or subscriber-only content on SUI.
+description: Use when implementing data encryption, access control, or secrets management on SUI using the Seal protocol. Triggers on threshold encryption, data privacy, token-gated content, encrypted storage, decryption policies, paywall, gated access, encrypted NFT metadata, private data sharing, or any scenario requiring on-chain access control for off-chain data. Also use when the user mentions Seal, pay-to-decrypt, "only NFT holders can see", or subscriber-only content on SUI. Also covers on-chain encrypted messaging (the @mysten/messaging SDK — encrypted group channels, DMs, chat apps on SUI built on SEAL + Walrus): trigger on "encrypted messaging", "chat app on SUI", "on-chain DM", "group channel encryption", or "@mysten/messaging".
 ---
 
 # SUI Seal — Decentralized Secrets Management
@@ -297,6 +297,7 @@ module example::paywall {
 ## See Also
 
 - [advanced-apis.md](references/advanced-apis.md) — Read when you need derived keys without full decrypt, session-key export/reuse across reloads, decoding `EncryptedObject` metadata, or enumerating key servers / public keys (seal ≥1.1.3)
+- [messaging.md](references/messaging.md) — Read when the user wants on-chain encrypted messaging / chat / DMs / group channels on SUI (the `@mysten/messaging` `0.x` SDK): channels + SEAL-encrypted message keys + Walrus attachment storage + on-chain membership, composed on top of Seal
 
 ## Resources
 
