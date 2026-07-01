@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.11.3] - 2026-07-02
+
+### Added
+- **`sui-seal` messaging reference** (`references/messaging.md`) documenting the `@mysten/messaging@0.3.0` on-chain encrypted messaging SDK (channels + SEAL-encrypted keys + Walrus attachment storage + on-chain membership). API verified against the installed `0.3.0` `.d.ts`. Shipped as a **preview**: messaging@0.3.0's `SealClient.asClientExtension` composition is locked to `@mysten/seal` 0.9.x and does not compile against the seal 1.x documented elsewhere in this skill — the reference carries a prominent version-incompatibility warning.
+- Surfaced the reference: `sui-seal` description triggers (encrypted messaging / chat app / on-chain DM / group channel / `@mysten/messaging`), a `sui-seal` See-Also pointer, and a `sui-walrus` cross-pointer.
+- Added `@mysten/messaging@0.3.0` to the CI snippet env so the skip-import gate resolves its imports.
+
+### Changed
+- Refreshed current-network-state pointers across skill headers to note testnet now **v1.74.1 / Protocol 128** (mainnet stays v1.73.2 / P126); P127 feature attribution preserved.
+
 ## [2.11.2] - 2026-07-01
 
 ### Changed
