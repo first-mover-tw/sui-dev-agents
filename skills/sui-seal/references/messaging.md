@@ -1,14 +1,26 @@
 # Sui Stack Messaging — on-chain encrypted messaging
 
-**Early (`0.x`).** `@mysten/messaging@0.3.0` (repo `MystenLabs/sui-stack-messaging-sdk`). Peer deps are
-ranges (`@mysten/seal ^0.9.6`, `@mysten/sui ^1.45.2`, `@mysten/walrus ^0.8.6`) — expect the API to churn
-while it is `0.x` (the older `experimental_asClientExtension` is already `@deprecated`).
+**Early (`0.x`).** `@mysten/messaging@0.3.0` (repo `MystenLabs/sui-stack-messaging-sdk`). Its
+`@mysten/seal`, `@mysten/sui`, `@mysten/walrus` are **hard `dependencies` pinned to old majors**
+(`@mysten/seal ^0.9.6`, `@mysten/sui ^1.45.2`, `@mysten/walrus ^0.8.6`), NOT peer-dep ranges — so
+installing messaging pulls its own **nested** old seal/sui/walrus, diverging from whatever you pin at
+top level. Expect churn while it is `0.x`.
+
+> ⚠️ **Version-incompatibility landmine (read before you copy the Setup).** messaging@0.3.0 composes
+> SEAL via `SealClient.asClientExtension(...)` (the `.$extend` factory) — that factory exists **only in
+> `@mysten/seal` 0.9.x** and was **removed in seal 1.x**. This skill's main SEAL guidance
+> (`sui-seal/SKILL.md`) documents seal **1.x**, where `SealClient` is instantiated directly with
+> `new SealClient({ … })` and there is **no `asClientExtension` / no `$extend` factory**. **Consequence:
+> messaging@0.3.0's documented composition pattern cannot be satisfied with the seal 1.x you use
+> elsewhere** — it currently only works against seal 0.9.x. Do **NOT** silently downgrade your project to
+> seal 0.9.x just to make the snippet compile: that reverts to an older, less-audited seal in an
+> encryption-critical path. Treat this reference as a **preview** until messaging updates to seal 1.x.
 
 > **Note:** these examples are import-resolution-checked by this repo's snippet gate but **NOT executed**
 > — every fence is `// @check:skip`. Import-resolution only proves `@mysten/messaging` and its named
-> exports exist at `0.3.0`; it does NOT prove the composed example runs. Symbols below were verified by
-> hand against the published `0.3.0` `.d.ts`. Re-verify against the then-current `.d.ts` before relying
-> on them.
+> exports exist at `0.3.0`; it does NOT prove the composed example runs (and per the landmine above, the
+> Setup snippet does **not** run against seal 1.x). Symbols below were verified by hand against the
+> published `0.3.0` `.d.ts`. Re-verify against the then-current `.d.ts` before relying on them.
 
 ## What it is — and when to reach for it
 
@@ -21,16 +33,21 @@ Reach for it when the user wants chat / DMs / group channels on SUI with end-to-
 rather than hand-rolling SEAL + Walrus + membership yourself. It composes the primitives documented in
 this skill (SEAL) and `sui-walrus` (blob storage).
 
-## Setup — extension chain (order matters)
+## Setup — extension chain (messaging's own seal-0.9.x pattern)
 
-The SEAL extension MUST be registered **before** `messaging()`: `messaging()` returns a
-`MessagingCompatibleClient = ClientWithExtensions<{ core, seal, ... }>` and its encrypt/decrypt path runs
-through the already-attached seal client. Register them out of order and it fails at runtime (the types
-may not catch it). Use a `.core`-providing client — `SuiGrpcClient` (`SuiClient` from `@mysten/sui/client`
-was removed in sui 2.x).
+This is messaging@0.3.0's **documented** composition, reproduced for reference. It requires
+`@mysten/seal` **0.9.x** — see the landmine above; it does **not** compile against seal 1.x (no
+`asClientExtension`). `messaging()` returns a `MessagingCompatibleClient =
+ClientWithExtensions<{ core, seal, … }>`, so the client must already carry a `seal` extension, and
+`messaging()`'s encrypt/decrypt path runs through it — **the SEAL extension must be registered before
+`messaging()`.** The base client must provide `.core`; `SuiGrpcClient` does (`SuiClient` from
+`@mysten/sui/client` was removed in sui 2.x).
 
 ```typescript
 // @check:skip
+// NOTE: `.asClientExtension` exists only in @mysten/seal 0.9.x (messaging@0.3.0's bundled dep);
+// it was removed in seal 1.x. This snippet will NOT compile against the seal 1.x used elsewhere
+// in this skill. Preview only until messaging updates to seal 1.x.
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { SealClient } from '@mysten/seal';
 import { messaging } from '@mysten/messaging';
