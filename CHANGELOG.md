@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.13.0] - 2026-07-03
+
+### Changed
+- Bumped all pinned @mysten/* SDKs to the sui 2.20.1 generation (11 packages; verified zero breaking surface changes via .d.mts diffs). @mysten/messaging stays 0.3.0.
+- Targets banners, sdk-compat-matrix, and grpc-reference version stamps synced; Tested dates refreshed to 2026-07-03.
+
+### Added
+- sui-zklogin: `ZkLoginSigner` official signer wrapper (sui ≥2.20).
+- sui-ts-sdk: boolean signature verification forms `isValid*Signature` (sui ≥2.19).
+- sui-enoki: note that `EnokiKeypair` extends `ZkLoginSigner` since enoki 1.2.0.
+
 ## [2.12.0] - 2026-07-03
 
 ### Added
