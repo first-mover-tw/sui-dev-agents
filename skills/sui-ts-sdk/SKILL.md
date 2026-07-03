@@ -509,6 +509,25 @@ For the lower-level service clients (`ledgerService`, `transactionExecutionServi
 `movePackageService`, etc.), see
 [references/advanced-patterns.md](references/advanced-patterns.md#grpc-service-clients).
 
+### Verifying signatures (`@mysten/sui/verify`, boolean forms sui ≥2.19)
+
+```typescript
+// @check:skip — txBytes/signature/senderAddress come from your app context
+import { verifyTransactionSignature, isValidTransactionSignature } from '@mysten/sui/verify';
+
+// Throwing form: returns the PublicKey, throws on invalid signature
+const pubkey = await verifyTransactionSignature(txBytes, signature, { address: senderAddress });
+
+// Boolean form (sui ≥2.19): false for malformed/invalid/mismatched-address signatures.
+// Environmental failures (e.g. zkLogin JWK/epoch lookup) still throw — a network blip
+// is never reported as "invalid signature".
+const ok = await isValidTransactionSignature(txBytes, signature, { address: senderAddress });
+```
+
+Siblings: `isValidSignature(bytes, sig, { address? })` (no `client` option) and
+`isValidPersonalMessageSignature(message, sig, { client?, address? })`. The `verify*`
+functions now delegate to these internally.
+
 ---
 
 ## 12. What the Sui TS SDK is NOT
