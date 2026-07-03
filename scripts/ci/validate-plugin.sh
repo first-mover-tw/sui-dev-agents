@@ -93,7 +93,23 @@ else
   ERRORS=$((ERRORS + MISSING_SKILLS))
 fi
 
-# 6. Validate hook scripts are executable
+# 6. Version consistency: plugin.json == marketplace.json == README banner == CHANGELOG latest
+echo -n "Checking version consistency... "
+# `|| true` on every substitution: under set -e a missing banner would otherwise
+# kill the script before the FAIL diagnostic prints
+PLUGIN_V=$(python3 -c "import json;print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || true)
+MARKET_V=$(python3 -c "import json;print(json.load(open('$PLUGIN_ROOT/.claude-plugin/marketplace.json'))['plugins'][0]['version'])" 2>/dev/null || true)
+README_V=$(grep -m1 -oE '\*\*v[0-9]+\.[0-9]+\.[0-9]+\*\*' "$PLUGIN_ROOT/README.md" | tr -d '*v' || true)
+CHANGELOG_V=$(grep -m1 -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' "$PLUGIN_ROOT/CHANGELOG.md" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+LANDING_BAD=$(grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' "$PLUGIN_ROOT/landing/index.html" | sort -u | grep -v "^v$PLUGIN_V\$" || true)
+if [[ -n "$PLUGIN_V" && "$PLUGIN_V" == "$MARKET_V" && "$PLUGIN_V" == "$README_V" && "$PLUGIN_V" == "$CHANGELOG_V" && -z "$LANDING_BAD" ]]; then
+  echo "OK ($PLUGIN_V)"
+else
+  echo "FAIL: plugin.json=$PLUGIN_V marketplace.json=$MARKET_V README=$README_V CHANGELOG=$CHANGELOG_V landing-stray=${LANDING_BAD:-none}"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# 7. Validate hook scripts are executable
 echo -n "Checking hook scripts... "
 NON_EXEC=0
 for script in "$PLUGIN_ROOT"/scripts/hooks/*.sh; do

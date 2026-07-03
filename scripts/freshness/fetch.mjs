@@ -62,6 +62,20 @@ export async function fetchMarker(source, run) {
     if (source.kind === 'commit') {
       return commitMarker(source.repo, source.branch, run)
     }
+    if (source.kind === 'npm') {
+      // marker = "pkg@latest" list; any single failure -> ERROR_MARKER (never a partial marker,
+      // which would false-drift once the flaky package comes back)
+      const results = await Promise.all(
+        source.pkgs.map(pkg => run('npm', ['view', pkg, 'version']))
+      )
+      const parts = []
+      for (let i = 0; i < results.length; i++) {
+        const r = results[i]
+        if (r.code !== 0 || !r.stdout.trim()) return ERROR_MARKER
+        parts.push(`${source.pkgs[i]}@${r.stdout.trim()}`)
+      }
+      return parts.join(' ')
+    }
     if (source.kind === 'page') {
       const r = await run('curl', ['-sIL', '--max-time', '15', source.url])
       if (r.code !== 0) return ERROR_MARKER

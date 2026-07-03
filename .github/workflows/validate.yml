@@ -43,3 +43,5 @@ jobs:
         run: bash scripts/ci/check-compat-matrix.sh
       - name: Run check script self-tests
         run: node --test scripts/ci/tests/check-compat-matrix.test.mjs
+      - name: Run freshness self-tests
+        run: node --test scripts/freshness/tests/*.test.mjs

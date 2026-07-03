@@ -33,6 +33,18 @@ test('page source -> last-modified via curl', async () => {
   assert.equal(m, 'Wed, 08 Jun 2026 10:00:00 GMT')
 })
 
+test('npm source -> joined pkg@version list', async () => {
+  const run = fakeRunner({ '@mysten/sui version': '2.17.0\n', '@mysten/seal version': '1.1.3\n' })
+  const m = await fetchMarker({ id: 'npm-sdks', kind: 'npm', pkgs: ['@mysten/sui', '@mysten/seal'] }, run)
+  assert.equal(m, '@mysten/sui@2.17.0 @mysten/seal@1.1.3')
+})
+
+test('npm source -> any single package failure yields ERROR_MARKER, not a partial marker', async () => {
+  const run = fakeRunner({ '@mysten/sui version': '2.17.0\n' })
+  const m = await fetchMarker({ id: 'npm-sdks', kind: 'npm', pkgs: ['@mysten/sui', '@mysten/seal'] }, run)
+  assert.equal(m, ERROR_MARKER)
+})
+
 test('runner failure -> ERROR_MARKER, never throws', async () => {
   const run = async () => ({ code: 1, stdout: '', stderr: 'boom' })
   const m = await fetchMarker({ id: 'sui', repo: 'MystenLabs/sui', kind: 'release' }, run)
