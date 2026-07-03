@@ -34,6 +34,7 @@ import {
   genAddressSeed,
   getZkLoginSignature,
   decodeJwt,
+  ZkLoginSigner,        // sui ≥2.20 — official signer wrapper
 } from '@mysten/sui/zklogin';
 ```
 
@@ -175,6 +176,34 @@ const result = await suiClient.core.executeTransaction({
   signature: zkLoginSignature,
 });
 ```
+
+### `ZkLoginSigner` — official signer wrapper (sui ≥2.20)
+
+Since `@mysten/sui@2.20.0` you no longer need to hand-assemble signatures with
+`getZkLoginSignature` for every signing call. `ZkLoginSigner` wraps the ephemeral
+signer + proof and behaves like any other `Signer` (works with
+`client.signAndExecuteTransaction`, dapp-kit, etc.):
+
+```typescript
+// @check:skip — uses ephemeral/partialZkLoginSignature/addressSeed/maxEpoch/address from the flow above
+import { ZkLoginSigner } from '@mysten/sui/zklogin';
+
+const signer = new ZkLoginSigner({
+  ephemeralSigner: ephemeral,
+  inputs: { ...partialZkLoginSignature, addressSeed },
+  maxEpoch,
+  legacyAddress: false, // REQUIRED. Must match how the address was derived (jwtToAddress default: false)
+  address, // optional but recommended: constructor throws if derived address mismatches
+});
+
+const { bytes, signature } = await signer.signTransaction(txBytes);
+```
+
+Notes (verified against `zklogin/signer.d.mts` 2.20.1):
+- `legacyAddress` is **required**; a wrong value silently derives a different address — always pass `address` to guard.
+- `sign()` throws (typed `never`) like other composite signers; use `signTransaction` / `signPersonalMessage`.
+- `getPublicKey()` returns `ZkLoginPublicIdentifier` (pass `client` in options if you want it to verify signatures).
+- The manual `genAddressSeed` + `getZkLoginSignature` flow above remains valid — `ZkLoginSigner` is the same assembly packaged as a `Signer`.
 
 ## Move contract support
 
