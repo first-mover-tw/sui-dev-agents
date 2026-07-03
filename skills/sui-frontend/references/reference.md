@@ -11,10 +11,10 @@ Complete SDK API reference and advanced patterns for dApp Kit v2.
 All methods are under the `.core` namespace:
 
 - `client.core.getObject(params)` - Fetch single object
-- `client.core.multiGetObjects(params)` - Fetch multiple objects (batch)
-- `client.core.getOwnedObjects(params)` - Query objects by owner/type
-- `client.core.getDynamicFields(params)` - Query dynamic fields
-- `client.core.getCoins(params)` - Query coins by owner
+- `client.core.getObjects(params)` - Fetch multiple objects (batch)
+- `client.core.listOwnedObjects(params)` - Query objects by owner/type
+- `client.core.listDynamicFields(params)` - Query dynamic fields
+- `client.core.listCoins(params)` - Query coins by owner
 - `client.core.getBalance(params)` - Get balance for coin type
 - `client.core.executeTransaction(params)` - Execute transaction
 - `client.core.waitForTransaction(params)` - Wait for transaction finality
@@ -24,15 +24,15 @@ All methods are under the `.core` namespace:
 | v1 (SuiClient) | v2 (SuiGrpcClient) |
 |---|---|
 | `import { SuiClient } from '@mysten/sui/client'` | `import { SuiGrpcClient } from '@mysten/sui/grpc'` |
-| `client.getObject({ id, options: { showContent: true } })` | `client.core.getObject({ id, include: { content: true } })` |
-| `client.multiGetObjects({ ids, options: { showContent: true } })` | `client.core.multiGetObjects({ ids, include: { content: true } })` |
-| `client.getOwnedObjects({ owner, options })` | `client.core.getOwnedObjects({ owner, include })` |
-| `client.getCoins({ owner })` | `client.core.getCoins({ owner })` |
+| `client.getObject({ id, options: { showContent: true } })` | `client.core.getObject({ objectId, include: { content: true } })` |
+| `client.multiGetObjects({ ids, options: { showContent: true } })` | `client.core.getObjects({ objectIds, include: { content: true } })` |
+| `client.getOwnedObjects({ owner, options })` | `client.core.listOwnedObjects({ owner, include })` |
+| `client.getCoins({ owner })` | `client.core.listCoins({ owner })` |
 | `client.getBalance({ owner })` | `client.core.getBalance({ owner })` |
-| `client.getDynamicFields({ parentId })` | `client.core.getDynamicFields({ parentId })` |
+| `client.getDynamicFields({ parentId })` | `client.core.listDynamicFields({ parentId })` |
 | `client.executeTransactionBlock(...)` | `client.core.executeTransaction(...)` |
 | `client.dryRunTransactionBlock(...)` | `client.core.simulateTransaction(...)` |
-| `client.subscribeEvent(...)` | `client.core.subscribeEvents(...)` (gRPC streaming) |
+| `client.subscribeEvent(...)` | Removed — no direct v2 equivalent. For live events use an indexer / GraphQL, or derive from the gRPC checkpoint stream (`SubscribeCheckpoints`) |
 | `client.waitForTransactionBlock(...)` | `client.core.waitForTransaction(...)` |
 | `options: { showContent, showOwner, showType }` | `include: { content, owner, type }` |
 

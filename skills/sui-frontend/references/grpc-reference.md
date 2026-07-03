@@ -1,7 +1,8 @@
 # SUI gRPC API Reference
 
-> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.68
-> **JSON-RPC:** Deprecated, Quorum Driver disabled, removal April 2026
+> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.74+
+> **JSON-RPC:** Deprecated, Quorum Driver disabled, permanent deactivation 2026-07-31
+> **Service/method names verified against `@mysten/sui@2.17.0` shipped protos (`sui.rpc.v2`)**
 > **Default port:** 8443 (TLS) or 8080 (plaintext)
 
 ## Overview
@@ -29,55 +30,57 @@ Query blockchain ledger data (checkpoints, transactions, epochs).
 
 ```protobuf
 service LedgerService {
-  rpc GetCheckpoint(GetCheckpointRequest) returns (Checkpoint);
-  rpc GetTransaction(GetTransactionRequest) returns (TransactionResponse);
-  rpc GetEpoch(GetEpochRequest) returns (EpochInfo);
-  rpc GetLatestCheckpoint(Empty) returns (Checkpoint);
+  rpc GetServiceInfo(GetServiceInfoRequest) returns (GetServiceInfoResponse);
+  rpc GetObject(GetObjectRequest) returns (GetObjectResponse);
+  rpc BatchGetObjects(BatchGetObjectsRequest) returns (BatchGetObjectsResponse);
+  rpc GetTransaction(GetTransactionRequest) returns (GetTransactionResponse);
+  rpc BatchGetTransactions(BatchGetTransactionsRequest) returns (BatchGetTransactionsResponse);
+  rpc GetCheckpoint(GetCheckpointRequest) returns (GetCheckpointResponse);
+  rpc GetEpoch(GetEpochRequest) returns (GetEpochResponse);
 }
 ```
 
-**Replaces:** `sui_getCheckpoint`, `sui_getTransactionBlock`, `sui_getLatestCheckpointSequenceNumber`
+**Replaces:** `sui_getObject`, `sui_multiGetObjects`, `sui_getTransactionBlock`, `sui_getCheckpoint`. Note: object reads live here, **not** on StateService.
 
 ### 3. StateService
 Query on-chain state (objects, balances, coins, dynamic fields).
 
 ```protobuf
 service StateService {
-  rpc GetObject(GetObjectRequest) returns (ObjectResponse);
-  rpc MultiGetObjects(MultiGetObjectsRequest) returns (MultiGetObjectsResponse);
-  rpc GetOwnedObjects(GetOwnedObjectsRequest) returns (OwnedObjectsResponse);
-  rpc GetCoins(GetCoinsRequest) returns (CoinsResponse);
-  rpc GetBalance(GetBalanceRequest) returns (BalanceResponse);
-  rpc GetDynamicFields(GetDynamicFieldsRequest) returns (DynamicFieldsResponse);
+  rpc ListOwnedObjects(ListOwnedObjectsRequest) returns (ListOwnedObjectsResponse);
+  rpc GetCoinInfo(GetCoinInfoRequest) returns (GetCoinInfoResponse);
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+  rpc ListBalances(ListBalancesRequest) returns (ListBalancesResponse);
+  rpc ListDynamicFields(ListDynamicFieldsRequest) returns (ListDynamicFieldsResponse);
 }
 ```
 
-**Replaces:** `sui_getObject`, `sui_multiGetObjects`, `suix_getOwnedObjects`, `suix_getCoins`, `suix_getBalance`, `suix_getDynamicFields`
+**Replaces:** `suix_getOwnedObjects`, `suix_getCoins` (via `ListOwnedObjects` with a coin `type` filter), `suix_getBalance`, `suix_getAllBalances`, `suix_getDynamicFields`
 
 ### 4. SubscriptionService
-Real-time streaming for events and transactions.
+Real-time streaming of checkpoints — the **only** subscription the gRPC API ships.
 
 ```protobuf
 service SubscriptionService {
-  rpc SubscribeEvents(SubscribeEventsRequest) returns (stream EventResponse);
-  rpc SubscribeTransactions(SubscribeTransactionsRequest) returns (stream TransactionResponse);
+  rpc SubscribeCheckpoints(SubscribeCheckpointsRequest) returns (stream SubscribeCheckpointsResponse);
 }
 ```
 
-**Replaces:** WebSocket `suix_subscribeEvent`, `suix_subscribeTransaction`
+**Replaces:** WebSocket `suix_subscribeEvent` / `suix_subscribeTransaction` have **no direct equivalent** — derive events/transactions from the checkpoint stream (filter client-side), or use an indexer / GraphQL.
 
 ### 5. MovePackageService
 Query Move packages, modules, and ABIs.
 
 ```protobuf
 service MovePackageService {
-  rpc GetPackage(GetPackageRequest) returns (MovePackage);
-  rpc GetNormalizedModule(GetNormalizedModuleRequest) returns (NormalizedMoveModule);
-  rpc GetNormalizedFunction(GetNormalizedFunctionRequest) returns (NormalizedMoveFunction);
+  rpc GetPackage(GetPackageRequest) returns (GetPackageResponse);
+  rpc GetDatatype(GetDatatypeRequest) returns (GetDatatypeResponse);
+  rpc GetFunction(GetFunctionRequest) returns (GetFunctionResponse);
+  rpc ListPackageVersions(ListPackageVersionsRequest) returns (ListPackageVersionsResponse);
 }
 ```
 
-**Replaces:** `sui_getNormalizedMoveModule`, `sui_getNormalizedMoveFunction`
+**Replaces:** `sui_getNormalizedMoveModule` (module contents come back inside `GetPackage`), `sui_getNormalizedMoveFunction` (`GetFunction`)
 
 ### 6. SignatureVerificationService
 Verify transaction signatures off-chain.
@@ -93,12 +96,12 @@ Resolve SuiNS names.
 
 ```protobuf
 service NameService {
-  rpc ResolveName(ResolveNameRequest) returns (ResolveNameResponse);
-  rpc ReverseResolve(ReverseResolveRequest) returns (ReverseResolveResponse);
+  rpc LookupName(LookupNameRequest) returns (LookupNameResponse);
+  rpc ReverseLookupName(ReverseLookupNameRequest) returns (ReverseLookupNameResponse);
 }
 ```
 
-**Replaces:** `suix_resolveNameServiceAddress`, `suix_resolveNameServiceNames`
+**Replaces:** `suix_resolveNameServiceAddress` (`LookupName`), `suix_resolveNameServiceNames` (`ReverseLookupName`)
 
 ## Connection
 
@@ -117,15 +120,14 @@ service NameService {
 # List services
 grpcurl grpc.testnet.sui.io:443 list
 
-# Get latest checkpoint
-grpcurl grpc.testnet.sui.io:443 sui.ledger.v1.LedgerService/GetLatestCheckpoint
+# Node/service info
+grpcurl grpc.testnet.sui.io:443 sui.rpc.v2.LedgerService/GetServiceInfo
 
-# Get object
-grpcurl -d '{"object_id": "0x..."}' grpc.testnet.sui.io:443 sui.state.v1.StateService/GetObject
+# Get object (object reads are on LedgerService)
+grpcurl -d '{"object_id": "0x..."}' grpc.testnet.sui.io:443 sui.rpc.v2.LedgerService/GetObject
 
-# Subscribe to events (streaming)
-grpcurl -d '{"filter": {"move_event_type": "0x2::coin::CoinEvent"}}' \
-  grpc.testnet.sui.io:443 sui.subscription.v1.SubscriptionService/SubscribeEvents
+# Subscribe to checkpoints (the only streaming RPC; filter events client-side)
+grpcurl -d '{}' grpc.testnet.sui.io:443 sui.rpc.v2.SubscriptionService/SubscribeCheckpoints
 ```
 
 ### TypeScript (via @mysten/sui)
@@ -169,24 +171,24 @@ chain-id: 4btiuiMPvEENsttpZC7CZ53DruC3MAgfGZsMSMz6GRbi
 
 | JSON-RPC Method | gRPC Service.Method |
 |----------------|-------------------|
-| `sui_getObject` | `StateService.GetObject` |
-| `sui_multiGetObjects` | `StateService.MultiGetObjects` |
-| `suix_getOwnedObjects` | `StateService.GetOwnedObjects` |
-| `suix_getCoins` | `StateService.GetCoins` |
+| `sui_getObject` | `LedgerService.GetObject` |
+| `sui_multiGetObjects` | `LedgerService.BatchGetObjects` |
+| `suix_getOwnedObjects` | `StateService.ListOwnedObjects` |
+| `suix_getCoins` | `StateService.ListOwnedObjects` (coin `type` filter) |
 | `suix_getBalance` | `StateService.GetBalance` |
-| `suix_getDynamicFields` | `StateService.GetDynamicFields` |
+| `suix_getDynamicFields` | `StateService.ListDynamicFields` |
 | `sui_executeTransactionBlock` | `TransactionExecutionService.ExecuteTransaction` |
 | `sui_dryRunTransactionBlock` | `TransactionExecutionService.SimulateTransaction` |
 | `sui_getTransactionBlock` | `LedgerService.GetTransaction` |
 | `sui_getCheckpoint` | `LedgerService.GetCheckpoint` |
-| `sui_getNormalizedMoveModule` | `MovePackageService.GetNormalizedModule` |
-| `suix_subscribeEvent` (WS) | `SubscriptionService.SubscribeEvents` (streaming) |
-| `suix_subscribeTransaction` (WS) | `SubscriptionService.SubscribeTransactions` (streaming) |
-| `suix_resolveNameServiceAddress` | `NameService.ResolveName` |
+| `sui_getNormalizedMoveModule` | `MovePackageService.GetPackage` (modules inside) |
+| `suix_subscribeEvent` (WS) | Removed — derive from `SubscriptionService.SubscribeCheckpoints` or use an indexer |
+| `suix_subscribeTransaction` (WS) | Removed — derive from `SubscriptionService.SubscribeCheckpoints` or use an indexer |
+| `suix_resolveNameServiceAddress` | `NameService.LookupName` |
 
 ### Key Differences
 
-1. **Streaming replaces WebSocket:** `subscribeEvent` WebSocket is replaced by gRPC server-streaming. No separate WS connection needed.
+1. **Checkpoint streaming replaces WebSocket:** per-event/per-tx WS subscriptions are gone. The gRPC API streams whole checkpoints (`SubscribeCheckpoints`); filter for your events client-side or use an indexer.
 2. **Binary encoding:** gRPC uses protobuf (smaller, faster) vs JSON-RPC's JSON encoding.
 3. **Multiplexing:** Multiple gRPC calls share one HTTP/2 connection.
 4. **Type safety:** Protobuf definitions provide strong typing.
@@ -198,7 +200,7 @@ If you use `@mysten/sui` SDK v2:
 - **Import changed:** `SuiGrpcClient` from `@mysten/sui/grpc` (not `SuiClient` from `@mysten/sui/client`)
 - **Methods under `.core`:** `client.core.getObject(...)` instead of `client.getObject(...)`
 - **`options` → `include`:** `include: { content: true }` instead of `options: { showContent: true }`
-- **`subscribeEvent` via WebSocket** is removed. Use `client.core.subscribeEvents(...)` (gRPC streaming).
+- **`subscribeEvent` via WebSocket** is removed and **no SDK v2 method replaces it** — for live events use an indexer / GraphQL (the underlying gRPC API only streams checkpoints).
 - **Custom RPC middleware** that intercepts JSON-RPC payloads will need updating.
 - **Direct `fetch()` calls** to JSON-RPC must be migrated.
 

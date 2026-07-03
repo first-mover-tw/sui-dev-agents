@@ -9,7 +9,7 @@ description: Use when writing TypeScript code interacting with SUI blockchain vi
 
 Targets: `@mysten/sui` 2.17.0 (^2.0). Tested: 2026-05-20.
 
-**Compatibility notes:** Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and changed `GrpcCoreClient.streamEvents`. If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
+**Compatibility notes:** Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and event pub/sub (`subscribeEvent` has no v2 equivalent — use an indexer or the gRPC checkpoint stream). If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
 
 ---
 
@@ -197,7 +197,7 @@ tx.object(Inputs.ObjectRef({
   version: '42',     // will break when object is modified
   digest: 'abc...',
 }));
-// Exception: offline building (see section 13)
+// Exception: offline building (see references/advanced-patterns.md § Offline Building)
 ```
 
 ### Receiving objects

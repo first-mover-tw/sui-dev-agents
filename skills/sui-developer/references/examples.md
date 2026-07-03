@@ -103,7 +103,7 @@ module marketplace::listing {
     /// const tx = new Transaction();
     /// tx.moveCall({
     ///   target: `${PACKAGE_ID}::listing::create_listing`,
-    ///   arguments: [tx.object(nftId), tx.pure(price)]
+    ///   arguments: [tx.object(nftId), tx.pure.u64(price)]
     /// });
     /// ```
     public fun create_listing<T: key + store>(
@@ -364,9 +364,9 @@ export function create_listing(
   const tx = new Transaction();
   tx.moveCall({
     target: `${PACKAGE_ID}::listing::create_listing`,
-    arguments: [tx.object(nft), tx.pure(price)],
+    arguments: [tx.object(nft), tx.pure.u64(price)],
   });
-  return txb;
+  return tx;
 }
 
 export function cancel_listing(
@@ -377,7 +377,7 @@ export function cancel_listing(
     target: `${PACKAGE_ID}::listing::cancel_listing`,
     arguments: [tx.object(listing_id)],
   });
-  return txb;
+  return tx;
 }
 
 export function buy_from_listing(
@@ -389,25 +389,15 @@ export function buy_from_listing(
     target: `${PACKAGE_ID}::listing::buy_from_listing`,
     arguments: [tx.object(listing_id), tx.object(payment)],
   });
-  return txb;
+  return tx;
 }
 
-// Event subscription helpers
-// ✅ subscribeEvent in SDK v2 uses gRPC streaming internally (replaces WebSocket)
-
-export function subscribeToListingCreated(
-  client: SuiClient,
-  callback: (event: ListingCreated) => void
-) {
-  return client.subscribeEvent({
-    filter: {
-      MoveEventType: `${PACKAGE_ID}::listing::ListingCreated`
-    },
-    onMessage: (event) => {
-      callback(event.parsedJson as ListingCreated);
-    }
-  });
-}
+// Event consumption
+// ⚠️ SDK v2 has NO subscribeEvent — WebSocket pub/sub was removed and the gRPC API
+// only streams checkpoints (SubscriptionService.SubscribeCheckpoints). For live
+// ListingCreated events, consume an indexer (e.g. sui-indexer-alt) or GraphQL and
+// filter on `${PACKAGE_ID}::listing::ListingCreated`. Same guidance in
+// sui-move-ts-bridge references/examples.md § Event Subscriptions.
 ```
 
 ---

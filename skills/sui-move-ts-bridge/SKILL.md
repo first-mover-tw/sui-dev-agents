@@ -66,7 +66,7 @@ useNFTPurchasedEvents((event) => {
 | **Type Generation** | Auto-generate TS types from Move ABI |
 | **API Wrapper** | Type-safe transaction builders |
 | **React Hooks** | `useMarketplaceAPI()` for component integration |
-| **Event Subscriptions** | Real-time updates via gRPC streaming (replaces WebSocket `subscribeEvent`) |
+| **Event Subscriptions** | No direct v2 equivalent — indexer / GraphQL, or filter the gRPC checkpoint stream (WebSocket `subscribeEvent` removed) |
 | **Error Handling** | Map Move abort codes to user messages |
 
 ## Move Type to TypeScript Mapping
@@ -143,9 +143,9 @@ For the latest dApp Kit transaction-building patterns, use the **sui-docs-query*
 - **Problem:** Generic "Transaction failed" error, users confused
 - **Fix:** Create error code mapping in `lib/errors.ts`
 
-❌ **Polling for updates instead of subscribing to events**
-- **Problem:** Delayed updates, high RPC costs
-- **Fix:** Use gRPC streaming for real-time updates (WebSocket `subscribeEvent` is deprecated)
+❌ **Expecting per-event subscriptions from the SDK**
+- **Problem:** `subscribeEvent` is removed in SDK v2 and gRPC has no per-event streaming — code waiting for a WS push never fires
+- **Fix:** Consume an indexer / GraphQL for real-time updates, or filter the gRPC checkpoint stream (`SubscribeCheckpoints`)
 
 ❌ **Not testing integration locally**
 - **Problem:** Integration bugs discovered after deployment
