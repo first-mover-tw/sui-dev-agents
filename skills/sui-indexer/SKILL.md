@@ -92,7 +92,7 @@ For the full type catalog, the three `StoreIngestionClient` variants (remote/S3/
 
 | Version | Change |
 |---------|--------|
-| v1.74 (Protocol 127) | Testnet v1.74.0 (testnet now v1.74.1 / P128, no indexer-relevant change; mainnet still P126 / v1.73.2). GraphQL transaction pagination now uses a custom `TransactionConnection` (`pageInfo`/`edges`/`nodes`, partial results from bitmap streaming); invalid-unicode `SuiAddress` parse fix; opt-in `disable_json_rpc` node config (gRPC/REST stay up); checkpoint pruning pairing bug fixed |
+| v1.74 (Protocol 127) | Testnet v1.74.0 (now v1.74.1 / P128 on both testnet and mainnet, no indexer-relevant change). GraphQL transaction pagination now uses a custom `TransactionConnection` (`pageInfo`/`edges`/`nodes`, partial results from bitmap streaming); invalid-unicode `SuiAddress` parse fix; opt-in `disable_json_rpc` node config (gRPC/REST stay up); checkpoint pruning pairing bug fixed |
 | v1.73 (Protocol 126) | Testnet v1.73.1+ / mainnet P126 (v1.73.2). JSON-RPC permanent deactivation **2026-07-31** — migrate indexer reads to gRPC / GraphQL before the cutoff |
 | v1.72 (Protocol 124) | `rpc-index` DB v4 — first start re-indexes full object history; added `pipeline-depth` for sequential pipelines |
 | v1.71 (Protocol 123) | `checkpoint_lag` / `checkpoint_buffer_size` **removed**; sequential pipelines use adaptive concurrency + `subscriber_channel_size` |
