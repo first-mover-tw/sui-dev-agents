@@ -61,13 +61,15 @@ After registration the Enoki wallets appear in dApp Kit's wallet list — use th
 
 For server-side flows or apps not on dApp Kit, drive the hosted endpoints directly with `EnokiClient`. This is the supported low-level surface (see the EnokiClient API table below): `createZkLoginNonce` → redirect to the provider → on callback `getZkLogin({ jwt })` / `createZkLoginZkp` for the proof, and `createSponsoredTransaction` / `executeSponsoredTransaction` for gas sponsorship. You manage the ephemeral keypair yourself with `@mysten/sui/keypairs/ed25519`.
 
-> ⚠️ **`EnokiFlow` and the `@mysten/enoki/react` hooks (`EnokiFlowProvider`, `useEnokiFlow`, `useZkLogin`, `useZkLoginSession`, `useAuthCallback`) are all marked `@deprecated` in `@mysten/enoki@1.0.8`** — their JSDoc says *"use `registerEnokiWallets` instead"*. Do **not** use them for new React integrations; use **Path A** (`registerEnokiWallets` + dApp Kit wallet hooks). They remain only as a legacy migration target.
+> ⚠️ **`EnokiFlow` and the `@mysten/enoki/react` hooks (`EnokiFlowProvider`, `useEnokiFlow`, `useZkLogin`, `useZkLoginSession`, `useAuthCallback`) are all marked `@deprecated` in `@mysten/enoki@1.2.1`** — their JSDoc says *"use `registerEnokiWallets` instead"*. Do **not** use them for new React integrations; use **Path A** (`registerEnokiWallets` + dApp Kit wallet hooks). They remain only as a legacy migration target.
 
 ## EnokiClient API (TS SDK method names)
 
 > Method/param names below are the **TS SDK** (`@mysten/enoki`) surface. If you call the Enoki HTTP API directly, some field names differ — notably the sponsored-tx body field is `transactionBlockKindBytes`, not the SDK's `transactionKindBytes`.
 
 `new EnokiClient({ apiKey, apiUrl?, additionalEpochs? })` — `apiUrl` defaults to `https://api.enoki.mystenlabs.com` (v1). `additionalEpochs` (nonce validity window) is constrained to `0 <= n <= 30`.
+
+> Since `@mysten/enoki@1.2.0`, `EnokiKeypair` extends `ZkLoginSigner` from `@mysten/sui/zklogin`: `getKeyScheme()` returns `'ZkLogin'` (previously the ephemeral key's scheme) and `sign()` throws instead of returning a bare ephemeral signature. `signTransaction` / `signPersonalMessage` / `getPublicKey` are unchanged.
 
 | Method | Purpose |
 |---|---|
