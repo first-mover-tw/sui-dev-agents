@@ -4,26 +4,26 @@ Canonical source-of-truth for `@mysten/*` versions across in-scope skills. See `
 
 | Skill | Package | Kind | Tested | Accepted | Last verified | Notes-tag |
 |---|---|---|---|---|---|---|
-| skills/sui-ts-sdk/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.0 | 2026-05-20 | — |
-| skills/sui-frontend/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.0 | 2026-05-21 | — |
-| skills/sui-frontend/SKILL.md | @mysten/dapp-kit-react | primary | 2.0.3 | ^2.0 | 2026-05-21 | ui-subpath |
-| skills/sui-frontend/SKILL.md | @mysten/dapp-kit-core | primary | 1.3.2 | ^1.3 | 2026-05-21 | — |
-| skills/sui-deepbook/SKILL.md | @mysten/deepbook-v3 | primary | 1.4.1 | ^1.3 | 2026-06-03 | v2-deprecated |
-| skills/sui-deepbook/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.16 | 2026-06-03 | — |
-| skills/sui-kiosk/SKILL.md | @mysten/kiosk | primary | 1.2.6 | ^1.2 | 2026-05-21 | no-grpc |
-| skills/sui-kiosk/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.16 | 2026-05-21 | — |
-| skills/sui-seal/SKILL.md | @mysten/seal | primary | 1.1.3 | ^1.1 | 2026-05-21 | — |
-| skills/sui-seal/SKILL.md | @mysten/sui | peer | 2.17.0 | ^2.16 | 2026-05-21 | — |
-| skills/sui-walrus/SKILL.md | @mysten/walrus | primary | 1.1.7 | ^1.1 | 2026-05-20 | — |
-| skills/sui-walrus/SKILL.md | @mysten/sui | peer | 2.17.0 | ^2.16 | 2026-05-20 | — |
-| skills/sui-suins/SKILL.md | @mysten/suins | primary | 1.1.4 | ^1.1 | 2026-05-21 | — |
-| skills/sui-suins/SKILL.md | @mysten/sui | peer | 2.17.0 | ^2.16 | 2026-05-21 | — |
-| skills/sui-passkey/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.0 | 2026-05-21 | sub-export:passkey |
-| skills/sui-zklogin/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.0 | 2026-05-21 | sub-export:zklogin |
-| skills/sui-move-ts-bridge/SKILL.md | @mysten/sui | primary | 2.17.0 | ^2.16 | 2026-05-21 | — |
-| skills/sui-move-ts-bridge/SKILL.md | @mysten/kiosk | primary | 1.2.6 | ^1.2 | 2026-05-21 | no-grpc |
-| skills/sui-enoki/SKILL.md | @mysten/enoki | primary | 1.0.8 | ^1.0 | 2026-06-03 | — |
-| skills/sui-enoki/SKILL.md | @mysten/sui | peer | 2.17.0 | ^2.16 | 2026-06-03 | — |
+| skills/sui-ts-sdk/SKILL.md | @mysten/sui | primary | 2.20.1 | ^2.0 | 2026-07-03 | — |
+| skills/sui-frontend/SKILL.md | @mysten/sui | primary | 2.20.1 | ^2.0 | 2026-07-03 | — |
+| skills/sui-frontend/SKILL.md | @mysten/dapp-kit-react | primary | 2.1.5 | ^2.0 | 2026-07-03 | ui-subpath |
+| skills/sui-frontend/SKILL.md | @mysten/dapp-kit-core | primary | 1.6.3 | ^1.3 | 2026-07-03 | — |
+| skills/sui-deepbook/SKILL.md | @mysten/deepbook-v3 | primary | 1.5.3 | ^1.3 | 2026-07-03 | v2-deprecated |
+| skills/sui-deepbook/SKILL.md | @mysten/sui | primary | 2.20.1 | ^2.16 | 2026-07-03 | — |
+| skills/sui-kiosk/SKILL.md | @mysten/kiosk | primary | 1.3.3 | ^1.2 | 2026-07-03 | no-grpc |
+| skills/sui-kiosk/SKILL.md | @mysten/sui | primary | 2.20.1 | ^2.16 | 2026-07-03 | — |
+| skills/sui-seal/SKILL.md | @mysten/seal | primary | 1.2.3 | ^1.1 | 2026-07-03 | — |
+| skills/sui-seal/SKILL.md | @mysten/sui | peer | 2.20.1 | ^2.16 | 2026-07-03 | — |
+| skills/sui-walrus/SKILL.md | @mysten/walrus | primary | 1.2.3 | ^1.1 | 2026-07-03 | — |
+| skills/sui-walrus/SKILL.md | @mysten/sui | peer | 2.20.1 | ^2.16 | 2026-07-03 | — |
+| skills/sui-suins/SKILL.md | @mysten/suins | primary | 1.2.3 | ^1.1 | 2026-07-03 | — |
+| skills/sui-suins/SKILL.md | @mysten/sui | peer | 2.20.1 | ^2.16 | 2026-07-03 | — |
+| skills/sui-passkey/SKILL.md | @mysten/sui | primary | 2.20.1 | ^2.0 | 2026-07-03 | sub-export:passkey |
+| skills/sui-zklogin/SKILL.md | @mysten/sui | primary | 2.20.1 | ^2.0 | 2026-07-03 | sub-export:zklogin |
+| skills/sui-move-ts-bridge/SKILL.md | @mysten/sui | primary | 2.20.1 | ^2.16 | 2026-07-03 | — |
+| skills/sui-move-ts-bridge/SKILL.md | @mysten/kiosk | primary | 1.3.3 | ^1.2 | 2026-07-03 | no-grpc |
+| skills/sui-enoki/SKILL.md | @mysten/enoki | primary | 1.2.1 | ^1.0 | 2026-07-03 | — |
+| skills/sui-enoki/SKILL.md | @mysten/sui | peer | 2.20.1 | ^2.16 | 2026-07-03 | — |
 
 ## Notes-tag glossary
 

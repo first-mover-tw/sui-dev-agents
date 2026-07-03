@@ -9,7 +9,7 @@ description: Use when building NFT marketplaces, enforcing royalties, or managin
 
 ## SDK Versions
 
-Targets: `@mysten/kiosk` 1.2.6 (^1.2), `@mysten/sui` 2.17.0 (^2.16). Tested: 2026-05-21.
+Targets: `@mysten/kiosk` 1.3.3 (^1.2), `@mysten/sui` 2.20.1 (^2.16). Tested: 2026-07-03.
 
 **Compatibility notes:** `@mysten/kiosk@1.2.x` types `KioskCompatibleClient` as `SuiJsonRpcClient | SuiGraphQLClient` only — `SuiGrpcClient` is not accepted. Re-check on the next minor bump.
 

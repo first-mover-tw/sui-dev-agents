@@ -9,7 +9,7 @@ description: Use when implementing zkLogin on SUI — OAuth login (Google, Faceb
 
 ## SDK Versions
 
-Targets: `@mysten/sui` 2.17.0 (^2.0). Tested: 2026-05-21.
+Targets: `@mysten/sui` 2.20.1 (^2.0). Tested: 2026-07-03.
 
 **Compatibility notes:** The zklogin API lives at `@mysten/sui/zklogin`. The old `@mysten/zklogin` package is **deprecated and merged into `@mysten/sui`** — if you see `Cannot find module '@mysten/zklogin'`, install only `@mysten/sui@^2`. There is no `ZkLoginProvider` class; the API is functional.
 
