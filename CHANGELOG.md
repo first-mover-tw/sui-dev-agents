@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.0] - 2026-07-03
+
+### Added
+- **`npm-sdks` freshness source** (new `npm` kind in the upstream watcher): tracks the published npm version of all 12 pinned `@mysten/*` SDKs. Closes the gap where TS SDK releases were unwatched — the ts-sdks monorepo stopped cutting GitHub releases in Apr 2026, so repo-level watching missed every SDK publish.
+- **Version-consistency CI gate** in `validate-plugin.sh`: `plugin.json` == `marketplace.json` == README banner == latest CHANGELOG entry must agree.
+- Freshness watcher self-tests now run in the GitHub Actions workflow.
+
+### Fixed
+- **Fabricated gRPC APIs removed** (all service/method names now verified against `@mysten/sui@2.17.0` shipped protos, `sui.rpc.v2`):
+  - `client.core.subscribeEvents` / `GrpcCoreClient.streamEvents` / protobuf `SubscribeEvents`+`SubscribeTransactions` do not exist — the only streaming RPC is `SubscribeCheckpoints`; live events need an indexer/GraphQL or client-side checkpoint filtering (`sui-frontend` references, `sui-ts-sdk`).
+  - `sui-frontend` gRPC reference: corrected LedgerService/StateService/MovePackageService/NameService method lists (object reads live on **Ledger**Service; `ListOwnedObjects`/`ListDynamicFields`/`GetFunction`/`LookupName` are the real names), fixed fabricated `sui.*.v1` grpcurl paths to `sui.rpc.v2`, refreshed stale v1.68/"removal April 2026" header.
+  - `sui-frontend` migration tables: `client.core.multiGetObjects`/`getOwnedObjects`/`getCoins`/`getDynamicFields` corrected to the real 2.x names `getObjects`/`listOwnedObjects`/`listCoins`/`listDynamicFields` (the old names are the 1.x experimental surface).
+  - `sui-developer` examples: three `return txb` undefined-variable bugs, untyped `tx.pure(price)` → `tx.pure.u64(price)`, and a v1 `subscribeEvent` block mislabeled as "SDK v2" replaced with honest indexer/checkpoint guidance.
+- `plugin.json` repository/homepage pointed at the wrong GitHub org (`ramonliao` → `first-mover-tw`).
+- `marketplace.json` version was frozen at 1.0.0; description synced with `plugin.json`.
+- Landing page refreshed from v2.9.0 / Protocol 119 to current.
+- `sui-ts-sdk` broken "see section 13" pointer → `references/advanced-patterns.md § Offline Building`.
+- `.claude/settings.local.json` untracked from git (local settings shouldn't ship in the plugin).
+
+### Changed
+- Network pointers refreshed: **mainnet promoted to v1.74.1 / Protocol 128** (2026-07-01, same commit as testnet tag — pure promotion); "mainnet still P126/v1.73.2" parentheticals updated across 6 skills + README; timestamp-based epoch close noted as live on both networks. P127 feature attribution preserved.
+
 ## [2.11.3] - 2026-07-02
 
 ### Added
