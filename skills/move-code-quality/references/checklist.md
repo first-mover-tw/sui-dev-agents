@@ -1,6 +1,6 @@
 # Move Code Quality Checklist
 
-Complete rules from the Move Book Code Quality Checklist. 11 categories, 50+ rules.
+Complete rules from the Move Book Code Quality Checklist, plus a few project-verified additions not in the book. 11 categories, 50+ rules.
 
 ---
 

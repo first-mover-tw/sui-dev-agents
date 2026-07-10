@@ -151,7 +151,7 @@ See [scripts/](scripts/) for implementation details.
 - **Macro Functions:** New chapter on `macro fun`/`$`-parameters — compile-time expansion enables lambda arguments (`|x| expr`) and generic-unfriendly operations; prefer stdlib macros (`do!`, `map!`, `fold!`, ...) over hand-written loops.
 - **Internal Permit:** `std::internal::Permit<T>`/`permit<T>()` — a compiler/network-enforced token only the module defining `T` can produce, used to gate generic functions to callers authorized by that module.
 - **Entry Functions:** The `entry` modifier's second restriction — arguments to a non-`public` `entry` function can't be entangled with a hot potato from an earlier PTB command (Sui v1.62+ rule; e.g. flash loans).
-- **Address Balances:** `send_funds`/`redeem_funds` and the accumulator-backed per-address balance model — an alternative to `Coin` objects; withdrawals require a `Withdrawal<Balance<T>>` capability supplied by the transaction.
+- **Address Balances:** `send_funds`/`redeem_funds` and the accumulator-backed per-address balance model — an alternative to `Coin` objects; withdrawals require a `Withdrawal<Balance<T>>` authorization supplied by the transaction.
 - **Package Upgrades:** `UpgradeCap`-gated upgrades publish at a new address (old versions stay callable forever); default policy allows new modules/functions but freezes existing `public` signatures and type definitions.
 - **Using Move Registry:** Guide on adding MVR (`@org/package`) dependencies — `mvr search`, adding to the manifest, and resolving names to per-network addresses.
 - **Linting:** `sui move lint`'s default vs extra lint tiers, and suppressing a specific warning with `#[allow(lint(...))]` — complements the Move Linter CLI note above (Tooling).
