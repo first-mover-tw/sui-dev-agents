@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.13.3] - 2026-07-10
+
+### Fixed
+- Examples no longer violate the project's own no-`public entry` rule: 11 GOOD snippets across `rules/common/code-quality.md`, `rules/sui-move/security.md`, and `sui-seal` switched to `entry fun` (or `public fun` returning the object where composability is the point); visibility guidance clarified (entry = non-composable endpoint, public = composable, never `public entry`).
+- `#[error]` constants updated from `b"..."` byte-string to `"..."` string-literal form in `rules/sui-move/conventions.md` and `sui-developer` reference (5 sites, compile-verified on sui testnet-v1.75.1).
+
 ## [2.13.2] - 2026-07-10
 
 ### Changed
