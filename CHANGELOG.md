@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Bumped all pinned @mysten/* SDKs to the sui 2.20.2 patch generation (11 packages, published 2026-07-08 as one lockstep changesets release; verified via npm diff that only @mysten/sui has a behavioral change — pagination fix — the other 10 are pure dependency-range bumps). @mysten/messaging stays 0.3.0.
+- Targets banners, sdk-compat-matrix, grpc-reference and zklogin-signer version stamps synced; Tested dates refreshed to 2026-07-10.
+- sui-ts-sdk: version note on the paginated coin-fetching example — before sui 2.20.2 the unified core client dropped `limit`/`cursor` options (`listCoins` on gRPC, `listBalances` on GraphQL).
+
 ## [2.13.0] - 2026-07-03
 
 ### Changed

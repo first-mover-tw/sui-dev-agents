@@ -313,6 +313,8 @@ console.log(`Found ${objects.length} objects`);
 
 ### Paginated coin fetching
 
+> ⚠️ Requires `@mysten/sui` >=2.20.2 — before that, the unified core client dropped pagination options: `listCoins` on gRPC ignored `limit` (this loop still paginated via `cursor`, but at the server's default page size), and `listBalances` on GraphQL ignored both `limit` and `cursor` (degrading to a single unpaginated fetch).
+
 ```typescript
 // @check:skip
 async function getAllCoins(

@@ -9,7 +9,7 @@ description: Use when implementing zkLogin on SUI — OAuth login (Google, Faceb
 
 ## SDK Versions
 
-Targets: `@mysten/sui` 2.20.1 (^2.0). Tested: 2026-07-03.
+Targets: `@mysten/sui` 2.20.2 (^2.0). Tested: 2026-07-10.
 
 **Compatibility notes:** The zklogin API lives at `@mysten/sui/zklogin`. The old `@mysten/zklogin` package is **deprecated and merged into `@mysten/sui`** — if you see `Cannot find module '@mysten/zklogin'`, install only `@mysten/sui@^2`. There is no `ZkLoginProvider` class; the API is functional.
 
@@ -199,7 +199,7 @@ const signer = new ZkLoginSigner({
 const { bytes, signature } = await signer.signTransaction(txBytes);
 ```
 
-Notes (verified against `zklogin/signer.d.mts` 2.20.1):
+Notes (verified against `zklogin/signer.d.mts` 2.20.2):
 - `legacyAddress` is **required**; a wrong value silently derives a different address — always pass `address` to guard.
 - `sign()` throws (typed `never`) like other composite signers; use `signTransaction` / `signPersonalMessage`.
 - `getPublicKey()` returns `ZkLoginPublicIdentifier` (pass `client` in options if you want it to verify signatures).

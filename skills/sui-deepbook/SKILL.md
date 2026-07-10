@@ -9,7 +9,7 @@ description: Use when integrating DeepBook V3 — SUI's native CLOB DEX, margin 
 
 ## SDK Versions
 
-Targets: `@mysten/deepbook-v3` 1.5.3 (^1.3), `@mysten/sui` 2.20.1 (^2.16). Tested: 2026-07-03.
+Targets: `@mysten/deepbook-v3` 1.5.4 (^1.3), `@mysten/sui` 2.20.2 (^2.16). Tested: 2026-07-10.
 
 **Compatibility notes:** Use `@mysten/deepbook-v3` (V3 — current). The legacy `@mysten/deepbook` / `clob_v2` packages are deprecated and **not** what you want.
 
