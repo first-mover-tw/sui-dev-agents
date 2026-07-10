@@ -142,14 +142,19 @@ See [scripts/](scripts/) for implementation details.
 
 ### Move Language Updates (from Move Book)
 
-- **Extensions:** New chapter on Move extensions for extending module capabilities
-- **Modes:** New chapter on Move modes (`#[test_only]`, etc.) for conditional compilation
-- **Storage Rewrite:** Updated storage model documentation with latest patterns
-- **Type Reflection v2:** Enhanced type reflection capabilities for advanced metaprogramming
-- **BCS Improvements:** Better BCS serialization documentation and patterns
-- **Lambda Type Annotations:** Type annotations are now supported on lambdas
-- **Macro Patterns:** Prefer `do!`, `tabulate!`, `fold!`, `filter!`, `destroy!` macros over manual loops for vector/option operations
-- **Positional Struct Keys:** Use `public struct MyKey() has copy, drop, store;` for dynamic field keys
+- **Extending Modules:** `2024.alpha`-only `extend module` adds `#[test_only]` functions to a foreign or your own module (e.g. to construct test data for types you don't own); additive-only, root-package-only.
+- **Modes:** `#[mode(name,...)]` generalizes `#[test_only]`; build with `--mode <name>` — any mode-enabled build (including `--test`) is non-publishable.
+- **Storage Functions:** Rewritten chapter on the transfer/freeze/share operations that move objects between ownership states, plus their `public_*` cross-module counterparts.
+- **Type Reflection:** `std::type_name::with_defining_ids`/`with_original_ids` inspect a type at runtime, distinguishing the defining ID (introduced the type) from the original ID (first-published version).
+- **BCS:** Binary Canonical Serialization chapter — deterministic encoding rules (little-endian ints, ULEB128-length-prefixed sequences, enums as variant index) for hand-decoding tx args/objects/events.
+- **Positional Structs:** `public struct MyKey(u64) has copy, drop, store;` — fields identified by position (`.0`, `.1`, ...), a good fit for small wrapper/key types.
+- **Macro Functions:** New chapter on `macro fun`/`$`-parameters — compile-time expansion enables lambda arguments (`|x| expr`) and generic-unfriendly operations; prefer stdlib macros (`do!`, `map!`, `fold!`, ...) over hand-written loops.
+- **Internal Permit:** `std::internal::Permit<T>`/`permit<T>()` — a compiler/network-enforced token only the module defining `T` can produce, used to gate generic functions to callers authorized by that module.
+- **Entry Functions:** The `entry` modifier's second restriction — arguments to a non-`public` `entry` function can't be entangled with a hot potato from an earlier PTB command (Sui v1.62+ rule; e.g. flash loans).
+- **Address Balances:** `send_funds`/`redeem_funds` and the accumulator-backed per-address balance model — an alternative to `Coin` objects; withdrawals require a `Withdrawal<Balance<T>>` capability supplied by the transaction.
+- **Package Upgrades:** `UpgradeCap`-gated upgrades publish at a new address (old versions stay callable forever); default policy allows new modules/functions but freezes existing `public` signatures and type definitions.
+- **Using Move Registry:** Guide on adding MVR (`@org/package`) dependencies — `mvr search`, adding to the manifest, and resolving names to per-network addresses.
+- **Linting:** `sui move lint`'s default vs extra lint tiers, and suppressing a specific warning with `#[allow(lint(...))]` — complements the Move Linter CLI note above (Tooling).
 
 ## Move 1.70–1.71 APIs (mainnet v1.71.1)
 
