@@ -53,8 +53,8 @@ Complete rules from the Move Book Code Quality Checklist. 11 categories, 50+ rul
 - Don't hardcode error code values in off-chain tooling — reference constant names instead
 
 **Regular Constants in ALL_CAPS**
-- ✅ GOOD: `const MY_CONSTANT: vector<u8> = b"value";`
-- ❌ BAD: `const MyConstant: vector<u8> = b"value";` (PascalCase suggests error)
+- ✅ GOOD: `const MY_CONSTANT: vector<u8> = "value";`
+- ❌ BAD: `const MyConstant: vector<u8> = "value";` (PascalCase suggests error)
 
 ---
 
@@ -142,6 +142,7 @@ public fun call_app(
 **Don't Import std::string::utf8**
 - ✅ GOOD: `b"hello, world!".to_string()`
 - ❌ BAD: `use std::string::utf8; let str = utf8(b"hello, world!");`
+- `.to_string()`/`.to_ascii_string()` on `vector<u8>` still have their place — converting bytes that are not known at compile time; for literals, prefer the string literal syntax
 
 **UID Has Delete Method**
 - ✅ GOOD: `id.delete();`
