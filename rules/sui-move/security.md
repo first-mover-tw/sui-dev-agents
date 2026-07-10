@@ -13,12 +13,12 @@ paths: "**/*.move"
 
 ```move
 // BAD: No access check
-public entry fun admin_action(ctx: &mut TxContext) {
+entry fun admin_action(ctx: &mut TxContext) {
     // Anyone can call this!
 }
 
 // GOOD: Capability check
-public entry fun admin_action(_admin: &AdminCap, ctx: &mut TxContext) {
+entry fun admin_action(_admin: &AdminCap, ctx: &mut TxContext) {
     // Only AdminCap holder can call
 }
 ```
@@ -34,7 +34,7 @@ const ADMIN_ADDRESS: address = @0x123;
 assert!(tx_context::sender(ctx) == ADMIN_ADDRESS, E_NOT_AUTHORIZED);
 
 // PREFER: Capability pattern
-public entry fun privileged_action(_admin: &AdminCap, ctx: &mut TxContext) {
+entry fun privileged_action(_admin: &AdminCap, ctx: &mut TxContext) {
     // Capability proves authorization
 }
 ```
@@ -47,7 +47,7 @@ public entry fun privileged_action(_admin: &AdminCap, ctx: &mut TxContext) {
 - Use meaningful error codes
 
 ```move
-public entry fun transfer_amount(amount: u64, ctx: &mut TxContext) {
+entry fun transfer_amount(amount: u64, ctx: &mut TxContext) {
     assert!(amount > 0, E_INVALID_AMOUNT);
     assert!(amount <= MAX_TRANSFER, E_EXCEEDS_LIMIT);
     // Process transfer
@@ -134,7 +134,7 @@ public fun complete_operation(receipt: Receipt) {
 ```move
 use sui::clock::{Self, Clock};
 
-public entry fun time_locked_action(
+entry fun time_locked_action(
     clock: &Clock,
     unlock_time: u64,
     ctx: &mut TxContext

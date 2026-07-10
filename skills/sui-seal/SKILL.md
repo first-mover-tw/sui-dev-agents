@@ -247,7 +247,7 @@ module example::paywall {
     public struct Receipt has key, store { id: UID, owner: address, paid_for: vector<u8> }
 
     /// Real transaction: user pays, gets a Receipt object.
-    public entry fun pay(price: u64, mut payment: Coin<SUI>, paid_for: vector<u8>, ctx: &mut TxContext) {
+    entry fun pay(price: u64, mut payment: Coin<SUI>, paid_for: vector<u8>, ctx: &mut TxContext) {
         assert!(coin::value(&payment) >= price, 0);
         // ...transfer payment, mint receipt...
     }

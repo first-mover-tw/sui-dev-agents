@@ -12,12 +12,12 @@ paths: "**/*.move"
 
 ```move
 // BAD: 80-line monster function
-public entry fun complex_operation(...) {
+entry fun complex_operation(...) {
     // 80 lines of logic
 }
 
 // GOOD: Split into logical pieces
-public entry fun complex_operation(...) {
+entry fun complex_operation(...) {
     validate_inputs(...);
     let result = compute_value(...);
     finalize_operation(result, ...);
@@ -48,14 +48,16 @@ Example split:
 - Note any error conditions
 
 ```move
-/// Mints a new NFT and transfers it to the recipient.
+/// Mints a new NFT and returns it — the PTB caller decides where it goes.
 ///
 /// # Parameters
 /// - `name`: The name of the NFT (must not be empty)
 /// - `description`: Description of the NFT
 /// - `url`: Image URL for the NFT
-/// - `recipient`: Address to receive the newly minted NFT
 /// - `ctx`: Transaction context
+///
+/// # Returns
+/// The newly minted `NFT`
 ///
 /// # Errors
 /// - `E_INVALID_NAME`: If name is empty
@@ -63,13 +65,12 @@ Example split:
 ///
 /// # Gas Cost
 /// Approximately 50k gas units
-public entry fun mint_nft(
+public fun mint_nft(
     name: String,
     description: String,
     url: String,
-    recipient: address,
     ctx: &mut TxContext
-) {
+): NFT {
     // Implementation
 }
 ```
@@ -165,14 +166,15 @@ fun test_transfer() {
 3. Constants (errors, then config)
 4. Structs (public, then private)
 5. Init function
-6. Public entry functions
+6. Entry functions
 7. Public functions
 8. Internal functions
 9. Test module
 
 ### Function Visibility
-- Use `public entry` for user-facing endpoints
-- Use `public` for functions called by other modules
+- Use `entry` for non-composable user-facing endpoints
+- Use `public` for functions called by other modules (and PTB-composable endpoints)
+- Never combine `public entry` — choose one or the other
 - Use `public(package)` for internal package functions
 - Default (no visibility) for private helpers
 
@@ -228,7 +230,7 @@ assert!(total_supply <= max_supply, E_SUPPLY_EXCEEDED);
 ```move
 /// Batch mint multiple NFTs to save on transaction overhead.
 /// Gas cost: ~40k per NFT + 20k base cost
-public entry fun batch_mint(
+entry fun batch_mint(
     names: vector<String>,
     recipients: vector<address>,
     ctx: &mut TxContext

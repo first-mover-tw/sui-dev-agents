@@ -85,7 +85,7 @@ Use `#[error]` macro for string error messages:
 
 ```move
 #[error]
-const EInsufficientBalance: vector<u8> = b"Balance too low for this operation";
+const EInsufficientBalance: vector<u8> = "Balance too low for this operation";
 ```
 
 `assert!` without abort code auto-derives a clever abort code.

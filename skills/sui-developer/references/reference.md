@@ -180,11 +180,11 @@ public fun remove_metadata<V: store>(
 
 ```move
 #[error]
-const EOverflow: vector<u8> = b"Arithmetic overflow";
+const EOverflow: vector<u8> = "Arithmetic overflow";
 #[error]
-const EUnderflow: vector<u8> = b"Arithmetic underflow";
+const EUnderflow: vector<u8> = "Arithmetic underflow";
 #[error]
-const EDivisionByZero: vector<u8> = b"Division by zero";
+const EDivisionByZero: vector<u8> = "Division by zero";
 
 public fun safe_add(a: u64, b: u64): u64 {
     let result = a + b;
@@ -254,7 +254,7 @@ public struct Marketplace has key {
 }
 
 #[error]
-const EContractPaused: vector<u8> = b"Contract is paused";
+const EContractPaused: vector<u8> = "Contract is paused";
 
 public fun pause(
     marketplace: &mut Marketplace,
