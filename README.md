@@ -1,6 +1,6 @@
 # SUI Dev Agents
 
-**v2.13.0** — An open-source toolkit built for the SUI community to streamline blockchain development. Provides skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Aligned with **SUI CLI v1.74+** (Protocol 128, testnet & mainnet v1.74.1), **SUI SDK v2** (`@mysten/sui` 2.20.x), **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated, Quorum Driver disabled, permanent deactivation 2026-07-31). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
+**v2.13.1** — An open-source toolkit built for the SUI community to streamline blockchain development. Provides skills, agents, commands, hooks, rules, and a built-in **MCP Server** for on-chain queries + agent wallet. Aligned with **SUI CLI v1.74+** (Protocol 128, testnet & mainnet v1.74.1), **SUI SDK v2** (`@mysten/sui` 2.20.x), **dApp Kit v2** (`@mysten/dapp-kit-react` / `@mysten/dapp-kit-core`), **Move 2024 Edition**, and **gRPC transport** (JSON-RPC deprecated, Quorum Driver disabled, permanent deactivation 2026-07-31). Integrates [MystenLabs sui-dev-skills](https://github.com/MystenLabs/sui-dev-skills) as source of truth.
 
 Works with **Claude Code** (full plugin) and other AI development tools (rules-only) — see [Platform Guides](docs/platforms/).
 

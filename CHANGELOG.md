@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.13.1] - 2026-07-10
+
 ### Changed
 - Bumped all pinned @mysten/* SDKs to the sui 2.20.2 patch generation (11 packages, published 2026-07-08 as one lockstep changesets release; verified via npm diff that only @mysten/sui has a behavioral change — pagination fix — the other 10 are pure dependency-range bumps). @mysten/messaging stays 0.3.0.
 - Targets banners, sdk-compat-matrix, grpc-reference and zklogin-signer version stamps synced; Tested dates refreshed to 2026-07-10.
