@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `move-code-quality` checklist re-verified against move-book `d700b88`: string literal constant forms updated to follow upstream, `.to_string()`/`.to_ascii_string()` applicable-scenario guidance clarified (compile-verified).
-- `sui-developer` "Move Language Updates (from Move Book)" section rewritten to align with the `d700b88` chapter set — 7 new chapter bullets added (macros, internal `permit`, entry functions, address balances, package upgrades, MVR, linting); removed an unsupported Lambda Type Annotations claim.
+- `sui-developer` "Move Language Updates (from Move Book)" section rewritten to align with the `d700b88` chapter set — bullets covering the 7 new chapters (macros, internal `permit`, entry functions, address balances, package upgrades, MVR, linting); removed an unsupported Lambda Type Annotations claim.
 
 ## [2.13.1] - 2026-07-10
 

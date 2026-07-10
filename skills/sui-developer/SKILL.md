@@ -142,7 +142,7 @@ See [scripts/](scripts/) for implementation details.
 
 ### Move Language Updates (from Move Book)
 
-- **Extending Modules:** `2024.alpha`-only `extend module` adds `#[test_only]` functions to a foreign or your own module (e.g. to construct test data for types you don't own); additive-only, root-package-only.
+- **Extending Modules:** `2024.alpha`-only `extend module` adds functions/types/constants/use-statements to a foreign or your own module, gated by any mode attribute (`#[test_only]` is just the most common); additive-only, root-package-only.
 - **Modes:** `#[mode(name,...)]` generalizes `#[test_only]`; build with `--mode <name>` — any mode-enabled build (including `--test`) is non-publishable.
 - **Storage Functions:** Rewritten chapter on the transfer/freeze/share operations that move objects between ownership states, plus their `public_*` cross-module counterparts.
 - **Type Reflection:** `std::type_name::with_defining_ids`/`with_original_ids` inspect a type at runtime, distinguishing the defining ID (introduced the type) from the original ID (first-published version).

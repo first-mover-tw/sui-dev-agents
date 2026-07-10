@@ -58,9 +58,9 @@ String literals — quoted form directly:
 
 ```move
 use std::string::utf8; let s = utf8(b"hello");  // WRONG — don't import std::string::utf8
-let s = b"hello".to_string();                    // CORRECT (matches move-code-quality checklist)
-let ascii = b"hello".to_ascii_string();          // explicit ASCII when needed
-// Move 2024 also accepts quoted literals directly where supported: let s = "hello";
+let s: String = "hello";                         // CORRECT — literal form (matches move-code-quality checklist)
+let ascii: ascii::String = "hello";              // CORRECT — ASCII literal form
+// .to_string()/.to_ascii_string() on vector<u8> still apply when bytes aren't known at compile time
 ```
 
 Struct unpack — `..` to ignore unused fields:

@@ -140,7 +140,7 @@ public fun call_app(
 - ❌ BAD: `coin::into_balance(coin::split(&mut payment, amount, ctx))`
 
 **Don't Import std::string::utf8**
-- ✅ GOOD: `b"hello, world!".to_string()`
+- ✅ GOOD: `let str: String = "hello, world!";` (also `let ascii: ascii::String = "hello, world!";` for ASCII)
 - ❌ BAD: `use std::string::utf8; let str = utf8(b"hello, world!");`
 - `.to_string()`/`.to_ascii_string()` on `vector<u8>` still have their place — converting bytes that are not known at compile time; for literals, prefer the string literal syntax
 
