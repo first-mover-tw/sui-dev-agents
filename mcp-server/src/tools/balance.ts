@@ -9,7 +9,25 @@ export function registerBalanceTools(server: McpServer) {
     { address: z.string().describe("SUI address") },
     async ({ address }) => {
       const client = getSuiClient();
-      const result = await client.core.listBalances({ owner: address });
+      // listBalances is a paginated API — a single page silently truncates addresses
+      // holding many coin types. Page through until hasNextPage is false, capped at
+      // MAX_PAGES as a runaway-loop guard (surfaced via `truncated: true` if hit).
+      const MAX_PAGES = 20;
+      const balances: { coinType: string; balance: string }[] = [];
+      let cursor: string | null = null;
+      let truncated = false;
+      for (let page = 0; page < MAX_PAGES; page++) {
+        const result = await client.core.listBalances({ owner: address, cursor });
+        balances.push(...result.balances);
+        if (!result.hasNextPage) {
+          cursor = null;
+          break;
+        }
+        cursor = result.cursor;
+        if (page === MAX_PAGES - 1) {
+          truncated = true;
+        }
+      }
       return {
         content: [
           {
@@ -17,10 +35,11 @@ export function registerBalanceTools(server: McpServer) {
             text: safeStringify(
               {
                 address,
-                coins: result.balances.map((b) => ({
+                coins: balances.map((b) => ({
                   type: b.coinType,
                   balance: b.balance,
                 })),
+                ...(truncated ? { truncated: true } : {}),
               },
             ),
           },

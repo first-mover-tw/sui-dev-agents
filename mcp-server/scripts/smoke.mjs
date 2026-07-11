@@ -2,7 +2,7 @@
 // Wallet execution tools stop at simulate — nothing is submitted on-chain.
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { createServer } from '../dist/index.js'; // Task 2 Step 2 exports this
+import { createServer } from '../dist/index.js';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -23,14 +23,14 @@ const CASES = [
   { tool: 'sui_get_package', args: { packageId: '0x2' } },
   { tool: 'sui_wallet_status', args: {} },
 
-  // --- JSON-RPC-backed (public testnet endpoint closing this week; FAIL expected & OK) ---
+  // --- gRPC-backed (migrated off JSON-RPC; expected to work) ---
   { tool: 'sui_get_object', args: { objectId: '0x5' } },
   { tool: 'sui_get_transaction', args: { digest: KNOWN_DIGEST } },
   { tool: 'sui_get_events', args: { digest: KNOWN_DIGEST } },
   { tool: 'sui_resolve_name', args: { address: TESTNET_ADDR } },
   { tool: 'sui_dry_run', args: { txBytes: 'not-base64!!!' }, expectError: true }, // malformed input must not crash
 
-  // --- wallet build/dry-run tools (also JSON-RPC-backed via tx.build / dryRunTransactionBlock; FAIL expected & OK) ---
+  // --- wallet build/dry-run tools (gRPC-backed via tx.build / simulateTransaction) ---
   { tool: 'sui_wallet_transfer', args: { recipient: TESTNET_ADDR, amount: 0.001, execute: false } },
   // clock::timestamp_ms(&Clock) returns u64 (has drop), so the built PTB has no
   // UnusedValueWithoutDrop — unlike coin::zero<SUI>() which returns a Coin with no drop.

@@ -7,7 +7,12 @@ import { getSuiClient, safeStringify } from "../client.js";
 // (UNAVAILABLE, DEADLINE_EXCEEDED, malformed response, etc.) is a transport failure and
 // must not be silently reinterpreted as "no result".
 function isNotFound(e: unknown): boolean {
-  return e instanceof RpcError && e.code === "NOT_FOUND";
+  if (e instanceof RpcError && e.code === "NOT_FOUND") return true;
+  // Fallback for a duplicated @protobuf-ts/runtime-rpc install (npm dedupe failure):
+  // two module instances make `instanceof RpcError` fail silently even though the
+  // thrown object is structurally an RpcError with code NOT_FOUND.
+  const err = e as { name?: unknown; code?: unknown } | null | undefined;
+  return err?.name === "RpcError" && err?.code === "NOT_FOUND";
 }
 
 export function registerNameTools(server: McpServer) {
