@@ -9,7 +9,7 @@ description: Use when implementing data encryption, access control, or secrets m
 
 ## SDK Versions
 
-Targets: `@mysten/seal` 1.2.4 (^1.1), `@mysten/sui` 2.20.2 (^2.16). Tested: 2026-07-10.
+Targets: `@mysten/seal` 1.3.0 (^1.1), `@mysten/sui` 2.20.3 (^2.16). Tested: 2026-07-11.
 
 **Compatibility notes:** `@mysten/sui` is a peer dependency of `@mysten/seal`. The `suiClient` must be a v2.x `SuiGrpcClient` (from `@mysten/sui/grpc`) or `SuiJsonRpcClient` (from `@mysten/sui/jsonRpc`) — these satisfy `SealCompatibleClient`. Do not mix `@mysten/sui@1.x` and `@2.x` in the same install — run `npm ls @mysten/sui` before adding seal/walrus/dapp-kit. Seal is NOT a `$extend()` client extension; always instantiate `new SealClient({ ... })` directly.
 
@@ -74,6 +74,9 @@ const sealClient = new SealClient({
     // optional fields per entry:
     // apiKeyName, apiKey, aggregatorUrl (required for committee-mode servers)
   ],
+  // Since @mysten/seal 1.3.0 this DEFAULTS TO FALSE (was true in ≤1.2.x) —
+  // set true explicitly to verify key servers' authenticity. Committee-mode
+  // servers skip /service verification regardless (requests go via aggregator).
   verifyKeyServers: true,
   timeout: 10_000,
 });

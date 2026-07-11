@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Bumped all pinned @mysten/* SDKs to the sui 2.20.3 patch generation (11 packages, lockstep changesets release 2026-07-10; verified via changelogs and .d.mts diffs that only @mysten/sui and @mysten/seal carry behavioral changes). @mysten/messaging stays 0.3.0.
+- @mysten/seal 1.3.0: `verifyKeyServers` now defaults to `false` (was `true` in ≤1.2.x; verified against dist/client.mjs). sui-seal skill example keeps explicit `true` and documents the flip, including that committee-mode servers skip /service verification regardless.
+- @mysten/sui 2.20.3: kind-only build fix (`onlyTransactionKind: true` referencing owned objects without a sender — the seal use-case); simulation checks disabled during kind-only resolution on gRPC/GraphQL and the dummy `0x0` sender no longer leaks into transaction data. mcp-server already pins `^2.20.3` and picks this up on install.
+- Targets banners, sdk-compat-matrix, grpc-reference proto stamp and zklogin signer.d.mts stamp synced to 2.20.3 (both surfaces verified unchanged between 2.20.2 and 2.20.3); Tested dates refreshed to 2026-07-11.
+
 ## [2.14.0] - 2026-07-11
 
 ### Changed

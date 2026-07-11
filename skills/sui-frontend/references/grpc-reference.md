@@ -2,7 +2,7 @@
 
 > **Status:** GA (Generally Available) as of SUI v1.67+, current v1.74+
 > **JSON-RPC:** Deprecated, Quorum Driver disabled, permanent deactivation 2026-07-31
-> **Service/method names verified against `@mysten/sui@2.20.2` shipped protos (`sui.rpc.v2`)**
+> **Service/method names verified against `@mysten/sui@2.20.3` shipped protos (`sui.rpc.v2`)**
 > **Default port:** 8443 (TLS) or 8080 (plaintext)
 
 ## Overview
