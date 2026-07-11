@@ -10,30 +10,38 @@ import { registerNameTools } from "./tools/names.js";
 import { registerPackageTools } from "./tools/package.js";
 import { registerWalletTools } from "./tools/wallet.js";
 
-const server = new McpServer({
-  name: "sui-dev-mcp",
-  version: "1.0.0",
-});
+export function createServer(): McpServer {
+  const server = new McpServer({
+    name: "sui-dev-mcp",
+    version: "1.0.0",
+  });
 
-// Query tools
-registerBalanceTools(server);
-registerObjectTools(server);
-registerTransactionTools(server);
-registerEventTools(server);
-registerCoinTools(server);
-registerNetworkTools(server);
-registerNameTools(server);
-registerPackageTools(server);
+  // Query tools
+  registerBalanceTools(server);
+  registerObjectTools(server);
+  registerTransactionTools(server);
+  registerEventTools(server);
+  registerCoinTools(server);
+  registerNetworkTools(server);
+  registerNameTools(server);
+  registerPackageTools(server);
 
-// Wallet tools
-registerWalletTools(server);
+  // Wallet tools
+  registerWalletTools(server);
+
+  return server;
+}
 
 async function main() {
+  const server = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
 
-main().catch((err) => {
-  console.error("Fatal:", err);
-  process.exit(1);
-});
+const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1].split("/").pop()!);
+if (isMain) {
+  main().catch((err) => {
+    console.error("Fatal:", err);
+    process.exit(1);
+  });
+}

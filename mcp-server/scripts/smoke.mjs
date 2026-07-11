@@ -1,0 +1,52 @@
+// Smoke test: spins up the MCP server in-process and calls every tool once (testnet).
+// Wallet execution tools stop at simulate — nothing is submitted on-chain.
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { createServer } from '../dist/index.js'; // Task 2 Step 2 exports this
+
+// Filled from `sui client active-address` (testnet wallet with owned objects).
+const TESTNET_ADDR = '0x1509b5fdf09296b2cf749a710e36da06f5693ccd5b2144ad643b3a895abcbc4c';
+// Filled from a real `previousTransaction` digest returned by sui_get_owned_objects (gRPC) for TESTNET_ADDR.
+const KNOWN_DIGEST = 'BKmfB9WkusChGppLTYXbRSjuBZpHZzW89XwEfaVgZLiL';
+
+const CASES = [
+  // --- gRPC-backed (expected to work) ---
+  { tool: 'sui_get_latest_checkpoint', args: {} },
+  { tool: 'sui_get_balance', args: { address: TESTNET_ADDR } },
+  { tool: 'sui_get_coins', args: { address: TESTNET_ADDR } },
+  { tool: 'sui_get_owned_objects', args: { address: TESTNET_ADDR, limit: 5 } },
+  { tool: 'sui_get_package', args: { packageId: '0x2' } },
+  { tool: 'sui_wallet_status', args: {} },
+
+  // --- JSON-RPC-backed (public testnet endpoint closing this week; FAIL expected & OK) ---
+  { tool: 'sui_get_object', args: { objectId: '0x5' } },
+  { tool: 'sui_get_transaction', args: { digest: KNOWN_DIGEST } },
+  { tool: 'sui_get_events', args: { digest: KNOWN_DIGEST } },
+  { tool: 'sui_resolve_name', args: { address: TESTNET_ADDR } },
+  { tool: 'sui_dry_run', args: { txBytes: 'not-base64!!!' }, expectError: true }, // malformed input must not crash
+
+  // --- wallet build/dry-run tools (also JSON-RPC-backed via tx.build / dryRunTransactionBlock; FAIL expected & OK) ---
+  { tool: 'sui_wallet_transfer', args: { recipient: TESTNET_ADDR, amount: 0.001, execute: false } },
+  { tool: 'sui_wallet_call', args: { package_id: '0x2', module: 'coin', function_name: 'zero', type_args: ['0x2::sui::SUI'], args: [], execute: false } },
+  { tool: 'sui_wallet_publish', args: { package_path: '/tmp/does-not-exist-smoke-package', execute: false } },
+];
+
+const [ct, st] = InMemoryTransport.createLinkedPair();
+const server = createServer();
+await server.connect(st);
+const client = new Client({ name: 'smoke', version: '1.0.0' });
+await client.connect(ct);
+
+let pass = 0;
+for (const c of CASES) {
+  try {
+    const r = await client.callTool({ name: c.tool, arguments: c.args });
+    const ok = c.expectError ? r.isError === true : !r.isError;
+    console.log(`${ok ? 'PASS' : 'FAIL'} ${c.tool}${ok ? '' : ' → ' + JSON.stringify(r.content?.[0]).slice(0, 200)}`);
+    if (ok) pass++;
+  } catch (e) {
+    console.log(`FAIL ${c.tool} → threw: ${e.message.slice(0, 200)}`);
+  }
+}
+console.log(`\n${pass}/${CASES.length}`);
+process.exit(pass === CASES.length ? 0 : 1);
