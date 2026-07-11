@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.13.4] - 2026-07-11
+
+### Fixed
+- JSON-RPC deprecation timeline corrected repo-wide (13 files): stale "removed April 2026" replaced with the official schedule — public endpoints shutting down July 2026 (Testnet: week of Jul 6; Mainnet: week of Jul 20), permanent deactivation 2026-07-31 (per the 2026-03-24 Sui blog announcement). Affects `rules/common/api-migration.md`, `jsonrpc-warn` hook, `protocol-version-check.sh`, agent prompts, GUIDE/QUICKSTART, and the deepbook/ts-sdk/frontend skills.
+- GraphQL RPC status corrected from "beta" to GA (5 sites incl. `sui-architect`, agent prompts, GUIDE, QUICKSTART) — gRPC and GraphQL RPC are both GA, positioned by use case (gRPC: fullnode/backend/streaming default; GraphQL RPC: indexer/frontend/complex queries).
+- `mcp-server/src/client.ts` JSON-RPC fallback comment now states the real failure point: the default public-endpoint URLs stop working during July 2026 (before the 2026-07-31 protocol-level deactivation); `sui-kiosk` / `sui-move-ts-bridge` compatibility notes flag the limited shelf life of the kiosk JSON-RPC path.
+
 ## [2.13.3] - 2026-07-10
 
 ### Fixed
