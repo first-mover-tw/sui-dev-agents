@@ -24,7 +24,7 @@ Full plugin support — skills, agents, hooks, commands, rules, and MCP server.
 - **9 commands** — `:init`, `:build`, `:test`, `:deploy`, `:audit`, `:gas`, `:upgrade`, and more
 - **8 hooks** — auto-verify syntax, gas budget guard, tx-approval, mainnet warnings
 - **5 rules** — Move conventions, security, testing, code quality, API migration
-- **MCP server** — 14 on-chain query tools + agent wallet (gRPC primary, JSON-RPC fallback)
+- **MCP server** — 14 on-chain query tools + agent wallet (gRPC-only)
 
 ## Quick Start
 

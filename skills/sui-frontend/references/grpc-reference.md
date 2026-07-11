@@ -209,7 +209,7 @@ If you use `@mysten/sui` SDK v2:
 ```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
 │   gRPC      │     │  GraphQL     │     │  Indexer      │
-│  (Primary)  │     │  (Beta)      │     │  (Custom)     │
+│  (Primary)  │     │  (GA)        │     │  (Custom)     │
 ├─────────────┤     ├──────────────┤     ├──────────────┤
 │ Full node   │     │ Frontend     │     │ Analytics     │
 │ Direct      │     │ Relay-style  │     │ Historical    │

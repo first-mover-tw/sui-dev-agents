@@ -308,22 +308,18 @@ User writes code → Claude applies rules → Code generated
 
 **Transport:** stdio, auto-loaded via `plugin.json` → `.mcp.json`
 
-**Architecture (dual-client):**
+**Architecture (single gRPC client):**
 ```
 Claude Code → MCP Protocol (stdio) → mcp-server/dist/index.js
                                           ↓
-                                  ┌───────┴───────┐
-                            SuiGrpcClient    SuiClient
-                            (primary)        (JSON-RPC fallback)
-                                  ↓               ↓
-                            SUI gRPC         SUI JSON-RPC
-                            Endpoint         Endpoint
+                                    SuiGrpcClient
+                                          ↓
+                                     SUI gRPC
+                                     Endpoint
 ```
 
 **Client routing:**
-- **gRPC primary:** balance, coins, objects, packages, checkpoint, owned_objects
-- **JSON-RPC fallback:** transactions, events, dry-run, name resolution, tx build (BigInt/schema incompatibilities)
-- **Hybrid:** wallet execute builds via JSON-RPC, executes via gRPC
+- **gRPC (all tools):** balance, coins, objects, packages, checkpoint, owned_objects, transactions, events, dry-run, name resolution, tx build/execute
 
 ### 7. Developer Tools
 

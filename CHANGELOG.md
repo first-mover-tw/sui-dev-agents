@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.14.0] - 2026-07-11
+
+### Changed
+- `mcp-server` migrated from JSON-RPC (`SuiClient`) to SDK v2 gRPC-only (`SuiGrpcClient`, `@mysten/sui@^2.20.3`) for all 14 tools — the dual-client architecture (gRPC primary + JSON-RPC fallback) is gone; smoke suite 14/14 green.
+- Output shapes changed on the gRPC-only path: list tools (`sui_get_owned_objects`, `sui_get_coins`) now return `.objects` instead of `.data`; `sui_get_object` returns decoded JSON via `include: { json: true }`; `sui_wallet_call`/`sui_dry_run` (`executeTransaction`/`simulateTransaction`) now return a discriminated union with a `FailedTransaction` branch instead of throwing/silently passing through raw JSON-RPC shapes.
+- Error handling tightened: `sui_resolve_name` on an unregistered SuiNS name now returns an explicit "查無" (not found) result instead of a raw error; gRPC transport errors now surface as `isError` tool results instead of being silently swallowed.
+- README.md, docs/GUIDE.md, docs/ARCHITECTURE.md, docs/platforms/claude-code.md updated to describe the MCP server's gRPC-only architecture (dual-client diagrams/wording removed).
+- `skills/sui-frontend/references/grpc-reference.md` GraphQL status corrected from "(Beta)" to "(GA)" in the data-access architecture diagram.
+
+### Added
+- `mcp-server/scripts/smoke.mjs` — in-memory smoke-test harness for the 14 MCP tools (`npm run smoke`), with fixtures under `mcp-server/scripts/fixtures/smoke-package/`.
+- New declared dependency `@protobuf-ts/runtime-rpc` (required by the gRPC transport).
+- GUIDE.md MCP configuration section: notes that `SUI_GRPC_URL` should only point at trusted nodes (transaction resolution depends on its object data) and that localnet gRPC support is unverified.
+
+### Removed
+- JSON-RPC fallback path from `mcp-server` (`SuiClient`, `getJsonRpcClient`) and its `SUI_RPC_URL` environment variable — gRPC is now the only transport.
+
 ## [2.13.4] - 2026-07-11
 
 ### Fixed

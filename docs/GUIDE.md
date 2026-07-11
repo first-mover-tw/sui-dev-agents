@@ -519,7 +519,7 @@ Task({
 
 ### Overview
 
-Built-in MCP server (`mcp-server/`) provides 14 tools for on-chain data queries and wallet operations. Uses a **dual-client architecture**: gRPC primary (`SuiGrpcClient`) for most tools, with JSON-RPC fallback (`SuiClient`) for endpoints where gRPC has BigInt serialization or schema incompatibilities (transactions, events, dry-run, name resolution). All responses use `safeStringify` for consistent BigInt handling.
+Built-in MCP server (`mcp-server/`) provides 14 tools for on-chain data queries and wallet operations. Uses a single **gRPC client** (`SuiGrpcClient`, `@mysten/sui` SDK v2) for all tools — gRPC-only; the earlier JSON-RPC path has been removed. All responses use `safeStringify` for consistent BigInt handling.
 
 ### Query Tools (10)
 
@@ -549,7 +549,7 @@ Built-in MCP server (`mcp-server/`) provides 14 tools for on-chain data queries 
 
 ### Configuration
 
-Set `SUI_NETWORK` (default: testnet) and optionally `SUI_GRPC_URL` to override the gRPC endpoint.
+Set `SUI_NETWORK` (default: testnet) and optionally `SUI_GRPC_URL` to override the gRPC endpoint. Only point `SUI_GRPC_URL` at nodes you trust — transaction resolution depends on its object data. localnet gRPC is unverified; override via `SUI_GRPC_URL` if needed.
 
 ---
 
