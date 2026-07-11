@@ -9,7 +9,7 @@ export function registerBalanceTools(server: McpServer) {
     { address: z.string().describe("SUI address") },
     async ({ address }) => {
       const client = getSuiClient();
-      const result = await client.core.getAllBalances({ address });
+      const result = await client.core.listBalances({ owner: address });
       return {
         content: [
           {

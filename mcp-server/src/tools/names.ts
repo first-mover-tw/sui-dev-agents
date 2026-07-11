@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { getJsonRpcClient, safeStringify } from "../client.js";
+import { getSuiClient, safeStringify } from "../client.js";
 
 export function registerNameTools(server: McpServer) {
   server.tool(
@@ -11,33 +11,41 @@ export function registerNameTools(server: McpServer) {
       address: z.string().optional().describe("Address to reverse-resolve"),
     },
     async ({ name, address }) => {
-      // Use JSON-RPC client — gRPC nameService returns BigInt that breaks MCP SDK serialization
-      const client = getJsonRpcClient();
+      // client.nameService is a raw ts-proto client — payload is under .response, and it
+      // throws RpcError (e.g. NOT_FOUND, "name has expired") instead of returning empty/null
+      // for unresolved lookups. JSON-RPC never threw for this case, so we normalize back to
+      // a non-error "no result" response to preserve the pre-migration contract.
+      const client = getSuiClient();
 
       if (name) {
         try {
-          const resolved = await client.resolveNameServiceAddress({ name });
+          const { response } = await client.nameService.lookupName({ name });
+          const resolved = response.record?.targetAddress ?? null;
           return {
             content: [
-              { type: "text" as const, text: safeStringify({ name, address: resolved ?? null }) },
+              { type: "text" as const, text: safeStringify({ name, address: resolved }) },
             ],
           };
-        } catch (e: any) {
-          return { content: [{ type: "text" as const, text: e.message }], isError: true };
+        } catch {
+          return {
+            content: [{ type: "text" as const, text: safeStringify({ name, address: null }) }],
+          };
         }
       }
 
       if (address) {
         try {
-          const resolved = await client.resolveNameServiceNames({ address });
-          const names = resolved.data ?? [];
+          const { response } = await client.nameService.reverseLookupName({ address });
+          const names = response.record?.name ? [response.record.name] : [];
           return {
             content: [
               { type: "text" as const, text: safeStringify({ address, names }) },
             ],
           };
-        } catch (e: any) {
-          return { content: [{ type: "text" as const, text: e.message }], isError: true };
+        } catch {
+          return {
+            content: [{ type: "text" as const, text: safeStringify({ address, names: [] }) }],
+          };
         }
       }
 

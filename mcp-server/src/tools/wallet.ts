@@ -1,17 +1,18 @@
 import { z } from "zod";
-import { toBase64 } from "@mysten/sui/utils";
 import { execFileSync } from "node:child_process";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { Transaction } from "@mysten/sui/transactions";
-import { getSuiClient, getJsonRpcClient, getNetwork, getActiveAddress, getActiveKeypair, safeStringify } from "../client.js";
+import { getSuiClient, getNetwork, getActiveAddress, getActiveKeypair, safeStringify } from "../client.js";
 
 async function buildAndDryRun(tx: Transaction, sender: string) {
-  // JSON-RPC fallback: gRPC does not support transaction resolution or dryRun
-  const rpcClient = getJsonRpcClient();
+  // v2 gRPC client supports transaction resolution during build and dry-run via
+  // core.simulateTransaction (no JSON-RPC needed for either step).
+  const client = getSuiClient();
   tx.setSenderIfNotSet(sender);
-  const txBytes = await tx.build({ client: rpcClient });
-  const dryRun = await rpcClient.dryRunTransactionBlock({
-    transactionBlock: toBase64(txBytes),
+  const txBytes = await tx.build({ client });
+  const dryRun = await client.core.simulateTransaction({
+    transaction: txBytes,
+    include: { effects: true, events: true },
   });
   return { txBytes, dryRun };
 }
@@ -19,13 +20,15 @@ async function buildAndDryRun(tx: Transaction, sender: string) {
 async function signAndExecute(tx: Transaction, sender: string) {
   const keypair = getActiveKeypair();
   if (!keypair) throw new Error("Cannot load keypair for active address");
-  // Build via JSON-RPC (transaction resolution), execute via gRPC
-  const rpcClient = getJsonRpcClient();
-  const grpcClient = getSuiClient();
+  const client = getSuiClient();
   tx.setSenderIfNotSet(sender);
-  const txBytes = await tx.build({ client: rpcClient });
+  const txBytes = await tx.build({ client });
   const { signature } = await keypair.signTransaction(txBytes);
-  return grpcClient.core.executeTransaction({ transaction: txBytes, signatures: [signature] });
+  return client.core.executeTransaction({
+    transaction: txBytes,
+    signatures: [signature],
+    include: { effects: true },
+  });
 }
 
 export function registerWalletTools(server: McpServer) {
@@ -42,7 +45,7 @@ export function registerWalletTools(server: McpServer) {
         };
       }
       const client = getSuiClient();
-      const result = await client.core.getBalance({ address, coinType: "0x2::sui::SUI" });
+      const result = await client.core.getBalance({ owner: address, coinType: "0x2::sui::SUI" });
       const bal = result.balance.balance;
       return {
         content: [

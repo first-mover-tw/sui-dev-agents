@@ -14,8 +14,8 @@ export function registerCoinTools(server: McpServer) {
     },
     async ({ address, coinType, limit, cursor }) => {
       const client = getSuiClient();
-      const result = await client.core.getCoins({
-        address,
+      const result = await client.core.listCoins({
+        owner: address,
         coinType,
         limit,
         cursor: cursor ?? null,
@@ -27,7 +27,7 @@ export function registerCoinTools(server: McpServer) {
             text: safeStringify(
               {
                 data: result.objects.map((c) => ({
-                  id: c.id,
+                  id: c.objectId,
                   balance: c.balance,
                   version: c.version,
                 })),
