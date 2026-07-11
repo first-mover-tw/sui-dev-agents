@@ -1,6 +1,14 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { RpcError } from "@protobuf-ts/runtime-rpc";
 import { getSuiClient, safeStringify } from "../client.js";
+
+// Only gRPC NOT_FOUND means "this name/address has no record" — every other RpcError
+// (UNAVAILABLE, DEADLINE_EXCEEDED, malformed response, etc.) is a transport failure and
+// must not be silently reinterpreted as "no result".
+function isNotFound(e: unknown): boolean {
+  return e instanceof RpcError && e.code === "NOT_FOUND";
+}
 
 export function registerNameTools(server: McpServer) {
   server.tool(
@@ -26,9 +34,15 @@ export function registerNameTools(server: McpServer) {
               { type: "text" as const, text: safeStringify({ name, address: resolved }) },
             ],
           };
-        } catch {
+        } catch (e) {
+          if (isNotFound(e)) {
+            return {
+              content: [{ type: "text" as const, text: safeStringify({ name, address: null }) }],
+            };
+          }
           return {
-            content: [{ type: "text" as const, text: safeStringify({ name, address: null }) }],
+            content: [{ type: "text" as const, text: (e as Error).message }],
+            isError: true,
           };
         }
       }
@@ -42,9 +56,15 @@ export function registerNameTools(server: McpServer) {
               { type: "text" as const, text: safeStringify({ address, names }) },
             ],
           };
-        } catch {
+        } catch (e) {
+          if (isNotFound(e)) {
+            return {
+              content: [{ type: "text" as const, text: safeStringify({ address, names: [] }) }],
+            };
+          }
           return {
-            content: [{ type: "text" as const, text: safeStringify({ address, names: [] }) }],
+            content: [{ type: "text" as const, text: (e as Error).message }],
+            isError: true,
           };
         }
       }
