@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `mcp-server` migrated from JSON-RPC (`SuiClient`) to SDK v2 gRPC-only (`SuiGrpcClient`, `@mysten/sui@^2.20.3`) for all 14 tools — the dual-client architecture (gRPC primary + JSON-RPC fallback) is gone; smoke suite 14/14 green.
-- Output shapes changed on the gRPC-only path: list tools (`sui_get_owned_objects`, `sui_get_coins`) now return `.objects` instead of `.data`; `sui_get_object` returns decoded JSON via `include: { json: true }`; `sui_wallet_call`/`sui_dry_run` (`executeTransaction`/`simulateTransaction`) now return a discriminated union with a `FailedTransaction` branch instead of throwing/silently passing through raw JSON-RPC shapes.
-- Error handling tightened: `sui_resolve_name` on an unregistered SuiNS name now returns an explicit "查無" (not found) result instead of a raw error; gRPC transport errors now surface as `isError` tool results instead of being silently swallowed.
+- Output shapes changed on the gRPC-only path: list tools (`sui_get_owned_objects`, `sui_get_coins`) now return `.objects` instead of `.data`; `sui_get_object` returns decoded JSON via `include: { json: true }`; transaction results (`sui_get_transaction`, `sui_get_events`, wallet execute passthrough) use the v2 discriminated transaction shapes (incl. a `FailedTransaction` branch) instead of the raw JSON-RPC shapes.
+- Error handling tightened: `sui_resolve_name` on an unregistered SuiNS name now returns a non-error result with `address: null` / empty `names` instead of surfacing the gRPC NOT_FOUND error; all other gRPC transport errors now surface as `isError` tool results instead of being silently swallowed.
 - README.md, docs/GUIDE.md, docs/ARCHITECTURE.md, docs/platforms/claude-code.md updated to describe the MCP server's gRPC-only architecture (dual-client diagrams/wording removed).
 - `skills/sui-frontend/references/grpc-reference.md` GraphQL status corrected from "(Beta)" to "(GA)" in the data-access architecture diagram.
 
