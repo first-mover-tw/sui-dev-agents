@@ -3,6 +3,11 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { createServer } from '../dist/index.js'; // Task 2 Step 2 exports this
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const SMOKE_PACKAGE_PATH = path.join(__dirname, 'fixtures', 'smoke-package');
 
 // Filled from `sui client active-address` (testnet wallet with owned objects).
 const TESTNET_ADDR = '0x1509b5fdf09296b2cf749a710e36da06f5693ccd5b2144ad643b3a895abcbc4c';
@@ -27,8 +32,10 @@ const CASES = [
 
   // --- wallet build/dry-run tools (also JSON-RPC-backed via tx.build / dryRunTransactionBlock; FAIL expected & OK) ---
   { tool: 'sui_wallet_transfer', args: { recipient: TESTNET_ADDR, amount: 0.001, execute: false } },
-  { tool: 'sui_wallet_call', args: { package_id: '0x2', module: 'coin', function_name: 'zero', type_args: ['0x2::sui::SUI'], args: [], execute: false } },
-  { tool: 'sui_wallet_publish', args: { package_path: '/tmp/does-not-exist-smoke-package', execute: false } },
+  // clock::timestamp_ms(&Clock) returns u64 (has drop), so the built PTB has no
+  // UnusedValueWithoutDrop — unlike coin::zero<SUI>() which returns a Coin with no drop.
+  { tool: 'sui_wallet_call', args: { package_id: '0x2', module: 'clock', function_name: 'timestamp_ms', type_args: [], args: ['0x6'], execute: false } },
+  { tool: 'sui_wallet_publish', args: { package_path: SMOKE_PACKAGE_PATH, execute: false } },
 ];
 
 const [ct, st] = InMemoryTransport.createLinkedPair();
@@ -45,7 +52,9 @@ for (const c of CASES) {
     console.log(`${ok ? 'PASS' : 'FAIL'} ${c.tool}${ok ? '' : ' → ' + JSON.stringify(r.content?.[0]).slice(0, 200)}`);
     if (ok) pass++;
   } catch (e) {
-    console.log(`FAIL ${c.tool} → threw: ${e.message.slice(0, 200)}`);
+    const ok = c.expectError === true;
+    console.log(`${ok ? 'PASS' : 'FAIL'} ${c.tool} → threw: ${e.message.slice(0, 200)}`);
+    if (ok) pass++;
   }
 }
 console.log(`\n${pass}/${CASES.length}`);

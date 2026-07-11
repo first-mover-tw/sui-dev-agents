@@ -1,0 +1,5 @@
+[package]
+name = "smoke_package"
+edition = "2024.beta"
+
+[dependencies]
