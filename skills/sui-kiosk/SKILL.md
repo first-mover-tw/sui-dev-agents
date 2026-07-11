@@ -11,7 +11,7 @@ description: Use when building NFT marketplaces, enforcing royalties, or managin
 
 Targets: `@mysten/kiosk` 1.3.4 (^1.2), `@mysten/sui` 2.20.2 (^2.16). Tested: 2026-07-10.
 
-**Compatibility notes:** `@mysten/kiosk@1.2.x` types `KioskCompatibleClient` as `SuiJsonRpcClient | SuiGraphQLClient` only — `SuiGrpcClient` is not accepted. Re-check on the next minor bump.
+**Compatibility notes:** `@mysten/kiosk@1.2.x` types `KioskCompatibleClient` as `SuiJsonRpcClient | SuiGraphQLClient` only — `SuiGrpcClient` is not accepted. Re-check on the next minor bump. JSON-RPC is deprecated (permanent deactivation 2026-07-31; public endpoints shutting down July 2026) — kiosk scenarios should preferentially verify the `SuiGraphQLClient` path.
 
 ## Overview
 

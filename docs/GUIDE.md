@@ -899,9 +899,9 @@ SUI provides three data access methods:
 
 | Method | Status | Best For |
 |--------|--------|----------|
-| **gRPC** | GA (primary) | Backend services, real-time streaming, transaction execution |
-| **GraphQL** | Beta | Frontend queries, complex object graphs, Relay integration |
-| **JSON-RPC** | **Deprecated** (removed April 2026) | Legacy — migrate away |
+| **gRPC** | GA | Backend services, real-time streaming, transaction execution |
+| **GraphQL RPC** | GA | Frontend queries, complex object graphs, historical data (indexer) |
+| **JSON-RPC** | **Deprecated** (permanent deactivation 2026-07-31) | Legacy — migrate away |
 
 - `@mysten/sui` SDK handles transport automatically
 - The plugin's MCP server uses `SuiGrpcClient` for all operations

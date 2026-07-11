@@ -20,7 +20,7 @@ Analyze user requests, decompose into subtasks, route to appropriate category ag
 - **SUI Protocol Version:** 119 (testnet v1.72.2, mainnet v1.71.1, March 2026)
 - **TypeScript SDK:** `@mysten/sui` v2+ (ESM-only), `SuiGrpcClient` (primary), `Transaction` class, `$extend()` for ecosystem SDKs
 - **dApp Kit:** `@mysten/dapp-kit-react` (React) / `@mysten/dapp-kit-core` (Vue/vanilla JS) — old `@mysten/dapp-kit` is deprecated
-- **Data Access:** gRPC (GA, primary), GraphQL (frontend/indexer), JSON-RPC (**deprecated**, removed April 2026)
+- **Data Access:** gRPC (GA, backend/low-latency/streaming default), GraphQL RPC (GA, frontend/indexer/complex queries), JSON-RPC (**deprecated** — permanent deactivation 2026-07-31, public endpoints shutting down July 2026)
 - **Key Changes:** gRPC replaces JSON-RPC, Display V2 Registry (0xd), chainIdentifier full digest, MoveValue.asVector, `sui move test` uses Sui gas meter, address aliases on mainnet, TxContext flexible positioning, `$extend()` for ecosystem SDKs
 
 ## Available Category Agents

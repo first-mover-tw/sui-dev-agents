@@ -95,7 +95,7 @@ if ('Transaction' in result) {
 
 ## gRPC API (GA)
 
-> **JSON-RPC is deprecated** (removed April 2026). See [grpc-reference.md](grpc-reference.md) for full migration guide.
+> **JSON-RPC is deprecated** (permanent deactivation 2026-07-31; public endpoints shutting down July 2026). See [grpc-reference.md](grpc-reference.md) for full migration guide.
 
 gRPC is now the primary full node API with 7 services:
 - `TransactionExecutionService` — Execute/simulate transactions

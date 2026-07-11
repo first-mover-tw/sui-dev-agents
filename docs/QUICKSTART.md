@@ -333,8 +333,8 @@ ls ~/.claude/rules/sui-move/
 
 ## ⚠️ API Migration Notice
 
-**JSON-RPC is deprecated** and will be removed in **April 2026**.
-- New projects should use **gRPC** (GA) or **GraphQL** (beta) for data access
+**JSON-RPC is deprecated** — public endpoints are being shut down in July 2026 (Testnet: week of Jul 6; Mainnet: week of Jul 20); permanent deactivation on July 31, 2026.
+- New projects should use **gRPC** (GA) or **GraphQL RPC** (GA) for data access
 - The `@mysten/sui` SDK handles this automatically for most use cases
 - See `skills/sui-frontend/references/grpc-reference.md` for migration guide
 

@@ -31,10 +31,10 @@ fi
 echo "RPC URL: $RPC_URL"
 echo ""
 
-# Query protocol version via sui CLI (JSON-RPC is deprecated, shutting down April 2026)
+# Query protocol version via sui CLI (JSON-RPC is deprecated; permanent deactivation 2026-07-31)
 echo "Querying protocol version..."
 echo ""
-echo "⚠️  NOTE: JSON-RPC is deprecated and will be removed in April 2026."
+echo "⚠️  NOTE: JSON-RPC is deprecated — public endpoints are being shut down in July 2026; permanent deactivation on July 31, 2026."
 echo "   Use gRPC or GraphQL for production applications."
 echo ""
 
@@ -45,7 +45,7 @@ if [ -z "$PROTOCOL_VERSION" ]; then
     PROTOCOL_VERSION=$(sui client envs --json 2>/dev/null | grep -o '"protocol_version":[0-9]*' | head -1 | sed 's/"protocol_version"://' || echo "")
 fi
 
-# Fallback: try JSON-RPC (deprecated, will be removed April 2026)
+# Fallback: try JSON-RPC (deprecated; permanent deactivation 2026-07-31)
 if [ -z "$PROTOCOL_VERSION" ]; then
     echo "⚠️  Falling back to JSON-RPC (deprecated)..."
     PROTOCOL_VERSION=$(curl -s "$RPC_URL" \

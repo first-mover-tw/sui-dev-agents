@@ -9,7 +9,7 @@ description: Use when bridging Move contracts to TypeScript — generating TS ty
 
 Targets: `@mysten/sui` 2.20.2 (^2.16), `@mysten/kiosk` 1.3.4 (^1.2). Tested: 2026-07-10.
 
-**Compatibility notes:** `@mysten/kiosk@1.2.x` accepts only `SuiJsonRpcClient | SuiGraphQLClient`, so the kiosk example in this skill instantiates a JSON-RPC client even though other examples use gRPC. Re-check on the next kiosk minor bump — once kiosk types `SuiGrpcClient`, the example can be migrated.
+**Compatibility notes:** `@mysten/kiosk@1.2.x` accepts only `SuiJsonRpcClient | SuiGraphQLClient`, so the kiosk example in this skill instantiates a JSON-RPC client even though other examples use gRPC. Re-check on the next kiosk minor bump — once kiosk types `SuiGrpcClient`, the example can be migrated. Note: JSON-RPC is deprecated (permanent deactivation 2026-07-31; public endpoints shutting down July 2026), so this fallback has a limited shelf life.
 
 **Seamlessly integrate Move smart contracts with frontend applications.**
 

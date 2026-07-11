@@ -52,7 +52,7 @@ import { Transaction } from '@mysten/sui'; // wrong: no root export — import f
 
 ## 2. Client Setup
 
-The SDK provides three client types. **Use `SuiGrpcClient` for new code** — it is the recommended client with the best performance. The JSON-RPC API is deprecated (removal: April 2026).
+The SDK provides three client types. **Use `SuiGrpcClient` for new code** — it is the recommended client with the best performance. The JSON-RPC API is deprecated (permanent deactivation: 2026-07-31; public endpoints shutting down July 2026).
 
 ```typescript
 // Recommended — gRPC client (best performance, type-safe protobuf)

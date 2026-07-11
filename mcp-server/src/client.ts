@@ -28,6 +28,12 @@ const grpcClient = new SuiGrpcClient({
 
 // Fallback: JSON-RPC client for operations not yet supported by gRPC
 // (getTransaction, dryRun, transaction resolution, queryEvents)
+// NOTE: JSON-RPC is deprecated. Public endpoints are being shut down in July 2026
+// (Testnet: week of Jul 6; Mainnet: week of Jul 20), so the default public-endpoint
+// URLs below stop working then — before the protocol-level deactivation on 2026-07-31
+// (after which even self-hosted fullnodes stop serving JSON-RPC).
+// Migrate these fallback operations to gRPC/GraphQL RPC, or set SUI_RPC_URL to a
+// self-hosted fullnode as a stopgap until 2026-07-31.
 const jsonRpcClient = new SuiClient({
   url: process.env.SUI_RPC_URL || RPC_URLS[NETWORK],
 });

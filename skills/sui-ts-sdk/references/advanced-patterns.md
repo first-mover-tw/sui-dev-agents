@@ -18,7 +18,7 @@
 ## Legacy & Alternative Clients
 
 ```typescript
-// Legacy — JSON-RPC client (deprecated API, removal April 2026)
+// Legacy — JSON-RPC client (deprecated API; permanent deactivation 2026-07-31)
 import { SuiJsonRpcClient, getJsonRpcFullnodeUrl } from '@mysten/sui/jsonRpc';
 
 const client = new SuiJsonRpcClient({

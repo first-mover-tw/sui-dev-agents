@@ -11,7 +11,7 @@ SDK: `@mysten/sui` (not `@mysten/sui.js`), `Transaction` (not `TransactionBlock`
 - **Hooks:** `useCurrentClient()` (replaces `useSuiClient()`). `useSuiClientQuery`/`useSuiClientMutation` removed — use `useCurrentClient()` + react-query.
 - **Transactions:** `useDAppKit().signAndExecuteTransaction()` (async fn, not mutation hook). Result: `result.Transaction.digest` / `result.FailedTransaction` (discriminated union).
 - **Network:** `useCurrentNetwork()` + `dAppKit.switchNetwork()`.
-- **API:** gRPC (GA, primary), GraphQL (beta, frontend/indexer), JSON-RPC (**deprecated**, removed April 2026). Balance API split (coinBalance/addressBalance).
+- **API:** gRPC (GA, backend/low-latency/streaming default), GraphQL RPC (GA, frontend/indexer/complex queries), JSON-RPC (**deprecated** — permanent deactivation 2026-07-31, public endpoints shutting down July 2026). Balance API split (coinBalance/addressBalance).
 
 ## Skill Routing
 
