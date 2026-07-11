@@ -1,5 +1,4 @@
 import { SuiGrpcClient } from "@mysten/sui/grpc";
-import { SuiClient } from "@mysten/sui/client";
 import { decodeSuiPrivateKey } from "@mysten/sui/cryptography";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Secp256k1Keypair } from "@mysten/sui/keypairs/secp256k1";
@@ -13,39 +12,23 @@ export type SuiNetwork = "mainnet" | "testnet" | "devnet" | "localnet";
 
 const NETWORK = (process.env.SUI_NETWORK as SuiNetwork) || "testnet";
 
-const RPC_URLS: Record<SuiNetwork, string> = {
+// Same fullnode URLs serve gRPC. localnet gRPC support unverified — override via SUI_GRPC_URL.
+const GRPC_URLS: Record<SuiNetwork, string> = {
   mainnet: "https://fullnode.mainnet.sui.io:443",
   testnet: "https://fullnode.testnet.sui.io:443",
   devnet: "https://fullnode.devnet.sui.io:443",
   localnet: "http://127.0.0.1:9000",
 };
 
-// Primary: gRPC client (official future direction)
+// Only point SUI_GRPC_URL at nodes you trust — transaction resolution uses its object data.
 const grpcClient = new SuiGrpcClient({
   network: NETWORK,
-  baseUrl: process.env.SUI_GRPC_URL || RPC_URLS[NETWORK],
-} as any);
-
-// Fallback: JSON-RPC client for operations not yet supported by gRPC
-// (getTransaction, dryRun, transaction resolution, queryEvents)
-// NOTE: JSON-RPC is deprecated. Public endpoints are being shut down in July 2026
-// (Testnet: week of Jul 6; Mainnet: week of Jul 20), so the default public-endpoint
-// URLs below stop working then — before the protocol-level deactivation on 2026-07-31
-// (after which even self-hosted fullnodes stop serving JSON-RPC).
-// Migrate these fallback operations to gRPC/GraphQL RPC, or set SUI_RPC_URL to a
-// self-hosted fullnode as a stopgap until 2026-07-31.
-const jsonRpcClient = new SuiClient({
-  url: process.env.SUI_RPC_URL || RPC_URLS[NETWORK],
+  baseUrl: process.env.SUI_GRPC_URL || GRPC_URLS[NETWORK],
 });
 
-/** Primary gRPC client — use for most read queries */
+/** gRPC client — sole transport (JSON-RPC removed; deactivated upstream 2026-07-31) */
 export function getSuiClient(): SuiGrpcClient {
   return grpcClient;
-}
-
-/** JSON-RPC fallback — use for tx queries, dryRun, tx build, events */
-export function getJsonRpcClient(): SuiClient {
-  return jsonRpcClient;
 }
 
 export function getNetwork(): SuiNetwork {
