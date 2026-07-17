@@ -11,8 +11,57 @@ const SMOKE_PACKAGE_PATH = path.join(__dirname, 'fixtures', 'smoke-package');
 
 // Filled from `sui client active-address` (testnet wallet with owned objects).
 const TESTNET_ADDR = '0x1509b5fdf09296b2cf749a710e36da06f5693ccd5b2144ad643b3a895abcbc4c';
-// Filled from a real `previousTransaction` digest returned by sui_get_owned_objects (gRPC) for TESTNET_ADDR.
-const KNOWN_DIGEST = 'BKmfB9WkusChGppLTYXbRSjuBZpHZzW89XwEfaVgZLiL';
+
+// Testnet fullnodes prune old transactions (retention < 1 week observed), so a
+// hardcoded digest goes NOT_FOUND within days. Resolve a live digest at runtime
+// from the latest checkpoint instead.
+// The digest must also be a ProgrammableTransaction: sui_get_transaction requests
+// include.transaction, and the SDK parser rejects system txs ("Only programmable
+// transactions are supported") — so probe candidates the same way the tool reads them.
+async function fetchLiveDigest() {
+  const { SuiGrpcClient } = await import('@mysten/sui/grpc');
+  const c = new SuiGrpcClient({ network: 'testnet', baseUrl: 'https://fullnode.testnet.sui.io:443' });
+  let response;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      ({ response } = await c.ledgerService.getServiceInfo({}));
+      break;
+    } catch (e) {
+      if (attempt >= 3) throw e;
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }
+  if (response.checkpointHeight === undefined) {
+    throw new Error('smoke: getServiceInfo returned no checkpointHeight');
+  }
+  for (let seq = response.checkpointHeight, tries = 0; tries < 10; seq--, tries++) {
+    let cp;
+    try {
+      cp = await c.ledgerService.getCheckpoint({
+        checkpointId: { oneofKind: 'sequenceNumber', sequenceNumber: seq },
+        readMask: { paths: ['transactions'] },
+      });
+    } catch {
+      // load-balanced fullnodes: another replica may lag behind the height
+      // getServiceInfo reported — walk back and keep probing
+      continue;
+    }
+    for (const t of cp.response.checkpoint?.transactions ?? []) {
+      if (!t.digest) continue;
+      try {
+        await c.core.getTransaction({
+          digest: t.digest,
+          include: { transaction: true, effects: true, events: true, balanceChanges: true },
+        });
+        return t.digest;
+      } catch {
+        // system tx or parse failure — keep probing
+      }
+    }
+  }
+  throw new Error('smoke: no programmable transaction found within 10 checkpoint probe attempts');
+}
+const KNOWN_DIGEST = await fetchLiveDigest();
 
 const CASES = [
   // --- gRPC-backed (expected to work) ---

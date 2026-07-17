@@ -7,7 +7,7 @@ description: Use when writing TypeScript code interacting with SUI blockchain vi
 
 ## SDK Versions
 
-Targets: `@mysten/sui` 2.20.3 (^2.0). Tested: 2026-07-11.
+Targets: `@mysten/sui` 2.22.0 (^2.0). Tested: 2026-07-18.
 
 **Compatibility notes:** Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and event pub/sub (`subscribeEvent` has no v2 equivalent — use an indexer or the gRPC checkpoint stream). If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
 
@@ -52,7 +52,7 @@ import { Transaction } from '@mysten/sui'; // wrong: no root export — import f
 
 ## 2. Client Setup
 
-The SDK provides three client types. **Use `SuiGrpcClient` for new code** — it is the recommended client with the best performance. The JSON-RPC API is deprecated (permanent deactivation: 2026-07-31; public endpoints shutting down July 2026).
+The SDK provides three client types. **Use `SuiGrpcClient` for new code** — it is the recommended client with the best performance. The JSON-RPC API is deprecated (permanent deactivation: 2026-07-31; public endpoints shutting down July 2026). Since sui 2.20.4 every JSON-RPC client/transport API and JSON-RPC-specific type is marked `@deprecated` in the SDK — expect strikethrough in editors and deprecation lint warnings.
 
 ```typescript
 // Recommended — gRPC client (best performance, type-safe protobuf)
@@ -455,6 +455,8 @@ const result = await client.core.signAndExecuteTransaction({
 });
 ```
 
+On `SuiGrpcClient` (sui ≥2.22), transaction methods also accept `include: { protoJson: true }` — the result then carries a `protoJson` field with the raw protobuf-JSON gRPC response (works on `getTransaction`, `waitForTransaction`, `executeTransaction`, `signAndExecuteTransaction`, `simulateTransaction`).
+
 ### Waiting for indexing
 
 After execution, wait before follow-up queries:
@@ -502,6 +504,8 @@ const simResult = await client.core.simulateTransaction({ transaction: txBytes, 
 // Dynamic fields
 const fields = await client.core.listDynamicFields({ parentId: '0xParentObjId' });
 ```
+
+All core methods accept an `AbortSignal` via `options.signal`. Note: before sui 2.20.4 `SuiGrpcClient` accepted `signal` but never forwarded it (requests could not be cancelled); 2.20.4 fixes this, including MVR `resolveType`/`resolvePackage` resolution.
 
 ### gRPC service clients (lower-level)
 

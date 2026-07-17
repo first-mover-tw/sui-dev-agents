@@ -18,7 +18,8 @@
 ## Legacy & Alternative Clients
 
 ```typescript
-// Legacy — JSON-RPC client (deprecated API; permanent deactivation 2026-07-31)
+// Legacy — JSON-RPC client (deprecated API; permanent deactivation 2026-07-31;
+// since sui 2.20.4 all JSON-RPC APIs carry @deprecated markers in the SDK types)
 import { SuiJsonRpcClient, getJsonRpcFullnodeUrl } from '@mysten/sui/jsonRpc';
 
 const client = new SuiJsonRpcClient({
@@ -58,6 +59,10 @@ await client.ledgerService.getObject({ objectId: '0x...' });
 await client.movePackageService.getFunction({ packageId: '0x2', moduleName: 'coin', name: 'transfer' });
 await client.nameService.reverseLookupName({ address: '0x...' });
 ```
+
+To convert raw protobuf transaction responses into Core-API result shapes, sui ≥2.21 exports parsers from `@mysten/sui/grpc`: `parseGrpcTransactionResponse(executedTransaction, options?)` and `parseGrpcSimulateTransactionResponse(response, options?)`.
+
+Treat all pagination cursors as opaque — never persist assumptions about their format. The sui node v1.75.2 release notes state the internal cursor encoding of its server-side scanning RPCs (`list_transactions`, `list_events`, `list_checkpoints` — not exposed through the TS SDK service clients) changed; the stated recovery for any cursor error is to restart pagination from the beginning, and the same rule applies to SDK-level `list*` cursors.
 
 ---
 

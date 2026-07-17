@@ -9,7 +9,7 @@ description: Use when building NFT marketplaces, enforcing royalties, or managin
 
 ## SDK Versions
 
-Targets: `@mysten/kiosk` 1.3.5 (^1.2), `@mysten/sui` 2.20.3 (^2.16). Tested: 2026-07-11.
+Targets: `@mysten/kiosk` 1.3.8 (^1.2), `@mysten/sui` 2.22.0 (^2.16). Tested: 2026-07-18.
 
 **Compatibility notes:** `@mysten/kiosk@1.2.x` types `KioskCompatibleClient` as `SuiJsonRpcClient | SuiGraphQLClient` only — `SuiGrpcClient` is not accepted. Re-check on the next minor bump. JSON-RPC is deprecated (permanent deactivation 2026-07-31; public endpoints shutting down July 2026) — kiosk scenarios should preferentially verify the `SuiGraphQLClient` path.
 
