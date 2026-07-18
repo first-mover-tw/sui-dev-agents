@@ -63,8 +63,9 @@ Immediately below, an optional `**Compatibility notes:**` paragraph holds peer /
 5. **Re-run snippet type-check**: `bash scripts/ci/check-snippets.sh` — if new failures, fix the skill's code/prose first, do NOT bump the banner to hide them.
 6. **Update banner**: `Tested:` version + date in each affected skill. If breaking changes exist, update the `Compatibility notes:` prose.
 7. **Update matrix**: edit the corresponding rows in `references/sdk-compat-matrix.md` (Tested + Last verified).
-8. **Verify**: `node scripts/ci/check-compat-matrix.mjs` — must exit 0.
-9. Commit.
+8. **Update README header**: the alignment line at the top of `README.md` states CLI version / protocol / `@mysten/sui` minor — keep it in sync when those move (not CI-checked; this is the step that gets forgotten).
+9. **Verify**: `node scripts/ci/check-compat-matrix.mjs` — must exit 0.
+10. Commit.
 
 ## Adding a new SDK-using skill
 
