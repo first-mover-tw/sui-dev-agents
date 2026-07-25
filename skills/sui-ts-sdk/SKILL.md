@@ -390,6 +390,8 @@ tx.setGasPayment([{
 tx.setSender('0xSenderAddress');
 ```
 
+> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. On 2.22.0 (this skill's tested pin) no expiration is synthesized.
+
 ---
 
 ## 9. Transaction Intents — `coinWithBalance`

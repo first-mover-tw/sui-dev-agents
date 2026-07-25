@@ -82,6 +82,10 @@ tx.add(
 - **Problem:** Health check uses a stale price object; transaction reverts on `EPriceTooOld`.
 - **Fix:** Include `pythClient.updatePriceFeeds(...)` (or SDK equivalent) in the same Transaction as the margin op.
 
+❌ **Passing `amount = 0` to `repayBase`/`repayQuote` (≤1.5.8)**
+- **Problem:** a truthy guard treats `0` like "amount omitted" (`Option::None`), which the contract interprets as **repay the full debt** — the opposite of a no-op.
+- **Fix:** never pass `0` to mean "nothing to repay" — skip the call instead. Omit the amount (or pass `undefined`) when you *want* full repayment. Fixed in `@mysten/deepbook-v3` 1.5.9 (guard is now `amount !== undefined`, so `0` repays zero).
+
 ❌ **Assuming TPSL is your private executor**
 - **Problem:** Trigger fires when *anyone* sees the condition met; treating it like a private cron leads to surprises.
 - **Fix:** Design with permissionless execution in mind — pre-fund the TPSL leg's collateral, expect external keepers to fire.
