@@ -1,8 +1,8 @@
 # SUI gRPC API Reference
 
-> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.74+
-> **JSON-RPC:** Deprecated, Quorum Driver disabled, permanent deactivation 2026-07-31
-> **Service/method names verified against `@mysten/sui@2.22.0` shipped protos (`sui.rpc.v2`)**
+> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.76+; filtered `List*` / subscription APIs stable since Protocol 130
+> **JSON-RPC:** Shut off on public fullnodes (permanent deactivation landed 2026-07-31), Quorum Driver disabled
+> **Service/method names verified against `@mysten/sui@2.23.2` shipped protos (`sui.rpc.v2`) on 2026-08-06** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types
 > **Default port:** 8443 (TLS) or 8080 (plaintext)
 
 ## Overview
@@ -58,15 +58,17 @@ service StateService {
 **Replaces:** `suix_getOwnedObjects`, `suix_getCoins` (via `ListOwnedObjects` with a coin `type` filter), `suix_getBalance`, `suix_getAllBalances`, `suix_getDynamicFields`
 
 ### 4. SubscriptionService
-Real-time streaming of checkpoints — the **only** subscription the gRPC API ships.
+Real-time streaming. Checkpoint streaming has been joined by filtered transaction and event streams (stable since Protocol 130, shipped in `@mysten/sui` 2.23.x protos).
 
 ```protobuf
 service SubscriptionService {
   rpc SubscribeCheckpoints(SubscribeCheckpointsRequest) returns (stream SubscribeCheckpointsResponse);
+  rpc SubscribeTransactions(SubscribeTransactionsRequest) returns (stream SubscribeTransactionsResponse);
+  rpc SubscribeEvents(SubscribeEventsRequest) returns (stream SubscribeEventsResponse);
 }
 ```
 
-**Replaces:** WebSocket `suix_subscribeEvent` / `suix_subscribeTransaction` have **no direct equivalent** — derive events/transactions from the checkpoint stream (filter client-side), or use an indexer / GraphQL.
+**Replaces:** WebSocket `suix_subscribeEvent` / `suix_subscribeTransaction` — use `SubscribeEvents` / `SubscribeTransactions` (server-side filters via the new `filter` proto types), or derive from the checkpoint stream / an indexer on older nodes.
 
 ### 5. MovePackageService
 Query Move packages, modules, and ABIs.
@@ -126,7 +128,7 @@ grpcurl grpc.testnet.sui.io:443 sui.rpc.v2.LedgerService/GetServiceInfo
 # Get object (object reads are on LedgerService)
 grpcurl -d '{"object_id": "0x..."}' grpc.testnet.sui.io:443 sui.rpc.v2.LedgerService/GetObject
 
-# Subscribe to checkpoints (the only streaming RPC; filter events client-side)
+# Subscribe to checkpoints (see also SubscribeEvents / SubscribeTransactions, stable since P130)
 grpcurl -d '{}' grpc.testnet.sui.io:443 sui.rpc.v2.SubscriptionService/SubscribeCheckpoints
 ```
 
@@ -182,13 +184,13 @@ chain-id: 4btiuiMPvEENsttpZC7CZ53DruC3MAgfGZsMSMz6GRbi
 | `sui_getTransactionBlock` | `LedgerService.GetTransaction` |
 | `sui_getCheckpoint` | `LedgerService.GetCheckpoint` |
 | `sui_getNormalizedMoveModule` | `MovePackageService.GetPackage` (modules inside) |
-| `suix_subscribeEvent` (WS) | Removed — derive from `SubscriptionService.SubscribeCheckpoints` or use an indexer |
-| `suix_subscribeTransaction` (WS) | Removed — derive from `SubscriptionService.SubscribeCheckpoints` or use an indexer |
+| `suix_subscribeEvent` (WS) | `SubscriptionService.SubscribeEvents` (stable since P130) |
+| `suix_subscribeTransaction` (WS) | `SubscriptionService.SubscribeTransactions` (stable since P130) |
 | `suix_resolveNameServiceAddress` | `NameService.LookupName` |
 
 ### Key Differences
 
-1. **Checkpoint streaming replaces WebSocket:** per-event/per-tx WS subscriptions are gone. The gRPC API streams whole checkpoints (`SubscribeCheckpoints`); filter for your events client-side or use an indexer.
+1. **gRPC streams replace WebSocket:** WS subscriptions are gone. Use `SubscribeEvents` / `SubscribeTransactions` (filtered, stable since P130), or stream whole checkpoints (`SubscribeCheckpoints`) and filter client-side.
 2. **Binary encoding:** gRPC uses protobuf (smaller, faster) vs JSON-RPC's JSON encoding.
 3. **Multiplexing:** Multiple gRPC calls share one HTTP/2 connection.
 4. **Type safety:** Protobuf definitions provide strong typing.
@@ -200,7 +202,7 @@ If you use `@mysten/sui` SDK v2:
 - **Import changed:** `SuiGrpcClient` from `@mysten/sui/grpc` (not `SuiClient` from `@mysten/sui/client`)
 - **Methods under `.core`:** `client.core.getObject(...)` instead of `client.getObject(...)`
 - **`options` → `include`:** `include: { content: true }` instead of `options: { showContent: true }`
-- **`subscribeEvent` via WebSocket** is removed and **no SDK v2 method replaces it** — for live events use an indexer / GraphQL (the underlying gRPC API only streams checkpoints).
+- **`subscribeEvent` via WebSocket** is removed — for live events use the gRPC stream `client.subscriptionService.subscribeEvents(...)` (`@mysten/sui` ≥2.23, stable since P130), or an indexer / GraphQL.
 - **Custom RPC middleware** that intercepts JSON-RPC payloads will need updating.
 - **Direct `fetch()` calls** to JSON-RPC must be migrated.
 

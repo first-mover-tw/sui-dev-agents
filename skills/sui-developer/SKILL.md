@@ -93,9 +93,17 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI Protocol 127 Updates (shipped testnet v1.74.0; now v1.74.1 / P128 on both testnet and mainnet)
+## SUI Protocol Updates (now mainnet v1.76.1 / Protocol 130; testnet v1.77.1 / P131)
 
-**Key changes affecting Move development (as of June 2026):**
+**Key changes affecting Move development (as of August 2026):**
+
+### Protocol 130 (mainnet v1.76.1, live since 2026-07-29)
+
+- **`sui::scratch` (new module):** per-transaction ephemeral key-value store — write/read scratch data within a transaction with **no storage fee**. Access is gated through `std::internal::Permit<K>` (release notes omit this; verified against framework source). Useful for passing intermediate state without creating objects.
+- **gRPC filtered `List*` / subscription APIs are stable:** the filtered list and subscription endpoints graduated from experimental to stable — prefer them over polling.
+- **Chain identifier Hex format:** the CLI and `Move.toml` `[environments]` accept the chain id in both Base58 and Hex forms.
+- **Address balances — per-account net withdraws:** protocol-level accounting change for address-held balances.
+- Testnet is ahead on v1.77.1 / P131 (`framework_tx_context_mut_restrictions`, system-packages-only — no user-code impact); mainnet has **not** shipped 1.77.x.
 
 ### Protocol 127 (shipped testnet v1.74.0)
 
@@ -106,7 +114,7 @@ See [scripts/](scripts/) for implementation details.
 
 ### Platform & Runtime
 
-- **gRPC Data Access (GA):** gRPC is the primary data access method. JSON-RPC is deprecated (**permanent deactivation 2026-07-31**) — Quorum Driver for transaction submission is **fully disabled**. Use **Transaction Driver** exclusively. Migrate reads to gRPC/GraphQL before the cutoff. Note the **public JSON-RPC endpoints** shut down earlier and separately: **Testnet week of July 6, Mainnet week of July 20** (2026) — run your own full node's JSON-RPC past those dates if you can't migrate before the 2026-07-31 permanent deactivation.
+- **gRPC Data Access (GA):** gRPC is the primary data access method. **JSON-RPC is now shut off on public fullnodes** (permanent deactivation landed 2026-07-31; public endpoints return "Method not found … migrate to gRPC or GraphQL" — verified live 2026-08-06). Quorum Driver for transaction submission is **fully disabled**; use **Transaction Driver** exclusively. All reads against public infrastructure must go through gRPC or GraphQL (your own full node can still opt to serve JSON-RPC).
 - **Address Balances (Mainnet, P125):** Native address-held balances are live on mainnet for supported coin types. For those, PTBs can debit/credit address balances directly without manual `splitCoins`/`mergeCoins` coin-object juggling. This is an *additional* path — Move entry functions and SDK APIs that take `Coin<T>` still require coin objects, so don't drop coin handling wholesale.
 - **Gasless Stablecoin Transfers (Mainnet, P125, rolling out):** Accumulator + coin reservations enable sponsored stablecoin (USDC) transfers without the sender holding SUI for gas.
 - **Display V2 (Activated):** Display Registry (system object `0xd`) is live on all networks. JSON-RPC and GraphQL now prioritize Display V2 lookups over legacy Display v1. Use the `sui::display_registry` module (the legacy `sui::display` module is deprecated): `display_registry::new_with_publisher<T>(registry, &publisher, ctx)` or `display_registry::new<T>(registry, internal::permit<T>(), ctx)` → both return `(Display<T>, DisplayCap<T>)`; update with `display_registry::set(&mut d, &cap, name, value)` then `display_registry::share(d)`.
@@ -114,7 +122,7 @@ See [scripts/](scripts/) for implementation details.
 - **Adaptive Concurrency Control:** Indexing framework replaces fixed worker counts with automatic scaling. `Processor::FANOUT` is **removed** — use `ConcurrencyConfig` enum instead.
 - **Display Registry in APIs:** JSON-RPC (`showDisplay`) and GraphQL now prioritize Display Registry (V2) over legacy Display v1. New `MoveValue.asVector` for paginating vector data in GraphQL.
 - **SignatureScheme Union:** GraphQL introduces `SignatureScheme` union type for `UserSignature`, replacing flat fields.
-- **chainIdentifier Full Digest:** `chainIdentifier` now returns full Base58-encoded 32-byte digest (previously truncated).
+- **chainIdentifier Full Digest:** `chainIdentifier` now returns full Base58-encoded 32-byte digest (previously truncated). Since v1.76 the CLI and `Move.toml` `[environments]` also accept the Hex form.
 - **Metadata Hardening:** Sui System metadata validation tightened (`v1.68.0`).
 
 ### Move Runtime

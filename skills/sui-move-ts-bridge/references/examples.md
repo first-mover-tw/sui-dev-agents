@@ -194,7 +194,7 @@ export function useMarketplaceAPI() {
 
 ## Event Subscriptions
 
-> **Note**: `SuiGrpcClient` does **not** expose `subscribeEvent`. JSON-RPC pub/sub is removed in SDK v2. For live events, use an indexer service (custom or [sui-indexer-alt](https://github.com/MystenLabs/sui)) or poll `queryEvents` periodically. The snippet below is illustrative only.
+> **Note**: JSON-RPC pub/sub (`subscribeEvent`) is removed in SDK v2. For live events, use the gRPC stream `client.subscriptionService.subscribeEvents(...)` (`@mysten/sui` ≥2.23, stable since P130), an indexer service (custom or [sui-indexer-alt](https://github.com/MystenLabs/sui)), or periodic polling. The snippet below is illustrative only.
 
 ```typescript
 // @check:skip

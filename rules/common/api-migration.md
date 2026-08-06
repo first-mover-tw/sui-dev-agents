@@ -6,12 +6,12 @@ paths: "**/*.{ts,tsx,js,jsx}"
 
 ## JSON-RPC Deprecation
 
-**JSON-RPC is deprecated — public endpoints are being shut down in July 2026 (Testnet: week of Jul 6; Mainnet: week of Jul 20); permanent deactivation on July 31, 2026.**
+**JSON-RPC is shut off on public fullnodes (permanent deactivation landed 2026-07-31; public endpoints return "Method not found" — only your own full node can still serve JSON-RPC).**
 
 ### Rules
 
 1. **New projects MUST NOT use JSON-RPC directly.** Use gRPC or GraphQL instead.
-2. **Existing projects using JSON-RPC** should plan migration before July 31, 2026. Public JSON-RPC endpoints are being shut down in July 2026 (Testnet: week of Jul 6; Mainnet: week of Jul 20).
+2. **Existing projects still using JSON-RPC** are broken against public endpoints — migrate to gRPC/GraphQL now (or point at your own full node as a stopgap).
 3. **SDK users (`@mysten/sui`)** are largely unaffected — the SDK handles transport automatically.
 4. **Direct `fetch()` calls** to JSON-RPC endpoints must be migrated to gRPC or SDK methods.
 5. **WebSocket subscriptions** (`subscribeEvent`) are replaced by gRPC streaming.

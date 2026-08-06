@@ -4,7 +4,7 @@ Execute the **sui-developer** skill to generate Move smart contract code.
 
 ## Platform Version
 
-SUI Protocol 124 (testnet v1.72.2, mainnet v1.71.1, March 2026). Key: gRPC replaces JSON-RPC (deprecated — permanent deactivation 2026-07-31), `sui move test` uses Sui gas meter, address aliases on mainnet, TxContext flexible positioning, poseidon_bn254 on all networks, Balance API split, gas schedule rebalanced for dynamic fields.
+SUI Protocol 130 (mainnet v1.76.1, testnet v1.77.1, August 2026). Key: gRPC replaces JSON-RPC (shut off on public fullnodes since 2026-07-31), `sui move test` uses Sui gas meter, address aliases on mainnet, TxContext flexible positioning, poseidon_bn254 on all networks, Balance API split, gas schedule rebalanced for dynamic fields.
 
 ## Instructions
 

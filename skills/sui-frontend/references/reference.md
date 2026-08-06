@@ -32,7 +32,7 @@ All methods are under the `.core` namespace:
 | `client.getDynamicFields({ parentId })` | `client.core.listDynamicFields({ parentId })` |
 | `client.executeTransactionBlock(...)` | `client.core.executeTransaction(...)` |
 | `client.dryRunTransactionBlock(...)` | `client.core.simulateTransaction(...)` |
-| `client.subscribeEvent(...)` | Removed — no direct v2 equivalent. For live events use an indexer / GraphQL, or derive from the gRPC checkpoint stream (`SubscribeCheckpoints`) |
+| `client.subscribeEvent(...)` | Removed — use the gRPC stream `client.subscriptionService.subscribeEvents(...)` (≥2.23, stable since P130), an indexer / GraphQL, or the checkpoint stream (`SubscribeCheckpoints`) |
 | `client.waitForTransactionBlock(...)` | `client.core.waitForTransaction(...)` |
 | `options: { showContent, showOwner, showType }` | `include: { content, owner, type }` |
 
@@ -95,7 +95,7 @@ if ('Transaction' in result) {
 
 ## gRPC API (GA)
 
-> **JSON-RPC is deprecated** (permanent deactivation 2026-07-31; public endpoints shutting down July 2026). See [grpc-reference.md](grpc-reference.md) for full migration guide.
+> **JSON-RPC is shut off on public fullnodes** (permanent deactivation landed 2026-07-31). See [grpc-reference.md](grpc-reference.md) for full migration guide.
 
 gRPC is now the primary full node API with 7 services:
 - `TransactionExecutionService` — Execute/simulate transactions

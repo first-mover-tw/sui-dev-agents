@@ -20,10 +20,10 @@ sui client publish --dry-run --gas-budget 100000000
 sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 ```
 
-## SUI Protocol 127 Deployment Updates (shipped testnet v1.74.0; now v1.74.1 / P128 on both testnet and mainnet)
+## SUI Protocol Deployment Updates (now mainnet v1.76.1 / Protocol 130; testnet v1.77.1)
 
 **RPC Migration (CRITICAL):**
-- **JSON-RPC is deprecated** — permanent deactivation 2026-07-31. Quorum Driver fully disabled.
+- **JSON-RPC is shut off on public fullnodes** — permanent deactivation landed 2026-07-31. Quorum Driver fully disabled.
 - **gRPC is the primary API** — transaction submission exclusively via Transaction Driver.
 - `sui client` CLI already uses gRPC internally — no changes needed for CLI workflows.
 
@@ -35,7 +35,7 @@ sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 | Devnet  | `grpc.devnet.sui.io:443` |
 
 **Protocol 127 Notes (shipped testnet v1.74.0):**
-- **Timestamp-based epoch close (P127 mainnet behavior):** Mainnet switches to timestamp-based epoch close at P127 — no operator action required. (Live on both networks; mainnet now v1.74.1 / P128. First shipped testnet v1.74.0.)
+- **Timestamp-based epoch close (P127 mainnet behavior):** Mainnet switches to timestamp-based epoch close at P127 — no operator action required. (Live on both networks since P127/P128; mainnet now v1.76.1 / P130. First shipped testnet v1.74.0.)
 - **New Move VM (Testnet):** Active on testnet. Account for gas metering differences in cross-network testing.
 - **Offline Bytecode Dump:** `sui move build --dump --no-tree-shaking` works offline — enables air-gapped deployment pipelines.
 - **Compatibility verification** enabled by default (was opt-in).

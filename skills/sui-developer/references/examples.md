@@ -393,8 +393,9 @@ export function buy_from_listing(
 }
 
 // Event consumption
-// ⚠️ SDK v2 has NO subscribeEvent — WebSocket pub/sub was removed and the gRPC API
-// only streams checkpoints (SubscriptionService.SubscribeCheckpoints). For live
+// ⚠️ SDK v2 has NO subscribeEvent — WebSocket pub/sub was removed. The gRPC API streams
+// checkpoints, and since @mysten/sui 2.23 (stable P130) also filtered events/transactions
+// via client.subscriptionService.subscribeEvents/subscribeTransactions. For live
 // ListingCreated events, consume an indexer (e.g. sui-indexer-alt) or GraphQL and
 // filter on `${PACKAGE_ID}::listing::ListingCreated`. Same guidance in
 // sui-move-ts-bridge references/examples.md § Event Subscriptions.

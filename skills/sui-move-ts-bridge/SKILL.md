@@ -7,9 +7,9 @@ description: Use when bridging Move contracts to TypeScript — generating TS ty
 
 > **Scope:** This skill covers Move ↔ TypeScript bridging: type generation, event handling, ABI wrappers. For dApp UI setup and wallet integration, use the `sui-frontend` skill. For PTB construction and SDK client patterns, use the `sui-ts-sdk` skill.
 
-Targets: `@mysten/sui` 2.22.0 (^2.16), `@mysten/kiosk` 1.3.8 (^1.2). Tested: 2026-07-18.
+Targets: `@mysten/sui` 2.23.2 (^2.16), `@mysten/kiosk` 1.3.13 (^1.2). Tested: 2026-08-06.
 
-**Compatibility notes:** `@mysten/kiosk@1.2.x` accepts only `SuiJsonRpcClient | SuiGraphQLClient`, so the kiosk example in this skill instantiates a JSON-RPC client even though other examples use gRPC. Re-check on the next kiosk minor bump — once kiosk types `SuiGrpcClient`, the example can be migrated. Note: JSON-RPC is deprecated (permanent deactivation 2026-07-31; public endpoints shutting down July 2026), so this fallback has a limited shelf life.
+**Compatibility notes:** `@mysten/kiosk@1.2.x` accepts only `SuiJsonRpcClient | SuiGraphQLClient`, so the kiosk example in this skill instantiates a JSON-RPC client even though other examples use gRPC. Re-check on the next kiosk minor bump — once kiosk types `SuiGrpcClient`, the example can be migrated. Note: **public fullnode JSON-RPC is now shut off** (permanent deactivation landed 2026-07-31) — the JSON-RPC example below only works against your own full node; against public endpoints use the `SuiGraphQLClient` path instead. Upstream has an unreleased kiosk changeset adding `SuiGrpcClient` support; migrate the example when it ships.
 
 **Seamlessly integrate Move smart contracts with frontend applications.**
 
@@ -66,7 +66,7 @@ useNFTPurchasedEvents((event) => {
 | **Type Generation** | Auto-generate TS types from Move ABI |
 | **API Wrapper** | Type-safe transaction builders |
 | **React Hooks** | `useMarketplaceAPI()` for component integration |
-| **Event Subscriptions** | No direct v2 equivalent — indexer / GraphQL, or filter the gRPC checkpoint stream (WebSocket `subscribeEvent` removed) |
+| **Event Subscriptions** | WebSocket `subscribeEvent` removed — gRPC stream `client.subscriptionService.subscribeEvents` (≥2.23), indexer / GraphQL, or filter the checkpoint stream |
 | **Error Handling** | Map Move abort codes to user messages |
 
 ## Move Type to TypeScript Mapping
@@ -144,8 +144,8 @@ For the latest dApp Kit transaction-building patterns, use the **sui-docs-query*
 - **Fix:** Create error code mapping in `lib/errors.ts`
 
 ❌ **Expecting per-event subscriptions from the SDK**
-- **Problem:** `subscribeEvent` is removed in SDK v2 and gRPC has no per-event streaming — code waiting for a WS push never fires
-- **Fix:** Consume an indexer / GraphQL for real-time updates, or filter the gRPC checkpoint stream (`SubscribeCheckpoints`)
+- **Problem:** WebSocket `subscribeEvent` is removed in SDK v2 — code waiting for a WS push never fires
+- **Fix:** Use the gRPC stream `client.subscriptionService.subscribeEvents(...)` (≥2.23, stable since P130), consume an indexer / GraphQL, or filter the checkpoint stream (`SubscribeCheckpoints`)
 
 ❌ **Not testing integration locally**
 - **Problem:** Integration bugs discovered after deployment

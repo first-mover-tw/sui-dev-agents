@@ -7,9 +7,9 @@ description: Use when writing TypeScript code interacting with SUI blockchain vi
 
 ## SDK Versions
 
-Targets: `@mysten/sui` 2.22.0 (^2.0). Tested: 2026-07-18.
+Targets: `@mysten/sui` 2.23.2 (^2.0). Tested: 2026-08-06.
 
-**Compatibility notes:** Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and event pub/sub (`subscribeEvent` has no v2 equivalent — use an indexer or the gRPC checkpoint stream). If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
+**Compatibility notes:** Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and event pub/sub (WebSocket `subscribeEvent` is gone — use the gRPC streams `client.subscriptionService.subscribeEvents`/`subscribeCheckpoints` (≥2.23) or an indexer). If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
 
 ---
 
@@ -52,7 +52,7 @@ import { Transaction } from '@mysten/sui'; // wrong: no root export — import f
 
 ## 2. Client Setup
 
-The SDK provides three client types. **Use `SuiGrpcClient` for new code** — it is the recommended client with the best performance. The JSON-RPC API is deprecated (permanent deactivation: 2026-07-31; public endpoints shutting down July 2026). Since sui 2.20.4 every JSON-RPC client/transport API and JSON-RPC-specific type is marked `@deprecated` in the SDK — expect strikethrough in editors and deprecation lint warnings.
+The SDK provides three client types. **Use `SuiGrpcClient` for new code** — it is the recommended client with the best performance. The JSON-RPC API is dead on public fullnodes (permanent deactivation landed 2026-07-31). Since sui 2.20.4 every JSON-RPC client/transport API and JSON-RPC-specific type is marked `@deprecated` in the SDK — expect strikethrough in editors and deprecation lint warnings.
 
 ```typescript
 // Recommended — gRPC client (best performance, type-safe protobuf)
@@ -390,7 +390,7 @@ tx.setGasPayment([{
 tx.setSender('0xSenderAddress');
 ```
 
-> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. On 2.22.0 (this skill's tested pin) no expiration is synthesized.
+> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. This behavior is active on this skill's tested pin (2.23.2); only ≤2.22.0 synthesizes no expiration.
 
 ---
 
@@ -505,7 +505,16 @@ const simResult = await client.core.simulateTransaction({ transaction: txBytes, 
 
 // Dynamic fields
 const fields = await client.core.listDynamicFields({ parentId: '0xParentObjId' });
+
+// List transactions / events with filters (sui ≥2.23, verified vs 2.23.2 d.mts)
+const txs = await client.core.listTransactions({ /* ListTransactionsOptions */ });
+const events = await client.core.listEvents({ /* ListEventsOptions */ });
 ```
+
+**2.23.x notes** (verified vs 2.23.2 `.d.mts` unless marked changelog-only):
+- `core.listTransactions` / `core.listEvents` exist on all three client backends (gRPC / JSON-RPC types / GraphQL); gRPC also ships a streaming `SubscriptionService` (`subscribeCheckpoints` / `subscribeTransactions` / `subscribeEvents`).
+- `TransactionEffects.gasObject` is typed `ChangedObject | null` (2.23.2) — reader code must handle `null` (e.g. failed sponsor path). The raw gRPC proto layer instead marks it optional (`?:`), not `| null`.
+- `simulateTransaction` on a transaction with an explicit empty gas payment performs real backend gas selection (changelog-only; the options type has no `gasPayment` field — gas payment lives on the transaction itself).
 
 All core methods accept an `AbortSignal` via `options.signal`. Note: before sui 2.20.4 `SuiGrpcClient` accepted `signal` but never forwarded it (requests could not be cancelled); 2.20.4 fixes this, including MVR `resolveType`/`resolvePackage` resolution.
 

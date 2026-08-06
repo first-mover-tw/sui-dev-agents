@@ -65,14 +65,14 @@ Pick the data API by walking this decision tree in order; stop at the first matc
 | Owned NFTs | `client.core.listOwnedObjects({ owner, filter: { StructType } })` (paginated, type-indexed) |
 | A specific object | `client.core.getObject` |
 | Wallet history across time / marketplace listings / dashboard | GraphQL |
-| Live feed of new mints | Indexer / GraphQL (no per-event gRPC streaming — only checkpoints stream) |
+| Live feed of new mints | gRPC `subscriptionService.subscribeEvents` (≥2.23, stable since P130), or Indexer / GraphQL |
 | Send a tx then read its result | gRPC + `client.waitForTransaction({ digest })`, after checking `result.effects.status.status === 'success'` |
 
 **Anti-patterns:**
 
 - v1 `client.getCoins` / `getObject` / `getOwnedObjects` / `getBalance` → use the v2 `client.core.*` equivalents on `SuiGrpcClient`.
 - Don't poll `listOwnedObjects` at high frequency to detect changes — use the gRPC checkpoint subscription (`SubscribeCheckpoints`) or an indexer instead.
-- JSON-RPC is deprecated; full deactivation is targeted for **July 2026**.
+- JSON-RPC is shut off on public fullnodes (permanent deactivation landed **2026-07-31**).
 
 **TS client mapping:**
 

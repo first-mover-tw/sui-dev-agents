@@ -66,6 +66,14 @@ tx.add(
 
 **Health & liquidation:** read margin state with `dbClient.getMarginManagerState('MY_MM')` → returns assets, debts, and a health factor. Below 1.0 → liquidatable via `marginLiquidations`.
 
+## Margin v6 additions (@mysten/deepbook-v3 ≥ 1.6.0, verified vs 1.6.3 d.mts)
+
+- **Order + repay in one call** (`poolProxy`): `placeMarketOrderAndRepayLoan(params)`, `placeReduceOnlyLimitOrderAndRepayLoan(...)`, `placeReduceOnlyMarketOrderAndRepayLoan(...)` — close/reduce a position and repay the loan in a single PTB leg instead of composing order + `repayBase`/`repayQuote` manually.
+- **TPSL batch execution v3** (`marginTPSL`): `executeConditionalOrdersV3(managerAddress, poolKey, maxOrdersToExecute)`.
+- **Admin risk knob** (`marginAdmin`): `setMinOpenRiskRatio(poolKey, minOpenRiskRatio)`; readable via `marginRegistry.minOpenRiskRatio`.
+- Repay is split by initiator: `marginManager.repayBase/repayQuote` (manager-initiated) vs `marginLiquidations.liquidateBase/liquidateQuote` (liquidator-initiated) — don't conflate the two families.
+- **Testnet package IDs rotate across patch versions** (1.5.9→1.6.3 changed `DEEPBOOK_PACKAGE_ID`, the `MARGIN_*` group, `MARGIN_REGISTRY_ID`): don't hardcode — read `dist/utils/constants.mjs` of the pinned version.
+
 ## Margin pitfalls
 
 - Pyth price feeds have a max age (`PRICE_INFO_OBJECT_MAX_AGE_MS`). Stale feeds → reverted orders. Always refresh in the same PTB.

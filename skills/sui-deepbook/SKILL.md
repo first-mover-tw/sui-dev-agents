@@ -9,7 +9,7 @@ description: Use when integrating DeepBook V3 — SUI's native CLOB DEX, margin 
 
 ## SDK Versions
 
-Targets: `@mysten/deepbook-v3` 1.5.8 (^1.3), `@mysten/sui` 2.22.0 (^2.16). Tested: 2026-07-18.
+Targets: `@mysten/deepbook-v3` 1.6.3 (^1.3), `@mysten/sui` 2.23.2 (^2.16). Tested: 2026-08-06.
 
 **Compatibility notes:** Use `@mysten/deepbook-v3` (V3 — current). The legacy `@mysten/deepbook` / `clob_v2` packages are deprecated and **not** what you want.
 
@@ -57,7 +57,7 @@ V3 is a clean break from V2. If you've used V2 (`deepbook::clob_v2`, `AccountCap
 
 ### 1. Initialize the client
 
-**Client choice (read this — do not skip):** `@mysten/sui` v2 **removed** `SuiClient` and `getFullnodeUrl`. Use `SuiGrpcClient` from `@mysten/sui/grpc`. JSON-RPC is deprecated (permanent deactivation 2026-07-31; public endpoints shutting down July 2026). Any code you write using `new SuiClient(...)` or `getFullnodeUrl(...)` is wrong on the current SDK and will not type-check.
+**Client choice (read this — do not skip):** `@mysten/sui` v2 **removed** `SuiClient` and `getFullnodeUrl`. Use `SuiGrpcClient` from `@mysten/sui/grpc`. JSON-RPC is shut off on public fullnodes (permanent deactivation landed 2026-07-31). Any code you write using `new SuiClient(...)` or `getFullnodeUrl(...)` is wrong on the current SDK and will not type-check.
 
 ```typescript
 import { SuiGrpcClient } from '@mysten/sui/grpc';

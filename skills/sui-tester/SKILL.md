@@ -16,7 +16,7 @@ This skill provides comprehensive testing across all layers:
 - **Property-Based Tests** - Test invariants with random inputs
 - **Gas Benchmarks** - Measure and track gas consumption
 
-## SUI Protocol 127 Testing Updates (shipped testnet v1.74.0; now v1.74.1 / P128 on both testnet and mainnet)
+## SUI Protocol 127 Testing Updates (shipped testnet v1.74.0; now mainnet v1.76.1 / P130)
 
 **Key changes affecting testing (June 2026):**
 - **Move Linter (P128 / v1.74.1+):** `sui move lint` runs Move linters on the package. Lints also run in `sui move build`/`test` by default — `--no-lint` to skip, `--lint` for extra linters. Wire into CI alongside `sui move test`.
@@ -24,7 +24,7 @@ This skill provides comprehensive testing across all layers:
 - **Regex Test Filtering:** Test filtering uses regex. Use `sui move test --filter "regex_pattern"` for precise test selection.
 - **poseidon_bn254:** Available on all networks. Add tests for ZK-related functions using `sui::poseidon::poseidon_bn254`.
 - **TxContext Flexible Positioning:** `TxContext` can be in any argument position. Update integration tests if they assume last-position TxContext.
-- **gRPC Data Access:** Integration tests **must** use gRPC client — JSON-RPC Quorum Driver is disabled, permanent deactivation 2026-07-31.
+- **gRPC Data Access:** Integration tests **must** use gRPC client — JSON-RPC Quorum Driver is disabled and public-fullnode JSON-RPC is shut off (since 2026-07-31).
 - **`#[error]` Annotation:** Use `#[error]` on error constants for human-readable abort messages. Update `#[expected_failure]` tests to reference constant names, not hardcoded values.
 - **GraphQL Simulation:** `events` field removed from `simulateResult`. Access events via `effects.events()` in dry-run tests.
 - **Gas Re-benchmarking:** The New Move VM on testnet may produce different gas profiles compared to Protocol 118. If your tests assert specific gas values, re-run `sui move test --gas-limit` and update expected values.

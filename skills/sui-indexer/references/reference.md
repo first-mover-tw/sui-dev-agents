@@ -35,7 +35,7 @@
 
 
 > Framework: `sui-indexer-alt-framework` from MystenLabs/sui repository
-> Aligned with: Protocol 127 (shipped testnet v1.74.0; now v1.74.1 / P128 on both testnet and mainnet)
+> Aligned with: Protocol 127 (shipped testnet v1.74.0; now mainnet v1.76.1 / P130)
 
 ## Contents
 - [Type Definitions](#type-definitions)
