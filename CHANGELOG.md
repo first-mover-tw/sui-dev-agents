@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.14.1] - 2026-08-06
+
 ### Changed
 - Bumped all pinned @mysten/* SDKs to the sui 2.23.2 generation (npm skipped standalone 2.22.2/2.23.0 — their changelogs shipped inside 2.23.1). @mysten/sui 2.23.x adds `core.listTransactions`/`core.listEvents`, gRPC `SubscriptionService` streaming (`subscribeCheckpoints`/`subscribeTransactions`/`subscribeEvents`), full system-tx `TransactionKind` BCS parsing, real gas selection when simulating with empty gas payment, and (2.23.2) `TransactionEffects.gasObject` typed `ChangedObject | null`. @mysten/deepbook-v3 1.6.x syncs deepbook_margin v6 (`placeMarketOrderAndRepayLoan` family, `executeConditionalOrdersV3`, `setMinOpenRiskRatio`) and rotates testnet package IDs. Remaining packages lockstep; @mysten/messaging stays 0.3.0. All API claims verified against 2.23.2 / 1.6.3 `.d.mts`.
 - sui-developer skill: protocol section updated to mainnet v1.76.1 / Protocol 130 — new `sui::scratch` module (per-tx ephemeral KV, `std::internal::Permit<K>` gate, verified vs framework source), gRPC filtered `List*`/subscription APIs stable, chain-id Hex form, per-account net withdraws; JSON-RPC wording moved to past tense (public fullnodes verified shut off live on 2026-08-06).
