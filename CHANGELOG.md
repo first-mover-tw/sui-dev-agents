@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.14.2] - 2026-08-16
+
 ### Changed
 - Bumped all pinned @mysten/* SDKs to the sui 2.24.0 generation. @mysten/kiosk 1.4.0 widens `KioskCompatibleClient` to `ClientWithCoreApi` — `SuiGrpcClient` is now accepted (the `no-grpc` matrix flag is retired and the sui-move-ts-bridge kiosk example migrated to gRPC). @mysten/sui 2.24.0 adds `client.core.resolveNameServiceAddress({ name })` (flat `{ address: string | null }` response) across Core/gRPC/GraphQL clients; @mysten/seal 1.4.0 adds an optional `fetch` override to `SealClientOptions`. Remaining packages lockstep; @mysten/messaging stays 0.3.0. All API claims verified against installed 2.24.0-generation `.d.mts`.
 - Repo baseline realigned to mainnet v1.77.2 / Protocol 133 (mainnet jumped P130→P133 on 2026-08-13): version headers across skills, README, supreme-agent prompt and landing page; corrected the stale "mainnet has NOT shipped 1.77.x" note. New protocol/CLI notes: P131 `TxContext` mut restrictions (system packages only), `ForwardingAddressRegistry` + `ForwardingAddressRegistryCreate` end-of-epoch tx kind (devnet-gated), `sui client send-funds --stateless` removed in favour of `--from-address-balance`, `sui client verify-source` reworked (path-based, on-chain metadata, toolchain cache), git annotated-tag `rev` now pins the commit. CLI claims verified against installed sui 1.77.2.
