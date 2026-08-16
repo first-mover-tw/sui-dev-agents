@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.14.3] - 2026-08-16
+
+### Changed
+- sui-walrus Walrus Memory reference re-verified in full against `@mysten-incubation/memwal@0.1.2` (was 0.0.7; every claim checked against the published `.d.ts`/dist): pin bumped to 0.1.2, zod peer widened to `^3.23.0 || ^4.0.0` with `ai`/`zod`/`@mysten/walrus` now optional peers, Manual mode documents the dapp-kit-style `walletSigner` alternative, new `/ai` `withMemWal` middleware entry point, `restore()` truncation-reporting semantics (`truncated` flag, per-owner candidate cap, no pagination cursor), and a "New in 0.1.x" summary (`MemWalMock`, bulk/analyze wait helpers, default-client `recallManual`, `ScoringWeights`, remember `idempotencyKey`, `getPublicKeyHex`, `Uint8Array` keys). The 0.0.7-era trust-boundary claims (delegate key never transmitted, `x-seal-session`, dynamic `@mysten/seal`+`@mysten/sui` imports) remain true in 0.1.2 and are unchanged.
+
 ## [2.14.2] - 2026-08-16
 
 ### Changed
