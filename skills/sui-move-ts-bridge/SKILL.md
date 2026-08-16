@@ -7,9 +7,9 @@ description: Use when bridging Move contracts to TypeScript — generating TS ty
 
 > **Scope:** This skill covers Move ↔ TypeScript bridging: type generation, event handling, ABI wrappers. For dApp UI setup and wallet integration, use the `sui-frontend` skill. For PTB construction and SDK client patterns, use the `sui-ts-sdk` skill.
 
-Targets: `@mysten/sui` 2.23.2 (^2.16), `@mysten/kiosk` 1.3.13 (^1.2). Tested: 2026-08-06.
+Targets: `@mysten/sui` 2.24.0 (^2.16), `@mysten/kiosk` 1.4.0 (^1.2). Tested: 2026-08-16.
 
-**Compatibility notes:** `@mysten/kiosk@1.2.x` accepts only `SuiJsonRpcClient | SuiGraphQLClient`, so the kiosk example in this skill instantiates a JSON-RPC client even though other examples use gRPC. Re-check on the next kiosk minor bump — once kiosk types `SuiGrpcClient`, the example can be migrated. Note: **public fullnode JSON-RPC is now shut off** (permanent deactivation landed 2026-07-31) — the JSON-RPC example below only works against your own full node; against public endpoints use the `SuiGraphQLClient` path instead. Upstream has an unreleased kiosk changeset adding `SuiGrpcClient` support; migrate the example when it ships.
+**Compatibility notes:** As of `@mysten/kiosk@1.4.0`, `KioskCompatibleClient` is typed as `ClientWithCoreApi`, so the kiosk example below now uses `SuiGrpcClient` like the other examples in this skill. **Public fullnode JSON-RPC is shut off** (permanent deactivation landed 2026-07-31) — use `SuiGrpcClient` or `SuiGraphQLClient` (or your own full node's JSON-RPC).
 
 **Seamlessly integrate Move smart contracts with frontend applications.**
 
@@ -108,11 +108,13 @@ project/
 - Extend client capabilities with `$extend()` for ecosystem integration:
 
 ```typescript
-import { SuiJsonRpcClient, getJsonRpcFullnodeUrl } from '@mysten/sui/jsonRpc';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { kiosk } from '@mysten/kiosk';
 
-const client = new SuiJsonRpcClient({ url: getJsonRpcFullnodeUrl('mainnet'), network: 'mainnet' })
-  .$extend(kiosk());
+const client = new SuiGrpcClient({
+  network: 'mainnet',
+  baseUrl: 'https://fullnode.mainnet.sui.io:443',
+}).$extend(kiosk());
 ```
 
 ## References

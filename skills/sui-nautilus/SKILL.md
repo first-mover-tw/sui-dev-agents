@@ -123,6 +123,7 @@ Key `enclave::enclave` functions (all phantom-typed on `T`, the app OTW):
 | `register_enclave<T>(config, document, ctx)` | Verify the attestation `document` against `config` PCRs + AWS root, then share `Enclave<T>` holding the pubkey |
 | `verify_signature<T, P: drop>(enclave, intent_scope, timestamp_ms, payload, &sig): bool` | Rebuild the intent message and ed25519-verify against `enclave.pk` |
 | `update_name`, `pcr0/1/2`, `pk`, `destroy_old_enclave`, `deploy_old_enclave_by_owner` | Management/accessors |
+| `config_version<T>(enclave): u64` / `version<T>(config): u64` | Read the version an `Enclave<T>` was registered at vs the config's current version — detect enclaves left behind by a PCR rotation |
 | `#[test_only] new_enclave_for_testing<T>(pk: vector<u8>, ctx): Enclave<T>` | Build an `Enclave<T>` from a raw pubkey in Move unit tests — lets you test `verify_signature` against a fixed ed25519 keypair without attestation |
 
 Note `register_enclave` takes a **`NitroAttestationDocument`** (parsed from `/get_attestation`), not raw PCR bytes — PCRs live in `EnclaveConfig`, and the document is checked against them on-chain.
@@ -155,7 +156,7 @@ sh register_enclave.sh $ENCLAVE_PACKAGE_ID $APP_PACKAGE_ID $ENCLAVE_CONFIG_OBJEC
   $ENCLAVE_URL $MODULE_NAME $OTW_NAME    # -> ENCLAVE_OBJECT_ID
 ```
 
-`MODULE_NAME`/`OTW_NAME` are your Move module name and one-time-witness type (e.g. `weather` / `WEATHER`). One `EnclaveConfig<T>` can back multiple `Enclave<T>` instances (different keys, same PCRs); register new ones at the latest `config_version`.
+`MODULE_NAME`/`OTW_NAME` are your Move module name and one-time-witness type (e.g. `weather` / `WEATHER`). One `EnclaveConfig<T>` can back multiple `Enclave<T>` instances (different keys, same PCRs); register new ones at the latest `config_version` (compare `enclave.config_version()` against `config.version()` to spot stale ones).
 
 Shipping **prebuilt (glibc) binaries** (e.g. the official `sui` release build) inside the enclave: the stagex base image is musl, so copy the glibc runtime from the `stagex/user-glibc` stage, take `libstdc++`/`libgcc_s` from `core-cross-x86_64-gnu-gcc` (not `core-gcc`, whose copies are musl-targeted), and do **not** create a `/lib64` symlink — busybox already provides `lib64 -> usr/lib`, and a new link breaks the loader. `Makefile` exposes `CPU_COUNT`/`MEMORY` variables — the old hardcoded 512M is too small for large binaries (the enclave filesystem lives in RAM). Full recipe in the repo's `UsingNautilus.md`.
 

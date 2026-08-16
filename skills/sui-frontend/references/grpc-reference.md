@@ -1,8 +1,8 @@
 # SUI gRPC API Reference
 
-> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.76+; filtered `List*` / subscription APIs stable since Protocol 130
+> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.77+; filtered `List*` / subscription APIs stable since Protocol 130
 > **JSON-RPC:** Shut off on public fullnodes (permanent deactivation landed 2026-07-31), Quorum Driver disabled
-> **Service/method names verified against `@mysten/sui@2.23.2` shipped protos (`sui.rpc.v2`) on 2026-08-06** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types
+> **Service/method names verified against `@mysten/sui@2.24.0` shipped protos (`sui.rpc.v2`) on 2026-08-16** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types
 > **Default port:** 8443 (TLS) or 8080 (plaintext)
 
 ## Overview
@@ -105,6 +105,8 @@ service NameService {
 
 **Replaces:** `suix_resolveNameServiceAddress` (`LookupName`), `suix_resolveNameServiceNames` (`ReverseLookupName`)
 
+SDK layer: `@mysten/sui` ≥2.24.0 exposes `client.core.resolveNameServiceAddress(...)` as a transport-agnostic Core API method (gRPC/GraphQL/JSON-RPC clients all implement it), instead of hand-calling `NameService.LookupName` directly.
+
 ## Connection
 
 ### Endpoint URLs
@@ -186,7 +188,7 @@ chain-id: 4btiuiMPvEENsttpZC7CZ53DruC3MAgfGZsMSMz6GRbi
 | `sui_getNormalizedMoveModule` | `MovePackageService.GetPackage` (modules inside) |
 | `suix_subscribeEvent` (WS) | `SubscriptionService.SubscribeEvents` (stable since P130) |
 | `suix_subscribeTransaction` (WS) | `SubscriptionService.SubscribeTransactions` (stable since P130) |
-| `suix_resolveNameServiceAddress` | `NameService.LookupName` |
+| `suix_resolveNameServiceAddress` | `NameService.LookupName` (SDK: `client.core.resolveNameServiceAddress`, ≥2.24.0) |
 
 ### Key Differences
 

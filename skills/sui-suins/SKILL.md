@@ -9,9 +9,9 @@ description: Use when integrating SuiNS (SUI Name Service) — resolving .sui na
 
 ## SDK Versions
 
-Targets: `@mysten/suins` 1.2.13 (^1.1), `@mysten/sui` 2.23.2 (^2.16). Tested: 2026-08-06.
+Targets: `@mysten/suins` 1.2.14 (^1.1), `@mysten/sui` 2.24.0 (^2.16). Tested: 2026-08-16.
 
-**Compatibility notes:** `@mysten/sui` is a peer dependency. Use `SuinsClient.getNameRecord(name): Promise<NameRecord | null>` (NameRecord has `targetAddress`) — there is no `getAddress` / `getName`. Reverse lookup goes through `client.core.defaultNameServiceName({ address })`.
+**Compatibility notes:** `@mysten/sui` is a peer dependency. Use `SuinsClient.getNameRecord(name): Promise<NameRecord | null>` (NameRecord has `targetAddress`) — there is no `getAddress` / `getName`. Reverse lookup goes through `client.core.defaultNameServiceName({ address })`. As of `@mysten/sui` 2.24.0, forward name→address resolution also has a transport-agnostic Core API method, `client.core.resolveNameServiceAddress({ name })`, alongside the existing `SuinsClient.getNameRecord` and GraphQL paths.
 
 ## Overview
 
@@ -111,6 +111,13 @@ const suins = new SuinsClient({ client, network: 'mainnet' });
 async function resolveName(name: string): Promise<string | null> {
   const record = await suins.getNameRecord(name);
   return record?.targetAddress ?? null;
+}
+
+// Alternative (sui ≥2.24.0): transport-agnostic Core API resolution, no
+// SuinsClient needed — works the same on gRPC / GraphQL / JSON-RPC clients.
+async function resolveNameViaCore(name: string): Promise<string | null> {
+  const res = await client.core.resolveNameServiceAddress({ name });
+  return res.address; // flat { address: string | null } — unlike defaultNameServiceName's { data: { name } }
 }
 
 // Reverse lookup: address to default name (provided by SuiGrpcClient core)

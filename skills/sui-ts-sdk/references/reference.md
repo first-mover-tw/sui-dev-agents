@@ -16,6 +16,7 @@
 | `client.executeTransactionBlock()` | `client.core.executeTransaction()` |
 | `client.signAndExecuteTransactionBlock()` | `client.signAndExecuteTransaction()` |
 | `client.waitForTransactionBlock()` | `client.waitForTransaction()` |
+| `client.resolveNameServiceAddress()` | `client.core.resolveNameServiceAddress()` (sui ≥2.24.0; also on gRPC/GraphQL Core clients) |
 
 ## Import Path Changes
 

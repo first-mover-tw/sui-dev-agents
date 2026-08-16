@@ -16,7 +16,7 @@ This skill provides comprehensive testing across all layers:
 - **Property-Based Tests** - Test invariants with random inputs
 - **Gas Benchmarks** - Measure and track gas consumption
 
-## SUI Protocol 127 Testing Updates (shipped testnet v1.74.0; now mainnet v1.76.1 / P130)
+## SUI Protocol 127 Testing Updates (shipped testnet v1.74.0; now mainnet v1.77.2 / P133)
 
 **Key changes affecting testing (June 2026):**
 - **Move Linter (P128 / v1.74.1+):** `sui move lint` runs Move linters on the package. Lints also run in `sui move build`/`test` by default — `--no-lint` to skip, `--lint` for extra linters. Wire into CI alongside `sui move test`.

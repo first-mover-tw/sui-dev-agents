@@ -9,7 +9,7 @@ description: Use when storing or retrieving files using Walrus — SUI's decentr
 
 ## SDK Versions
 
-Targets: `@mysten/walrus` 1.2.13 (^1.1), `@mysten/sui` 2.23.2 (^2.16). Tested: 2026-08-06.
+Targets: `@mysten/walrus` 1.2.14 (^1.1), `@mysten/sui` 2.24.0 (^2.16). Tested: 2026-08-16.
 
 **Compatibility notes:** `@mysten/walrus@1.x` declares `@mysten/sui ^2.16.0` as a peer dependency. Do not install on top of a sui 1.x project — npm will pull a second sui copy and you will get dual-`SuiClient` type errors. The walrus JS SDK only works against `SuiGrpcClient` / `SuiJsonRpcClient` from sui 2.x. Run `npm ls @mysten/sui` first — if 1.x is present, decide before installing: upgrade the project to sui 2.x, or stay on legacy walrus tooling (CLI only).
 

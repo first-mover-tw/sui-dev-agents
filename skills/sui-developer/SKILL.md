@@ -93,7 +93,7 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI Protocol Updates (now mainnet v1.76.1 / Protocol 130; testnet v1.77.1 / P131)
+## SUI Protocol Updates (now mainnet v1.77.2 / Protocol 133; testnet v1.77.2 / P133)
 
 **Key changes affecting Move development (as of August 2026):**
 
@@ -103,7 +103,13 @@ See [scripts/](scripts/) for implementation details.
 - **gRPC filtered `List*` / subscription APIs are stable:** the filtered list and subscription endpoints graduated from experimental to stable — prefer them over polling.
 - **Chain identifier Hex format:** the CLI and `Move.toml` `[environments]` accept the chain id in both Base58 and Hex forms.
 - **Address balances — per-account net withdraws:** protocol-level accounting change for address-held balances.
-- Testnet is ahead on v1.77.1 / P131 (`framework_tx_context_mut_restrictions`, system-packages-only — no user-code impact); mainnet has **not** shipped 1.77.x.
+
+### Protocol 131-133 (mainnet v1.77.2, live since 2026-08-13)
+
+- **P131 `framework_tx_context_mut_restrictions`:** system-package functions that take `&mut TxContext` **and** return a mutable reference must now also take a non-`TxContext` `&mut` parameter, or publish is rejected. Scope is **system packages only** — user packages are unaffected. This limit is now live on mainnet as of P133 (mainnet jumped straight from P130 to P133; there was no mainnet-v1.77.0/1.77.1).
+- **P132/P133 protocol config bounds:** release notes describe bounds tuning ("added additional bounds while relaxing others") with no developer-facing API change documented.
+- **`ForwardingAddressRegistry` (`0x2::forwarding_address`, object ID `0xfa`):** new system object created at epoch change, paired with a new end-of-epoch system tx `ForwardingAddressRegistryCreate`. **Devnet-gated** — the creation flag is not enabled on mainnet, so the `0xfa` object does not exist there yet.
+- **Git dependency `rev` pinning:** for `Move.toml` git dependencies that reference an annotated tag, `rev` now pins to the underlying commit rather than the tag object — affects reproducibility of builds that pin via annotated tags.
 
 ### Protocol 127 (shipped testnet v1.74.0)
 

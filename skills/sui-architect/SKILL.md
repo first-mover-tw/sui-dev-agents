@@ -26,11 +26,12 @@ sui-architect
 sui-full-stack  # → Phase 1: Architecture
 ```
 
-## SUI Protocol 127 Architecture Considerations (shipped testnet v1.74.0; now mainnet v1.76.1 / P130)
+## SUI Protocol 127 Architecture Considerations (shipped testnet v1.74.0; now mainnet v1.77.2 / P133)
 
 When designing architectures, account for these recent platform changes:
 
-- **Protocol Version 127** (shipped testnet v1.74.0; mainnet now v1.76.1 / P130) — enables `always_advance_dkg_to_resolution` (fixes P126), Ristretto255 group ops + Bulletproofs on testnet, timestamp-based epoch close on mainnet, gRPC `SimulateTransaction` accepts `gas_price=0` (gasless tier).
+- **Protocol Version 127** (shipped testnet v1.74.0; mainnet now v1.77.2 / P133) — enables `always_advance_dkg_to_resolution` (fixes P126), Ristretto255 group ops + Bulletproofs on testnet, timestamp-based epoch close on mainnet, gRPC `SimulateTransaction` accepts `gas_price=0` (gasless tier).
+- **Protocol Versions 131-133** (mainnet v1.77.2, live since 2026-08-13) — P131 `framework_tx_context_mut_restrictions` restricts system-package functions only (user packages unaffected); new `ForwardingAddressRegistry` system object (`0x2::forwarding_address`, ID `0xfa`) is **devnet-gated**, not yet on mainnet. Move-authoring depth → see sui-developer's Protocol Updates section.
 - **Data Access:** gRPC (GA, backend/low-latency/streaming default), GraphQL RPC (GA, frontend/indexer/complex queries), JSON-RPC (**shut off on public fullnodes** since 2026-07-31, Quorum Driver disabled)
 - **Address Balances (Mainnet, P125):** Native address-held balances for supported coin types — PTBs can debit/credit them directly without manual coin select/split/merge. Additive, not a replacement: flows that take `Coin<T>` still need coin objects.
 - **Gasless Stablecoin Transfers (Mainnet, P125, rolling out):** Accumulator + coin reservations let users move USDC etc. without holding SUI for gas.
