@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.15.0] - 2026-08-29
+
 ### Changed
 - Bumped all pinned @mysten/* SDKs to the sui 2.27.1 generation (every sibling now peers `@mysten/sui ^2.27.1`, deepbook-v3 peers `^2.26.2`; compat-matrix accepted ranges for `@mysten/sui` in peer rows raised accordingly; @mysten/messaging stays 0.3.0). @mysten/sui 2.25.0 lifts `getCurrentSystemState` / `getProtocolConfig` / `getChainIdentifier` / `getDynamicObjectField` to the top-level gRPC/GraphQL clients and `getReferenceGasPrice()` takes an optional options object; 2.26.x exports `ObjectError` / `TransactionError` / `SuiClientError` with a transport-neutral `reason`; 2.27.0 adds `checkpoint` / `timestampMs` to the Core `Transaction` type. All claims verified against the published `.d.mts`.
 - **@mysten/deepbook-v3 2.0.1 (breaking)**: margin/liquidation now targets Pyth's upgraded Core via Hermes v2 and **throws `ConfigurationError` without `pythAccessToken`**; `pyth` config becomes `PythConfig { hermesEndpoint?, accessToken? }`; mainnet `MARGIN_PACKAGE_ID` / `LIQUIDATION_PACKAGE_ID` changed. Spot / BalanceManager untouched. Documented in sui-deepbook SKILL + margin reference; compat-matrix range `^2.0`, new `pyth-token` tag.
