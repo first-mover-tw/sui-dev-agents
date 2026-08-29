@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Bumped all pinned @mysten/* SDKs to the sui 2.27.1 generation (every sibling now peers `@mysten/sui ^2.27.1`, deepbook-v3 peers `^2.26.2`; compat-matrix accepted ranges for `@mysten/sui` in peer rows raised accordingly; @mysten/messaging stays 0.3.0). @mysten/sui 2.25.0 lifts `getCurrentSystemState` / `getProtocolConfig` / `getChainIdentifier` / `getDynamicObjectField` to the top-level gRPC/GraphQL clients and `getReferenceGasPrice()` takes an optional options object; 2.26.x exports `ObjectError` / `TransactionError` / `SuiClientError` with a transport-neutral `reason`; 2.27.0 adds `checkpoint` / `timestampMs` to the Core `Transaction` type. All claims verified against the published `.d.mts`.
+- **@mysten/deepbook-v3 2.0.1 (breaking)**: margin/liquidation now targets Pyth's upgraded Core via Hermes v2 and **throws `ConfigurationError` without `pythAccessToken`**; `pyth` config becomes `PythConfig { hermesEndpoint?, accessToken? }`; mainnet `MARGIN_PACKAGE_ID` / `LIQUIDATION_PACKAGE_ID` changed. Spot / BalanceManager untouched. Documented in sui-deepbook SKILL + margin reference; compat-matrix range `^2.0`, new `pyth-token` tag.
+- **@mysten/suins 2.0.2 (breaking)**: non-USDC register/renew requires `pythAccessToken` (`getPriceInfoObject` throws otherwise); `Config.payments.packageIdV1` is a new required field. Documented in sui-suins SKILL; compat-matrix range `^2.0`.
+- Repo baseline realigned to mainnet v1.78.1 / Protocol 135 (P134 = `defer_unpaid_amplification`; P135 live on mainnet since 2026-08-29): version headers across skills, README, agent prompts and landing page. New notes: `sui::package::original_package_id(&UpgradeCap): ID` (native, P135; sui-deployer + `/upgrade` command), Move compiler warning on constant expressions that always error at runtime (#27647), P133 accumulator bound made concrete (16 type nodes, `EAccumulatorTypeTooLarge = 4`). No gRPC/GraphQL shape or CLI flag changes through v1.78.1.
+- `sui::test_utils::{destroy, assert_eq, print}` are `#[deprecated]` (since ~v1.72; attribute present in every mainnet tag from v1.72.5 on) — rules, checklist and references now use `std::unit_test::destroy` / `std::unit_test::assert_eq!` and note `std::debug::print` as the `print` replacement (verified against `test_utils.move` / `unit_test.move` at mainnet-v1.78.1).
+- sui-walrus Walrus Memory reference re-verified against `@mysten-incubation/memwal@0.1.5`: **`rememberManual` now takes `encryptedData` (was `blobId`)**, default relayer URL is `https://relayer.memory.walrus.xyz`, keys accept `suiprivkey1...` bech32, recall token budget (`maxTokens` / `truncationStrategy` / `countTokens` / `meta`), `dropped_count`, `health.write_ready`.
+
 ## [2.14.3] - 2026-08-16
 
 ### Changed

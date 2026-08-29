@@ -20,7 +20,7 @@ paths: "**/tests/**/*.move"
 module project::nft_tests;
 
 use sui::test_scenario::{Self, Scenario};
-use sui::test_utils;
+use std::unit_test::{Self, assert_eq};
 use project::nft::{Self, NFT, AdminCap};
 
 const ADMIN: address = @0xAD;
@@ -45,7 +45,7 @@ Don't reach for `test_scenario` when `tx_context::dummy()` suffices:
 fun create_object() {
     let mut ctx = tx_context::dummy();
     let obj = nft::create(&mut ctx);
-    sui::test_utils::destroy(obj);
+    std::unit_test::destroy(obj);
 }
 ```
 
@@ -98,7 +98,7 @@ assert!(nft.name() == b"Test NFT".to_string(), 0);
 
 ## Cleanup
 
-Use `sui::test_utils::destroy(obj)` for cleanup — don't write custom `destroy_for_testing` functions.
+Use `std::unit_test::destroy(obj)` for cleanup — don't write custom `destroy_for_testing` functions. (`sui::test_utils::destroy` / `assert_eq` / `print` are `#[deprecated]` (attribute present in every mainnet tag from v1.72.5 on) — `destroy` forwards to `std::unit_test::destroy` and `print` to `std::debug::print`; `assert_eq` is its own wrapper that prints then `abort(0)`, unlike `std::unit_test::assert_eq!` which fails via `assert!` — so migrating it can change the abort code seen by `#[expected_failure]`. Import the `std` versions directly.)
 
 ## Error Testing
 
@@ -217,4 +217,4 @@ sui move test --coverage
 - [ ] Edge cases covered (zero amounts, max values, empty strings)
 - [ ] Gas costs documented for expensive operations
 - [ ] Time/epoch-dependent logic tested with mocks
-- [ ] Cleanup uses `test_utils::destroy()`, not custom functions
+- [ ] Cleanup uses `std::unit_test::destroy()`, not custom functions (not the deprecated `sui::test_utils::destroy`)

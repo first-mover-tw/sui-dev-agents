@@ -11,7 +11,7 @@
       "id": 2,
       "name": "leveraged-long-margin",
       "prompt": "Show me how to open a 3x leveraged long on SUI/USDC using DeepBook margin trading. I need TS code that creates a MarginManager, deposits USDC collateral, borrows, places the margin limit order via PoolProxy, and refreshes Pyth price feeds in the same PTB. Also explain liquidation health.",
-      "expected_output": "TS code using MarginManagerContract + PoolProxyContract + Pyth refresh; mentions health factor, Pyth max age, permissionless liquidation."
+      "expected_output": "TS code using MarginManagerContract + PoolProxyContract + Pyth refresh; mentions health factor, Pyth max age, permissionless liquidation, and the `pythAccessToken` requirement (deepbook-v3 2.0)."
     },
     {
       "id": 3,

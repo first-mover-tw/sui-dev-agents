@@ -155,9 +155,9 @@ Option macros: `do!`, `destroy_or!`
 - Merge attributes: `#[test, expected_failure(abort_code = EMyError)]`
 - Don't clean up in `expected_failure` tests — let them abort naturally
 - Use `tx_context::dummy()` for simple tests; only use `test_scenario` for multi-tx/multi-sender
-- Prefer `assert_eq!` over `assert!` for value comparisons (shows both sides on failure)
+- Prefer `std::unit_test::assert_eq!` over `assert!` for value comparisons (shows both sides on failure)
 - Never pass abort codes to `assert!` — conflicts with app error codes
-- Destroy objects with `sui::test_utils::destroy(obj)` — never write custom `destroy_for_testing`
+- Destroy objects with `std::unit_test::destroy(obj)` — never write custom `destroy_for_testing` (`sui::test_utils::destroy` is deprecated)
 
 ## OTW Pattern (One-Time Witness)
 

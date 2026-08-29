@@ -201,7 +201,7 @@ public fun call_app(
 - Use `tx_context::dummy()` for simple tests, not full TestScenario
 - `assert!(is_success);` without abort codes (may conflict with app error codes)
 - `assert_eq!(result, expected_value);` — shows both values on failure
-- `use sui::test_utils::destroy;` — don't write custom destroy_for_testing()
+- `use std::unit_test::destroy;` — don't write custom destroy_for_testing() (`sui::test_utils::destroy` is deprecated)
 
 ---
 

@@ -1,13 +1,13 @@
 # Walrus Memory (MemWal) — portable agent memory
 
-**Beta.** `@mysten-incubation/memwal@0.1.2` (peer deps are ranges, not pins). The relayer ships a
+**Beta.** `@mysten-incubation/memwal@0.1.5` (peer deps are ranges, not pins). The relayer ships a
 runtime compatibility contract (`MEMWAL_TYPESCRIPT_COMPATIBILITY_VERSION`) — expect the API to churn
 while it is incubation-scoped. Deep/authoritative API: <https://memory.walrus.xyz>,
 <https://docs.wal.app/llms.txt>, and `MystenLabs/MemWal` `SKILL.md`.
 
 > **Note:** these examples are NOT type-checked by this repo's snippet gate (the package is not installed
 > in the CI snippet env, so the fences are `// @check:skip`). Symbols below were verified by hand against
-> the published `0.1.2` `.d.ts`. Re-verify against the then-current `.d.ts` before relying on them.
+> the published `0.1.5` `.d.ts`. Re-verify against the then-current `.d.ts` before relying on them.
 
 ## What it is — and when to reach for it
 
@@ -41,9 +41,10 @@ imports `@mysten/seal` + `@mysten/sui` at runtime**, so both must be installed e
 `.` entry has no static import of them. In **Manual mode** (`MemWalManual`)
 no delegate-key SEAL session is sent: the client embeds and SEAL-encrypts locally with its own
 `suiPrivateKey`, then ships `{ encrypted_data, vector }` to the relayer, which relays the Walrus upload.
-(A still-lower-level variant exists on the default client — `MemWal.rememberManual({ blobId, vector })` —
-where *you* upload the encrypted blob to Walrus yourself and the server only stores the `blobId ↔ vector`
-mapping.)
+(A still-lower-level variant exists on the default client — `MemWal.rememberManual({ encryptedData, vector, namespace? })` —
+where *you* SEAL-encrypt and embed, pass the ciphertext as base64 `encryptedData`, and the **relayer uploads
+it to Walrus** and stores the `blobId ↔ vector` mapping. **Breaking in 0.1.5:** the option was `blobId` (you
+uploaded first) in ≤0.1.4.)
 
 ## Quickstart (Relayer mode)
 
@@ -52,9 +53,9 @@ mapping.)
 import { MemWal } from "@mysten-incubation/memwal";
 
 const memwal = MemWal.create({
-  key: process.env.MEMWAL_PRIVATE_KEY!, // Ed25519 delegate private key (hex)
+  key: process.env.MEMWAL_PRIVATE_KEY!, // Ed25519 delegate key: hex (0x optional), suiprivkey1... bech32, or Uint8Array
   accountId: process.env.MEMWAL_ACCOUNT_ID!, // Walrus Memory account object ID
-  // serverUrl defaults to https://relayer.memwal.ai/ — usually omit it
+  // serverUrl defaults to https://relayer.memory.walrus.xyz — usually omit it
   namespace: "demo",
 });
 
@@ -75,11 +76,21 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
 - **`remember` returns a job, not a memory.** It resolves with `{ job_id }` (202 Accepted). Await
   `waitForRememberJob(job_id)` for the terminal state, or use `rememberAndWait(text)`. Drive your own
   polling/UI with `getRememberStatus(jobId)` (`pending|running|uploaded|done|failed|not_found`).
-- **Use the object form of `recall`.** `recall({ query, limit?, namespace?, maxDistance?, topK? })`.
+- **Use the object form of `recall`.** `recall({ query, limit?, namespace?, maxDistance?, topK?, maxTokens?, truncationStrategy?, countTokens? })`.
   The positional `recall(query, limit, namespace)` is `@deprecated` (easy to misread as
   `recall(query, namespace)`). `topK` and `limit` are aliases; `topK` wins if both are set.
-- **`serverUrl` is built-in.** Default `https://relayer.memwal.ai/` — only set it for a self-hosted
-  relayer. (The GitHub repo README's `your-relayer-url.com` is a placeholder, not a required value.)
+- **Token budget on `recall` (≥0.1.3).** Pass `maxTokens` and the SDK trims hits client-side per
+  `truncationStrategy` (`"high-relevance-only"` default — drop lowest-relevance hits whole;
+  `"drop-tail"` — cut the end of the concatenated payload; `"per-hit-cap"` — each hit gets
+  `floor(maxTokens / n)`). Counting is a `CHARS_PER_TOKEN` estimate unless you supply
+  `countTokens: (text) => number`. When `maxTokens` was set the result carries
+  `meta: { tokenEstimate, truncated }` (assert `meta.tokenEstimate <= maxTokens`). `memwal.countTokens(text)`
+  exposes the same estimator; `estimateTokens` / `truncateToTokenBudget` / `applyTokenBudget` are exported
+  pure helpers.
+- **`RecallResult.dropped_count?` (≥0.1.5):** number of hits the relayer skipped because the blob could not
+  be downloaded/decrypted — non-zero means the answer is silently incomplete.
+- **`serverUrl` is built-in.** Default `https://relayer.memory.walrus.xyz` (changed from
+  `relayer.memwal.ai` in 0.1.3) — only set it for a self-hosted relayer. (The GitHub repo README's `your-relayer-url.com` is a placeholder, not a required value.)
 - **Peer deps are version ranges:** `@mysten/sui >=2.5.0`, `@mysten/seal >=1.1.0`,
   `@mysten/walrus >=1.0.3`, `ai >=4.0.0`, `zod ^3.23.0 || ^4.0.0`. `ai`/`zod` (only needed by the
   `/ai` middleware) and `@mysten/walrus` (only needed by Manual mode) are marked *optional* peers
@@ -97,7 +108,8 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   `occurredAt?: string | Date` is sent as `occurred_at` via `Date.toISOString()`, omitted when
   absent, and throws on an invalid Date; the server resolves relative dates like "yesterday"),
   `restore(namespace, limit?=10)` (rebuild the local vector index from Walrus),
-  `embed(text)`, `health()`, `compatibility()`.
+  `embed(text)`, `health()` (`HealthResult.write_ready?: boolean` since 0.1.5 — `false` = relayer not
+  accepting writes, absent = not reported), `compatibility()`.
 - **`restore()` truncation is reported, not silent (≥0.1.x).** `RestoreResult` now carries
   `truncated: boolean` — `true` when the restore is known-incomplete, either because more missing
   blobs existed than `limit` allowed, or because the server's per-owner candidate-fetch cap (shared
@@ -106,7 +118,7 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   cap hit cannot be worked around by retrying. Decrypt/embed failures are still dropped silently
   (counted as neither `restored` nor `skipped`). Older relayers omit the field; the SDK defaults it
   to `false`.
-- **New in 0.1.x (verified vs `0.1.2` `.d.ts`):** `MemWalMock` (deterministic, dependency-free
+- **New in 0.1.x (verified vs `0.1.5` `.d.ts`):** `MemWalMock` (deterministic, dependency-free
   in-memory stand-in for the core API — never opens a socket or touches keys; token-overlap distance;
   plus test-only `forget(blobId)` / `clear(namespace?)`); `withMemWal(model, options)` AI SDK
   middleware via `@mysten-incubation/memwal/ai` (auto-recalls memories into the prompt before each
@@ -116,4 +128,6 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   `distance`, no decryption); optional `ScoringWeights` (semantic / recency / importance composite
   ranking); a per-request `idempotencyKey` on `remember` / `rememberAsync` / `rememberAndWait`
   (transport-timeout retries collapse onto the original paid job — not on the bulk calls);
-  `getPublicKeyHex()`; and `MemWalConfig.key` now also accepts `Uint8Array`.
+  `getPublicKeyHex()`; and `MemWalConfig.key` now also accepts `Uint8Array` and a `suiprivkey1...`
+  bech32 string (0.1.4; decoding is internal — `decodeSuiPrivateKey` / `normalizePrivateKey` are not part of the package `exports`). Relayer
+  clock-drift 401s surface as a readable `ERR_TIMESTAMP_OUT_OF_BOUNDS` error (mapped internally; no public helper).

@@ -93,7 +93,7 @@ sui move test
 
 See [scripts/](scripts/) for implementation details.
 
-## SUI Protocol Updates (now mainnet v1.77.2 / Protocol 133; testnet v1.77.2 / P133)
+## SUI Protocol Updates (now mainnet v1.78.1 / Protocol 135; testnet v1.78.1 / P135)
 
 **Key changes affecting Move development (as of August 2026):**
 
@@ -104,10 +104,17 @@ See [scripts/](scripts/) for implementation details.
 - **Chain identifier Hex format:** the CLI and `Move.toml` `[environments]` accept the chain id in both Base58 and Hex forms.
 - **Address balances — per-account net withdraws:** protocol-level accounting change for address-held balances.
 
+### Protocol 134-135 (mainnet v1.78.1, live since 2026-08-29)
+
+- **P134/P135 `defer_unpaid_amplification` disabled:** mainnet's P134 (v1.77.3) only turned this flag off; P135 (v1.78.1) turns it off on every chain and applies the rest of the v134 set (below) to mainnet. No Move-level API change.
+- **`sui::package::original_package_id(cap: &UpgradeCap): ID` (new, P135 on mainnet):** returns the first-version ID of the package the cap governs, via a native `original_package_id_impl`. Aborts with `EUpgradeInProgress` if an upgrade ticket is outstanding (`cap.package == @0x0`) or `EInvalidPackageVersion` if `cap.version == 0` or the on-chain package is not at `cap.version`. Gas: base 52 + per-byte object-read cost. Use it instead of hand-maintaining "original package id" in deployment records; deployment flow → see sui-deployer.
+- **Consensus block limits (P135 all chains, P134 non-mainnet):** `consensus_max_transactions_in_block_bytes` = 288 KiB, `consensus_max_num_transactions_in_block` = 128 — throughput tuning, no developer action.
+- **Move compiler (v1.78):** new warning for constant expressions that always error at runtime (e.g. `0 - 1u64`, via constant folding); cast optimization bug fixed (#27604). Warnings only — existing code still builds.
+
 ### Protocol 131-133 (mainnet v1.77.2, live since 2026-08-13)
 
 - **P131 `framework_tx_context_mut_restrictions`:** system-package functions that take `&mut TxContext` **and** return a mutable reference must now also take a non-`TxContext` `&mut` parameter, or publish is rejected. Scope is **system packages only** — user packages are unaffected. This limit is now live on mainnet as of P133 (mainnet jumped straight from P130 to P133; there was no mainnet-v1.77.0/1.77.1).
-- **P132/P133 protocol config bounds:** release notes describe bounds tuning ("added additional bounds while relaxing others") with no developer-facing API change documented.
+- **P132/P133 protocol config bounds:** release notes describe bounds tuning ("added additional bounds while relaxing others"); P133 concretely sets `include_function_signatures_in_instantiation_limits = true` and `max_accumulator_type_nodes = 16` (accumulator-type DoS guard — the framework's `funds_accumulator` aborts with `EAccumulatorTypeTooLarge = 4` on oversized types). No developer-facing API change.
 - **`ForwardingAddressRegistry` (`0x2::forwarding_address`, object ID `0xfa`):** new system object created at epoch change, paired with a new end-of-epoch system tx `ForwardingAddressRegistryCreate`. **Devnet-gated** — the creation flag is not enabled on mainnet, so the `0xfa` object does not exist there yet.
 - **Git dependency `rev` pinning:** for `Move.toml` git dependencies that reference an annotated tag, `rev` now pins to the underlying commit rather than the tag object — affects reproducibility of builds that pin via annotated tags.
 
@@ -166,7 +173,7 @@ See [scripts/](scripts/) for implementation details.
 - **Internal Permit:** `std::internal::Permit<T>`/`permit<T>()` — a compiler/network-enforced token only the module defining `T` can produce, used to gate generic functions to callers authorized by that module.
 - **Entry Functions:** The `entry` modifier's second restriction — arguments to a non-`public` `entry` function can't be entangled with a hot potato from an earlier PTB command (Sui v1.62+ rule; e.g. flash loans).
 - **Address Balances:** `send_funds`/`redeem_funds` and the accumulator-backed per-address balance model — an alternative to `Coin` objects; withdrawals require a `Withdrawal<Balance<T>>` authorization supplied by the transaction.
-- **Package Upgrades:** `UpgradeCap`-gated upgrades publish at a new address (old versions stay callable forever); default policy allows new modules/functions but freezes existing `public` signatures and type definitions.
+- **Package Upgrades:** `UpgradeCap`-gated upgrades publish at a new address (old versions stay callable forever); default policy allows new modules/functions but freezes existing `public` signatures and type definitions. Since P135, `sui::package::original_package_id(&cap)` recovers the first-version package ID from the cap.
 - **Using Move Registry:** Guide on adding MVR (`@org/package`) dependencies — `mvr search`, adding to the manifest, and resolving names to per-network addresses.
 - **Linting:** `sui move lint`'s default vs extra lint tiers, and suppressing a specific warning with `#[allow(lint(...))]` — complements the Move Linter CLI note above (Tooling).
 

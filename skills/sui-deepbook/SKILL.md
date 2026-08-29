@@ -9,9 +9,9 @@ description: Use when integrating DeepBook V3 — SUI's native CLOB DEX, margin 
 
 ## SDK Versions
 
-Targets: `@mysten/deepbook-v3` 1.6.4 (^1.3), `@mysten/sui` 2.24.0 (^2.16). Tested: 2026-08-16.
+Targets: `@mysten/deepbook-v3` 2.0.1 (^2.0.1), `@mysten/sui` 2.27.1 (^2.26.2). Tested: 2026-08-29.
 
-**Compatibility notes:** Use `@mysten/deepbook-v3` (V3 — current). The legacy `@mysten/deepbook` / `clob_v2` packages are deprecated and **not** what you want.
+**Compatibility notes:** Use `@mysten/deepbook-v3` (V3 — current). The legacy `@mysten/deepbook` / `clob_v2` packages are deprecated and **not** what you want. **`@mysten/deepbook-v3` 2.0 is a breaking major for margin only** — spot CLOB, `BalanceManager`, flash loans and governance are unchanged. Margin now targets Pyth's upgraded Core (new `deepbook_margin` modules `margin_manager_upgraded` / `pool_proxy_upgraded`, `margin_liquidation` `liquidate_*_upgraded`; no legacy switch), whose Hermes endpoint (`PYTH_UPGRADED_HERMES = https://pyth.dourolabs.app/hermes`, Hermes v2 `/v2/updates/price/latest`) answers 401 without a bearer token. Pass `pythAccessToken` to `DeepBookClient` (or `pyth: { ...mainnetPythConfigs, accessToken }` / a self-credentialed `pyth.hermesEndpoint`) — any margin call that pushes a price update otherwise throws `ConfigurationError`. TS method signatures are unchanged; mainnet `MARGIN_PACKAGE_ID` / `LIQUIDATION_PACKAGE_ID` changed (pin **2.0.1**, not 2.0.0 — 2.0.0 has no mainnet target for `liquidateBase`/`liquidateQuote`). See [references/margin.md](references/margin.md).
 
 ## V3 vs V2 — what changed
 
@@ -73,6 +73,9 @@ const dbClient = new DeepBookClient({
   client: suiClient,
   address: '0xYOUR_ADDRESS',
   network: 'mainnet',
+  // Required for margin flows on 2.0+ (Pyth upgraded-Core Hermes needs a bearer
+  // token). Spot-only clients can omit it. Supply at runtime — never commit it.
+  pythAccessToken: 'YOUR_PYTH_ACCESS_TOKEN', // read from env at runtime
   // Optional: register your own BalanceManager so SDK helpers resolve by key
   balanceManagers: {
     MY_BM: { address: '0xYOUR_BALANCE_MANAGER_ID' },

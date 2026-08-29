@@ -11,6 +11,7 @@ When invoked, follow these steps:
    - Ask for `UpgradeCap` object ID
    - Verify ownership: `sui client object <upgrade-cap-id>`
    - Confirm active address owns the cap
+   - Cross-check the original package ID from the cap itself (P135+): `sui::package::original_package_id(&cap)` via dev-inspect — aborts if an upgrade ticket is still outstanding, so it doubles as an "upgrade in progress" check
 
 2. **Compatibility analysis**:
    - Run `sui move build --skip-fetch-latest-git-deps`
@@ -63,6 +64,7 @@ When invoked, follow these steps:
      ```json
      {
        "timestamp": "...",
+       "originalPackage": "0x...",
        "fromPackage": "0xabc...",
        "toPackage": "0xdef...",
        "upgradeCap": "0x...",

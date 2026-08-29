@@ -9,9 +9,9 @@ description: Use when integrating SuiNS (SUI Name Service) — resolving .sui na
 
 ## SDK Versions
 
-Targets: `@mysten/suins` 1.2.14 (^1.1), `@mysten/sui` 2.24.0 (^2.16). Tested: 2026-08-16.
+Targets: `@mysten/suins` 2.0.2 (^2.0), `@mysten/sui` 2.27.1 (^2.27.1). Tested: 2026-08-29.
 
-**Compatibility notes:** `@mysten/sui` is a peer dependency. Use `SuinsClient.getNameRecord(name): Promise<NameRecord | null>` (NameRecord has `targetAddress`) — there is no `getAddress` / `getName`. Reverse lookup goes through `client.core.defaultNameServiceName({ address })`. As of `@mysten/sui` 2.24.0, forward name→address resolution also has a transport-agnostic Core API method, `client.core.resolveNameServiceAddress({ name })`, alongside the existing `SuinsClient.getNameRecord` and GraphQL paths.
+**Compatibility notes:** `@mysten/sui` is a peer dependency (`^2.27.1` for suins 2.0.2). **`@mysten/suins` 2.0 is a breaking major for non-USDC payments**: `SuinsClient.getPriceInfoObject()` — the path that yields the `priceInfoObjectId` needed to `register`/`renew` in SUI or NS — now fetches Pyth updates from the keyed Pyth Pro Hermes (`https://pyth.dourolabs.app/hermes`) and **throws** unless the client was built with `pythAccessToken` (`SuinsClientConfig.pythAccessToken?: string`; also on the `suins()` extension options; sent as `Authorization: Bearer`). USDC payments and all read paths (`getNameRecord`, resolution) need no token. `Config.payments.packageIdV1: string` is a new required field — anyone passing a custom `packageInfo` must add it (mainnet `0xdd0a4a34…`, testnet `0xc391c200…`). `SuinsTransaction.register/renew` signatures are unchanged. Use `SuinsClient.getNameRecord(name): Promise<NameRecord | null>` (NameRecord has `targetAddress`) — there is no `getAddress` / `getName`. Reverse lookup goes through `client.core.defaultNameServiceName({ address })`. As of `@mysten/sui` 2.24.0, forward name→address resolution also has a transport-agnostic Core API method, `client.core.resolveNameServiceAddress({ name })`, alongside the existing `SuinsClient.getNameRecord` and GraphQL paths.
 
 ## Overview
 
@@ -59,7 +59,13 @@ you. There is no single `registry::register` Move call to target.
 import { SuinsClient, SuinsTransaction } from '@mysten/suins';
 import { Transaction } from '@mysten/sui/transactions';
 
-const suinsClient = new SuinsClient({ client, network: 'mainnet' });
+const suinsClient = new SuinsClient({
+  client,
+  network: 'mainnet',
+  // suins ≥2.0: required only when paying in SUI/NS (Pyth price fetch); USDC
+  // and read-only paths ignore it. Supply at runtime — never commit it.
+  pythAccessToken: 'YOUR_PYTH_ACCESS_TOKEN', // read from env at runtime
+});
 
 async function registerName(domain: string, years: number) {
   const tx = new Transaction();
@@ -72,8 +78,11 @@ async function registerName(domain: string, years: number) {
   //
   // Paying in SUI or NS instead requires their Pyth price feed: pass a
   // `priceInfoObjectId` (the SDK throws "Price info object ID is required for
-  // non-base asset purchases" without it). See the SuiNS SDK registration guide
-  // for price quoting (getPriceList / calculatePrice) and the Pyth plumbing.
+  // non-base asset purchases" without it). Obtain it via
+  // `suinsClient.getPriceInfoObject(tx, feed)` — on suins ≥2.0 that call throws
+  // unless the client has `pythAccessToken` (keyed Pyth Pro Hermes). See the
+  // SuiNS SDK registration guide for price quoting (getPriceList /
+  // calculatePrice) and the Pyth plumbing.
   const nft = suinsTx.register({
     domain,
     years,

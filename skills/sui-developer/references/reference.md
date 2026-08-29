@@ -813,7 +813,7 @@ fun test_create_marketplace() {
     assert_eq!(marketplace.version, 1);
     assert_eq!(marketplace.paused, false);
 
-    test_utils::destroy(marketplace);
+    unit_test::destroy(marketplace);
 }
 
 #[test]
@@ -826,16 +826,16 @@ fun test_migrate_wrong_version() {
     let admin = AdminCap { id: object::new(&mut ctx) };
     migrate(&mut marketplace, &admin);
 
-    test_utils::destroy(marketplace);
-    test_utils::destroy(admin);
+    unit_test::destroy(marketplace);
+    unit_test::destroy(admin);
 }
 ```
 
 ### Key Testing APIs
 
 - `tx_context::dummy()` — create a test TxContext
-- `assert_eq!(a, b)` — equality assertion (preferred over `assert!(a == b, code)`)
-- `test_utils::destroy(obj)` — destroy any object in tests (avoids writing custom destructors)
+- `std::unit_test::assert_eq!(a, b)` — equality assertion (preferred over `assert!(a == b, code)`)
+- `std::unit_test::destroy(obj)` — destroy any value in tests (avoids writing custom destructors). `sui::test_utils::{destroy, assert_eq, print}` are `#[deprecated]` — `destroy`/`print` forward to `std::unit_test::destroy` / `std::debug::print`; `assert_eq` aborts with code 0 rather than via `assert!`, so prefer `std::unit_test::assert_eq!` and re-check any `#[expected_failure]` codes
 - `test_scenario::begin(sender)` — start a multi-tx test scenario
 
 ---

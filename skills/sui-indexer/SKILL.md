@@ -92,6 +92,7 @@ For the full type catalog, the three `StoreIngestionClient` variants (remote/S3/
 
 | Version | Change |
 |---------|--------|
+| v1.78 (Protocol 134-135) | Mainnet v1.78.1 / P135 (live 2026-08-29). No gRPC `.proto` or GraphQL schema shape change vs v1.77.2 — only error-message text (gRPC simulate/resolve version-digest mismatch errors now include the object id). New GraphQL `transactions` subscription can replay from a historical cursor, but it is staging-gated (not exposed on public endpoints). |
 | v1.77 (Protocol 133) | Mainnet v1.77.2 (mainnet jumped P130 → P133 directly). New `EndOfEpochTransactionKind` variant `ForwardingAddressRegistryCreate` — gRPC proto enum and GraphQL union both gained this member (**devnet-gated**, not yet emitted on mainnet). Indexers that switch on `EndOfEpochTransactionKind` should tolerate an unrecognized/new variant rather than erroring. |
 | v1.74 (Protocol 127) | Testnet v1.74.0 (later v1.74.1 on both networks; the v1.75–v1.76 releases carried no indexer-relevant change). GraphQL transaction pagination now uses a custom `TransactionConnection` (`pageInfo`/`edges`/`nodes`, partial results from bitmap streaming); invalid-unicode `SuiAddress` parse fix; opt-in `disable_json_rpc` node config (gRPC/REST stay up); checkpoint pruning pairing bug fixed |
 | v1.73 (Protocol 126) | Testnet v1.73.1+ / mainnet P126 (v1.73.2). JSON-RPC permanent deactivation **2026-07-31** — migrate indexer reads to gRPC / GraphQL before the cutoff |

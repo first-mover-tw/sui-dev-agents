@@ -1,8 +1,8 @@
 # SUI gRPC API Reference
 
-> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.77+; filtered `List*` / subscription APIs stable since Protocol 130
+> **Status:** GA (Generally Available) as of SUI v1.67+, current v1.78+ (Protocol 135, mainnet v1.78.1); filtered `List*` / subscription APIs stable since Protocol 130
 > **JSON-RPC:** Shut off on public fullnodes (permanent deactivation landed 2026-07-31), Quorum Driver disabled
-> **Service/method names verified against `@mysten/sui@2.24.0` shipped protos (`sui.rpc.v2`) on 2026-08-16** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types
+> **Service/method names verified against `@mysten/sui@2.27.1` shipped protos (`sui.rpc.v2`) on 2026-08-29** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types; 2.25.0 lifts `getCurrentSystemState` / `getProtocolConfig` / `getChainIdentifier` / `getDynamicObjectField` from `client.core.*` to top-level `SuiGrpcClient` methods (`client.core.*` still works)
 > **Default port:** 8443 (TLS) or 8080 (plaintext)
 
 ## Overview

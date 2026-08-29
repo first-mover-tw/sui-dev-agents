@@ -20,7 +20,7 @@ sui client publish --dry-run --gas-budget 100000000
 sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 ```
 
-## SUI Protocol Deployment Updates (now mainnet v1.77.2 / Protocol 133; testnet v1.77.2)
+## SUI Protocol Deployment Updates (now mainnet v1.78.1 / Protocol 135; testnet v1.78.1)
 
 **RPC Migration (CRITICAL):**
 - **JSON-RPC is shut off on public fullnodes** — permanent deactivation landed 2026-07-31. Quorum Driver fully disabled.
@@ -35,12 +35,15 @@ sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 | Devnet  | `grpc.devnet.sui.io:443` |
 
 **Protocol 127 Notes (shipped testnet v1.74.0):**
-- **Timestamp-based epoch close (P127 mainnet behavior):** Mainnet switches to timestamp-based epoch close at P127 — no operator action required. (Live on both networks since P127/P128; mainnet now v1.77.2 / P133. First shipped testnet v1.74.0.)
+- **Timestamp-based epoch close (P127 mainnet behavior):** Mainnet switches to timestamp-based epoch close at P127 — no operator action required. (Live on both networks since P127/P128; mainnet now v1.78.1 / P135. First shipped testnet v1.74.0.)
 - **New Move VM (Testnet):** Active on testnet. Account for gas metering differences in cross-network testing.
 - **Offline Bytecode Dump:** `sui move build --dump --no-tree-shaking` works offline — enables air-gapped deployment pipelines.
 - **Compatibility verification** enabled by default (was opt-in).
 
-**CLI Breaking Changes (v1.77.2 / P133, verified against installed `sui` 1.77.2 `--help`):**
+**Protocol 135 Notes (mainnet v1.78.1, live since 2026-08-29):**
+- **`sui::package::original_package_id(cap: &UpgradeCap): ID`** — new framework function (native-backed): returns the original (first-version) package ID that the cap authorizes upgrades for. Aborts `EUpgradeInProgress` while an `UpgradeTicket` is outstanding and `EInvalidPackageVersion` if `cap.version == 0` or the package at `cap.package` is not at `cap.version`. Lets tooling derive the original ID from the cap instead of trusting a hand-entered value — call it (dev-inspect / PTB) when recording or auditing upgrades. Nothing else in the CLI upgrade flow changed (no flags added/removed in v1.78.x; `sui keytool --keystore-path` regression fixed, #27662).
+
+**CLI Breaking Changes (v1.77.2 / P133, verified against installed `sui` 1.77.2 `--help`; no further CLI flag changes through v1.78.1):**
 - **`sui client send-funds`:** the `--stateless` flag is **removed**. Use `--from-address-balance` instead — funds a transfer from the sender's address balance; without it, coin objects are used first and the address balance is only tapped if coin objects don't cover the amount. Recipients always receive into their address balance.
 - **`sui client verify-source`:** reworked. It now takes an optional `[package_path]` positional (defaults to `.`) instead of a package-id argument, and reads on-chain metadata to rebuild with the toolchain used at publish time. `--verify-deps`, `--skip-source`, and `--address-override` are **removed**. New: downloaded toolchains are cached (default 5, tune with `SUI_BINARY_CACHE_LIMIT`), `--toolchain <path>` to verify against a local binary, `--json` for metadata output.
 
@@ -82,6 +85,7 @@ sui client upgrade --gas-budget 200000000 --upgrade-capability <UPGRADE_CAP_ID>
 - Transfer to multisig address immediately after first publish
 - Store the cap object ID in your deployment records
 - Use `sui client object <CAP_ID>` to verify cap ownership
+- Since P135, `sui::package::original_package_id(&cap)` returns the first-version package ID — use it to cross-check your records against the cap
 
 ## Post-Deployment Checklist
 

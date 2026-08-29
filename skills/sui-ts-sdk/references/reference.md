@@ -17,6 +17,13 @@
 | `client.signAndExecuteTransactionBlock()` | `client.signAndExecuteTransaction()` |
 | `client.waitForTransactionBlock()` | `client.waitForTransaction()` |
 | `client.resolveNameServiceAddress()` | `client.core.resolveNameServiceAddress()` (sui ≥2.24.0; also on gRPC/GraphQL Core clients) |
+| `client.getLatestSuiSystemState()` | `client.core.getCurrentSystemState()`; top-level `client.getCurrentSystemState(options?)` on `SuiGrpcClient` / `SuiGraphQLClient` since 2.25.0 |
+| `client.getProtocolConfig()` | `client.core.getProtocolConfig()`; top-level `client.getProtocolConfig(options?)` since 2.25.0 |
+| `client.getChainIdentifier()` | `client.core.getChainIdentifier()`; top-level `client.getChainIdentifier(options?)` since 2.25.0 |
+| `client.getDynamicFieldObject()` (object-valued) | `client.core.getDynamicObjectField()`; top-level `client.getDynamicObjectField({ parentId, name })` since 2.25.0 |
+| `client.getReferenceGasPrice()` | `client.getReferenceGasPrice(options?)` — optional `{ signal }` accepted since 2.25.0; the zero-arg call still works |
+| `SuiHTTPStatusError` / `code === 'notExists'` checks | `ObjectError` / `TransactionError` (extend `SuiClientError`, exported from `@mysten/sui/client`, since 2.26.0): branch on transport-neutral `error.reason` (`ObjectErrorReason = 'notFound' \| 'deleted' \| 'unknown'`, `TransactionErrorReason = 'notFound'`); `error.code` stays transport-specific (gRPC missing object → `'notExists'` again from 2.26.1 — 2.26.0 returned the raw status number) |
+| `tx.timestampMs` / `tx.checkpoint` on `getTransactionBlock` | `Transaction.timestampMs: number \| null` and `Transaction.checkpoint: string \| null` on Core API transaction results since 2.27.0 — `null` for un-checkpointed results (`executeTransaction` / `simulateTransaction`); non-optional, so custom `CoreClient` implementations must populate them |
 
 ## Import Path Changes
 
