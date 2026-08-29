@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- mcp-server: `@mysten/sui` pin `^2.20.3` → `^2.27.1` (installed 2.27.1, `tsc` clean), aligning the MCP server with the 2.27.1 generation used by the skills. `@mysten/messaging` stays 0.3.0 (upstream hard-dep on `@mysten/sui ^1.45.2`; nested copy in snippets env remains unavoidable until upstream releases).
+
 ## [2.15.0] - 2026-08-29
 
 ### Changed
