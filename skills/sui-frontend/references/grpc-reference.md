@@ -2,7 +2,7 @@
 
 > **Status:** GA (Generally Available) as of SUI v1.67+, current v1.78+ (Protocol 135, mainnet v1.78.1); filtered `List*` / subscription APIs stable since Protocol 130
 > **JSON-RPC:** Shut off on public fullnodes (permanent deactivation landed 2026-07-31), Quorum Driver disabled
-> **Service/method names verified against `@mysten/sui@2.27.1` shipped protos (`sui.rpc.v2`) on 2026-08-29** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types; 2.25.0 lifts `getCurrentSystemState` / `getProtocolConfig` / `getChainIdentifier` / `getDynamicObjectField` from `client.core.*` to top-level `SuiGrpcClient` methods (`client.core.*` still works)
+> **Service/method names verified against `@mysten/sui@2.28.0` shipped protos (`sui.rpc.v2`) on 2026-09-02** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types; 2.25.0 lifts `getCurrentSystemState` / `getProtocolConfig` / `getChainIdentifier` / `getDynamicObjectField` from `client.core.*` to top-level `SuiGrpcClient` methods (`client.core.*` still works)
 > **Default port:** 8443 (TLS) or 8080 (plaintext)
 
 ## Overview
@@ -24,6 +24,8 @@ service TransactionExecutionService {
 ```
 
 **Replaces:** `sui_executeTransactionBlock`, `sui_dryRunTransactionBlock`
+
+> **Protocol 136 (testnet v1.79.0 — NOT yet on mainnet) — `VALIDITY` expiration appears on neither mainnet nor testnet:** `SimulateTransaction` returns `VALIDITY` (carrying the allowed consensus proposers) instead of `VALID_DURING` **only where the `allowed_proposers` protocol flag is on**. P136 enables it for **neither mainnet nor testnet** (`sui-protocol-config/src/lib.rs:4683-4685` @ `testnet-v1.79.0`), and it additionally needs the fullnode's `enable_simulate_allowed_proposers` config (default true). So **mainnet and testnet both still return `VALID_DURING`** — `VALIDITY` shows up on devnet, localnet and any self-hosted chain (the `Chain` enum has only `Mainnet` / `Testnet` / `Unknown`, so the `chain != Mainnet && chain != Testnet` guard covers everything that is not one of the two public networks — `lib.rs:453-458`). Your localnet will therefore behave differently from the network you ship against. `@mysten/sui` ≥2.28.0 already ships the matching `AllowedProposers` message and `VALIDITY = 4` enum value. Where it does apply: if your client **rebuilds** the expiration from the simulation result instead of using it verbatim, dropping `allowed_proposers` changes the signed bytes and the **digest will not match** — copy the returned expiration through unmodified.
 
 ### 2. LedgerService
 Query blockchain ledger data (checkpoints, transactions, epochs).

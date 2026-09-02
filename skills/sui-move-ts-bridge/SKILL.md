@@ -7,7 +7,7 @@ description: Use when bridging Move contracts to TypeScript — generating TS ty
 
 > **Scope:** This skill covers Move ↔ TypeScript bridging: type generation, event handling, ABI wrappers. For dApp UI setup and wallet integration, use the `sui-frontend` skill. For PTB construction and SDK client patterns, use the `sui-ts-sdk` skill.
 
-Targets: `@mysten/sui` 2.27.1 (^2.27.1), `@mysten/kiosk` 1.4.6 (^1.2). Tested: 2026-08-29.
+Targets: `@mysten/sui` 2.28.0 (^2.28.0), `@mysten/kiosk` 1.4.7 (^1.2). Tested: 2026-09-02.
 
 **Compatibility notes:** As of `@mysten/kiosk@1.4.0`, `KioskCompatibleClient` is typed as `ClientWithCoreApi`, so the kiosk example below now uses `SuiGrpcClient` like the other examples in this skill. **Public fullnode JSON-RPC is shut off** (permanent deactivation landed 2026-07-31) — use `SuiGrpcClient` or `SuiGraphQLClient` (or your own full node's JSON-RPC).
 

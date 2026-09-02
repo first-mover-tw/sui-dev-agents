@@ -9,7 +9,7 @@ description: Use when building NFT marketplaces, enforcing royalties, or managin
 
 ## SDK Versions
 
-Targets: `@mysten/kiosk` 1.4.6 (^1.2), `@mysten/sui` 2.27.1 (^2.27.1). Tested: 2026-08-29.
+Targets: `@mysten/kiosk` 1.4.7 (^1.2), `@mysten/sui` 2.28.0 (^2.28.0). Tested: 2026-09-02.
 
 **Compatibility notes:** As of `@mysten/kiosk@1.4.0`, `KioskCompatibleClient` is typed as `ClientWithCoreApi` — `SuiGrpcClient` (and any other Core-API client) is now accepted directly; objects and transfer-policy events route through the shared Core API. **Public fullnode JSON-RPC is shut off** (permanent deactivation landed 2026-07-31) — prefer `SuiGrpcClient` or `SuiGraphQLClient` (or your own full node's JSON-RPC).
 

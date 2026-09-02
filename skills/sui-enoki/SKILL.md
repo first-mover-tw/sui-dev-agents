@@ -9,7 +9,7 @@ description: Use when adding social login (Google/Twitch/Facebook OAuth) or gasl
 
 ## SDK Versions
 
-Targets: `@mysten/enoki` 1.2.18 (^1.0), `@mysten/sui` 2.27.1 (^2.27.1). Tested: 2026-08-29.
+Targets: `@mysten/enoki` 1.2.19 (^1.0), `@mysten/sui` 2.28.0 (^2.28.0). Tested: 2026-09-02.
 
 **Compatibility notes:** `@mysten/sui` is a peer dependency of `@mysten/enoki` (`workspace:^` → use your app's v2.x `@mysten/sui`). The React entry (`@mysten/enoki/react`) needs `react >= 17` as a peer; the core `EnokiClient`/`EnokiFlow` work without React. Do not mix `@mysten/sui@1.x` and `@2.x` — run `npm ls @mysten/sui` before adding. Enoki is NOT a `$extend()` client plugin; instantiate `new EnokiClient({ apiKey })` or use `registerEnokiWallets(...)` directly. Requires an Enoki API key + app config from the [Enoki Portal](https://portal.enoki.mystenlabs.com).
 

@@ -79,6 +79,11 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
 - **Use the object form of `recall`.** `recall({ query, limit?, namespace?, maxDistance?, topK?, maxTokens?, truncationStrategy?, countTokens? })`.
   The positional `recall(query, limit, namespace)` is `@deprecated` (easy to misread as
   `recall(query, namespace)`). `topK` and `limit` are aliases; `topK` wins if both are set.
+- **`recall` query is capped at 16,384 bytes (relayer-side).** The relayer's embedder rejects any
+  query whose UTF-8 length exceeds `MAX_EMBED_INPUT_BYTES = 16384` with HTTP **400**
+  `input is over the embedding input limit of 16384 bytes`. This is relayer behavior, not an SDK
+  check — it applies on **0.1.5** too, and no client-side option (`maxTokens`, `truncationStrategy`)
+  affects it, since those trim *results*, not the query. Truncate long queries yourself.
 - **Token budget on `recall` (≥0.1.3).** Pass `maxTokens` and the SDK trims hits client-side per
   `truncationStrategy` (`"high-relevance-only"` default — drop lowest-relevance hits whole;
   `"drop-tail"` — cut the end of the concatenated payload; `"per-hit-cap"` — each hit gets

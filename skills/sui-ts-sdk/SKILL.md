@@ -7,7 +7,7 @@ description: Use when writing TypeScript code interacting with SUI blockchain vi
 
 ## SDK Versions
 
-Targets: `@mysten/sui` 2.27.1 (^2.0). Tested: 2026-08-29.
+Targets: `@mysten/sui` 2.28.0 (^2.0). Tested: 2026-09-02.
 
 **Compatibility notes:** Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and event pub/sub (WebSocket `subscribeEvent` is gone — use the gRPC streams `client.subscriptionService.subscribeEvents`/`subscribeCheckpoints` (≥2.23) or an indexer). If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
 
@@ -390,7 +390,39 @@ tx.setGasPayment([{
 tx.setSender('0xSenderAddress');
 ```
 
-> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. This behavior is active on this skill's tested pin (2.27.1); only ≤2.22.0 synthesizes no expiration.
+> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. This behavior is active on this skill's tested pin (2.28.0); only ≤2.22.0 synthesizes no expiration.
+
+> **`Validity` expiration (new in `@mysten/sui` 2.28.0):** `TransactionExpiration` gains a fourth member next to `None` / `Epoch` / `ValidDuring` — the union is now `"Epoch" | "None" | "ValidDuring" | "Validity"` (`dist/transactions/Transaction.d.mts:117`). Shape (`dist/transactions/data/v2.d.mts:20-31`):
+>
+> ```
+> Validity: {
+>   allowedProposers: { epoch: string | number; proposers: number[] } | null;
+>   minEpoch: string | number | null;
+>   maxEpoch: string | number | null;
+>   minTimestamp: string | number | null;
+>   maxTimestamp: string | number | null;
+>   chain: string;
+>   nonce: number;
+> }
+> ```
+>
+> `setExpiration()` is **unchanged** — `dist/transactions/Transaction.d.mts:84` is still `setExpiration(expiration?: InferInput<typeof TransactionExpiration> | null): void`, so `Validity` goes through the existing entry point; there is no new method.
+>
+> **Not usable on testnet/mainnet yet:** the `allowed_proposers` protocol flag is off on both public networks (mainnet P135 and testnet P136, per protocol-config snapshots). It is on for devnet, localnet and any self-hosted chain (the `Chain` enum has only `Mainnet` / `Testnet` / `Unknown`, so the `chain != Mainnet && chain != Testnet` guard covers everything that is not one of the two public networks — `lib.rs:453-458`) — so a localnet round-trip will accept `allowedProposers` while testnet and mainnet will not. Do not set it for the public networks.
+>
+> **Behavior change (security fix) — the deprecated v1 JSON format now carries `ValidDuring` / `Validity`.** Through **2.27.1 both directions collapsed them to `{ None: true }`** (`src/transactions/data/v1.ts:270-275` out, `:376-379` back in), so a `Transaction.serialize()` → `Transaction.from()` round-trip **silently dropped the expiration** and you could go on to sign bytes strictly *wider* than the expiration you set. 2.28.0 passes both variants through (`:92-95` out, `:110-111` back in). This matters most alongside the auto-set `ValidDuring` described in the note above — that expiration is exactly what a v1 round-trip used to lose.
+>
+> Only the **restore** side throws: `expirationFromV1` (`:116-118`) raises `Unknown transaction expiration in v1 transaction data: ...` on a variant it does not recognize. (The matching arm in `expirationToV1` sits behind `satisfies never` and is unreachable in practice.) Anything that rehydrates a transaction from v1 JSON must handle the throw.
+>
+> Related: the Protocol 136 PTB `TxContext` restrictions surface as **`CommandArgumentError_CommandArgumentErrorKind.INVALID_TX_CONTEXT = 20`** (`dist/grpc/proto/sui/rpc/v2/execution_status.d.mts:713-715`). Two things to get right, both of which `tsc` rejects otherwise: it is **not** a member of the `ExecutionStatus` message, and it is **not** a named export of `@mysten/sui/grpc` — reach it through the `GrpcTypes` namespace (snippet below). See the sui-developer skill.
+
+Reading the Protocol 136 `InvalidTxContext` code:
+
+```ts
+import { GrpcTypes } from '@mysten/sui/grpc';
+
+const invalidTxContext = GrpcTypes.CommandArgumentError_CommandArgumentErrorKind.INVALID_TX_CONTEXT; // 20
+```
 
 ---
 

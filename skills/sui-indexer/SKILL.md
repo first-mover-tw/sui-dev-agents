@@ -88,10 +88,24 @@ async fn main() -> anyhow::Result<()> {
 
 For the full type catalog, the three `StoreIngestionClient` variants (remote/S3/local), `ObjectTracker` with deleted-objects handling, cargo project setup, backfill / concurrency tuning / metrics, or **archival query-side reads** (`archive.*.sui.io:443`; gRPC does NOT fall back to archival) → see **[references/reference.md](references/reference.md)**.
 
+## Protocol 136 / v1.79.0 (testnet only — NOT yet on mainnet)
+
+Mainnet is still **v1.78.1 / P135**; treat everything below as testnet-forward-looking.
+
+- **gRPC `SimulateTransaction` can return a `VALIDITY` expiration (PR 27598) — but on neither public network today.** The response switches from `VALID_DURING` to `VALIDITY` (carrying the allowed consensus proposers) **only when the `allowed_proposers` protocol flag is on**, and P136 enables that flag for neither mainnet nor testnet (`sui-protocol-config/src/lib.rs:4683-4685` @ `testnet-v1.79.0`: `if chain != Chain::Mainnet && chain != Chain::Testnet`) — so it is on for devnet, localnet and any self-hosted chain (the `Chain` enum has only `Mainnet` / `Testnet` / `Unknown`, so the `chain != Mainnet && chain != Testnet` guard covers everything that is not one of the two public networks — `lib.rs:453-458`), which includes the localnet you test against. It also requires the fullnode's `enable_simulate_allowed_proposers` node config (default true). **On testnet and mainnet, simulate still returns `VALID_DURING`.** Where `VALIDITY` does appear: if your client **rebuilds** the expiration instead of passing the returned one through verbatim, omitting `allowed_proposers` changes the signed bytes and the digest will not match — copy it unmodified.
+- **GraphQL `Query.multiGetBalances` (PR 27685).** New batched balance query:
+  ```graphql
+  input BalanceKey { address: SuiAddress!, coinType: String! }
+  type Query { multiGetBalances(keys: [BalanceKey!]!): [Balance!]! }
+  ```
+  Same PR documents that `totalBalance = coinBalance + addressBalance` — if you were treating `totalBalance` as coin-object-only, your numbers were already wrong for accounts using address balances.
+- **Operator breaking — `sui-indexer-alt-jsonrpc` / `sui-indexer-alt-graphql` (PR 27557 / 27653).** The four `--bigtable-*` flags are **removed**, and `--ledger-grpc-url` is now **required**; these services no longer fall back to Postgres for ledger reads. Deployments that relied on the Postgres fallback will fail to start until the flag is supplied.
+
 ## Breaking Changes Log
 
 | Version | Change |
 |---------|--------|
+| v1.79 (Protocol 136) — **testnet only** | Testnet v1.79.0 (mainnet still v1.78.1 / P135). gRPC `SimulateTransaction` may return a `VALIDITY` expiration with allowed proposers (PR 27598) — gated on the `allowed_proposers` flag, which P136 turns on for **every chain except mainnet and testnet** (devnet, localnet, self-hosted); the two public networks still get `VALID_DURING`. GraphQL adds `Query.multiGetBalances(keys: [BalanceKey!]!): [Balance!]!` + `BalanceKey` input (PR 27685). Operator breaking: `sui-indexer-alt-jsonrpc` / `-graphql` drop the four `--bigtable-*` flags and require `--ledger-grpc-url` (no Postgres fallback) (PR 27557 / 27653). |
 | v1.78 (Protocol 134-135) | Mainnet v1.78.1 / P135 (live 2026-08-29). No gRPC `.proto` or GraphQL schema shape change vs v1.77.2 — only error-message text (gRPC simulate/resolve version-digest mismatch errors now include the object id). New GraphQL `transactions` subscription can replay from a historical cursor, but it is staging-gated (not exposed on public endpoints). |
 | v1.77 (Protocol 133) | Mainnet v1.77.2 (mainnet jumped P130 → P133 directly). New `EndOfEpochTransactionKind` variant `ForwardingAddressRegistryCreate` — gRPC proto enum and GraphQL union both gained this member (**devnet-gated**, not yet emitted on mainnet). Indexers that switch on `EndOfEpochTransactionKind` should tolerate an unrecognized/new variant rather than erroring. |
 | v1.74 (Protocol 127) | Testnet v1.74.0 (later v1.74.1 on both networks; the v1.75–v1.76 releases carried no indexer-relevant change). GraphQL transaction pagination now uses a custom `TransactionConnection` (`pageInfo`/`edges`/`nodes`, partial results from bitmap streaming); invalid-unicode `SuiAddress` parse fix; opt-in `disable_json_rpc` node config (gRPC/REST stay up); checkpoint pruning pairing bug fixed |
