@@ -7,7 +7,7 @@ description: Use when writing TypeScript code interacting with SUI blockchain vi
 
 ## SDK Versions
 
-Targets: `@mysten/sui` 2.28.0 (^2.0). Tested: 2026-09-02.
+Targets: `@mysten/sui` 2.29.0 (^2.0). Tested: 2026-09-03.
 
 **Compatibility notes:** Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and event pub/sub (WebSocket `subscribeEvent` is gone — use the gRPC streams `client.subscriptionService.subscribeEvents`/`subscribeCheckpoints` (≥2.23) or an indexer). If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
 
@@ -390,7 +390,7 @@ tx.setGasPayment([{
 tx.setSender('0xSenderAddress');
 ```
 
-> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. This behavior is active on this skill's tested pin (2.28.0); only ≤2.22.0 synthesizes no expiration.
+> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. This behavior is active on this skill's tested pin (2.29.0); only ≤2.22.0 synthesizes no expiration.
 
 > **`Validity` expiration (new in `@mysten/sui` 2.28.0):** `TransactionExpiration` gains a fourth member next to `None` / `Epoch` / `ValidDuring` — the union is now `"Epoch" | "None" | "ValidDuring" | "Validity"` (`dist/transactions/Transaction.d.mts:117`). Shape (`dist/transactions/data/v2.d.mts:20-31`):
 >
@@ -549,6 +549,37 @@ const events = await client.core.listEvents({ /* ListEventsOptions */ });
 - `simulateTransaction` on a transaction with an explicit empty gas payment performs real backend gas selection (changelog-only; the options type has no `gasPayment` field — gas payment lives on the transaction itself).
 
 All core methods accept an `AbortSignal` via `options.signal`. Note: before sui 2.20.4 `SuiGrpcClient` accepted `signal` but never forwarded it (requests could not be cancelled); 2.20.4 fixes this, including MVR `resolveType`/`resolvePackage` resolution.
+
+### gRPC transport, options and error codes (sui ≥2.29)
+
+`@mysten/sui/grpc`'s `GrpcWebFetchTransport` is a **subclass** of the identically named transport from `@protobuf-ts/grpcweb-transport` (`dist/grpc/transport.d.mts`); through 2.28.0 it was a plain re-export of the upstream one. `SuiGrpcClient` builds one by default, so the fixes apply automatically; a transport you construct yourself by importing from `@protobuf-ts/grpcweb-transport` keeps the upstream behaviour.
+
+Three things changed at 2.29.0:
+
+- **Status messages are decoded.** Before, they arrived percent-encoded (`Object%20not%20found:%200x1`).
+- **An aborted call takes its status from the reason** — `DEADLINE_EXCEEDED` for `AbortSignal.timeout`, the carried status for a reason that has one, `CANCELLED` for anything else. Upstream reports everything except a standard `AbortError` as `INTERNAL`.
+- **`SuiGrpcClient` now forwards the rest of `GrpcWebOptions`** to the transport: `fetch`, `format`, `meta`, `timeout`, `interceptors`, `jsonOptions`, `binaryOptions`. ≤2.28.0 typed them (the options type already extended `GrpcWebOptions`) but the constructor only ever passed `baseUrl` and `fetchInit` — everything else was **accepted and silently ignored** (2.28.0 `dist/grpc/client.mjs:30-33` vs 2.29.0 `:30-31`). If you set `timeout` or `meta` on an older pin and wondered why nothing happened, this is why.
+
+`@mysten/sui/grpc` also re-exports `RpcError` and the `GrpcStatusCode` enum, so calls can be narrowed without depending on `@protobuf-ts/*` directly. **`RpcError.code` is a `string`, not a number** — compare against the enum's *name*:
+
+```typescript
+import { GrpcStatusCode, RpcError, SuiGrpcClient } from '@mysten/sui/grpc';
+
+const client = new SuiGrpcClient({
+  network: 'testnet',
+  baseUrl: 'https://fullnode.testnet.sui.io:443',
+  timeout: 10_000, // forwarded to the transport from 2.29.0; ignored on ≤2.28.0
+  meta: { 'x-request-id': 'req-1' },
+});
+
+try {
+  await client.getChainIdentifier();
+} catch (err) {
+  if (err instanceof RpcError && err.code === GrpcStatusCode[GrpcStatusCode.DEADLINE_EXCEEDED]) {
+    // AbortSignal.timeout now lands here instead of INTERNAL
+  }
+}
+```
 
 ### gRPC service clients (lower-level)
 

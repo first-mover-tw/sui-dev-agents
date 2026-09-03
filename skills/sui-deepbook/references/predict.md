@@ -5,7 +5,9 @@
 > when the task involves prediction markets, expiry/strike binaries, OracleSVI,
 > PredictManager, PLP vault, or the predict-server.
 
-> Verified against `deepbookv3@predict-testnet-4-16` source 2026-05-30 — Predict is a separate `deepbook_predict` Move package, not part of the npm SDK.
+> ⚠️ **STALE — describes the superseded `predict-testnet-4-16` design.** Verified against `deepbookv3@predict-testnet-4-16` source 2026-05-30. The TypeScript client now shipping at `@mysten/deepbook-v3/predict` (since `@mysten/deepbook-v3` **2.1.3**, superseding the standalone `@mysten/deepbook-predict`) targets a **later deployment, `predict-testnet-8-21`**, whose Move package is a restructure: modules are `expiry_market`, `expiry_cash`, `predict_account`, `order`, `pricing`, `plp`/`lp_book`/`pool_accounting`, `registry`/`market_manager`, `strike_exposure*`. There is **no `predict.move`, no `predict_manager` and no `oracle` module** — `PredictManager` and `OracleSVI` below **do not exist** as `deepbook_predict` types in that deployment (the SVI oracle moved to the separate `propbook` package and is still wired in through `PredictConfig.objects.oracleRegistry` / `underlyings[<symbol>].blockScholesSviStore`) (positions live in the shared `Account` primitive as `predict_account::{Position, PredictData}`; markets are `ExpiryMarket`; pricing goes through `expiry_market::load_live_pricer`).
+>
+> Read this file for the 4-16 design only. **Do not hand-build PTBs from it against `PredictClient`** — use the SDK's own entry points. Re-verification against `predict-testnet-8-21` is outstanding.
 
 Expiry-based prediction-market protocol. **It is NOT the CLOB.** Predict is a *separate* Move package (`deepbook_predict`, currently on the `predict-testnet-4-16` branch) that only borrows `deepbook::math` — it has **no `Pool`, no `BalanceManager`, no order book, no maker/taker**. Every trade is priced against a shared LP vault (the protocol is your counterparty), using Block Scholes' **OracleSVI** volatility model. If you find yourself reaching for `placeLimitOrder` / `TradeProof` here, you're in the wrong mental model.
 
@@ -48,7 +50,7 @@ All trade fns are generic over `<Quote>` and take human-irrelevant **scaled** u6
 - `withdraw<Quote>(predict, lp_coin, clock, ctx): Coin<Quote>` — burn shares, quote out (subject to a withdrawal rate-limiter + vault-availability check).
 - Preview helpers (read-only, devInspect): `get_trade_amounts(...) -> (cost, payout)`, `get_range_trade_amounts(...)`, `ask_bounds(oracle_id) -> (min, max)`.
 
-There is **no dedicated `@mysten/deepbook-predict` SDK.** Build PTBs with `@mysten/codegen`-generated bindings, or raw `moveCall`:
+**Prefer the SDK subpath** — since `@mysten/deepbook-v3` 2.1.3, `@mysten/deepbook-v3/predict` ships `PredictClient` plus quotes, mint/redeem/claim, PLP, typed receipts and a client-side board pricer, with testnet ids from the shared generated deploy manifest (`getConfig('testnet')`). The standalone `@mysten/deepbook-predict` package is superseded. **Note that the client targets `predict-testnet-8-21`, not the 4-16 entry points listed above** — the raw `moveCall` shape below is 4-16-era and will not resolve against the deployment the client uses:
 
 ```typescript
 // @check:skip — references deployment IDs/types you supply at runtime

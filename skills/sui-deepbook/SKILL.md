@@ -9,9 +9,9 @@ description: Use when integrating DeepBook V3 — SUI's native CLOB DEX, margin 
 
 ## SDK Versions
 
-Targets: `@mysten/deepbook-v3` 2.0.1 (^2.0.1), `@mysten/sui` 2.28.0 (^2.26.2). Tested: 2026-09-02.
+Targets: `@mysten/deepbook-v3` 2.1.4 (^2.0.1), `@mysten/sui` 2.29.0 (^2.29.0). Tested: 2026-09-03.
 
-**Compatibility notes:** Use `@mysten/deepbook-v3` (V3 — current). The legacy `@mysten/deepbook` / `clob_v2` packages are deprecated and **not** what you want. **`@mysten/deepbook-v3` 2.0 is a breaking major for margin only** — spot CLOB, `BalanceManager`, flash loans and governance are unchanged. Margin now targets Pyth's upgraded Core (new `deepbook_margin` modules `margin_manager_upgraded` / `pool_proxy_upgraded`, `margin_liquidation` `liquidate_*_upgraded`; no legacy switch), whose Hermes endpoint (`PYTH_UPGRADED_HERMES = https://pyth.dourolabs.app/hermes`, Hermes v2 `/v2/updates/price/latest`) answers 401 without a bearer token. Pass `pythAccessToken` to `DeepBookClient` (or `pyth: { ...mainnetPythConfigs, accessToken }` / a self-credentialed `pyth.hermesEndpoint`) — any margin call that pushes a price update otherwise throws `ConfigurationError`. TS method signatures are unchanged; mainnet `MARGIN_PACKAGE_ID` / `LIQUIDATION_PACKAGE_ID` changed (pin **2.0.1**, not 2.0.0 — 2.0.0 has no mainnet target for `liquidateBase`/`liquidateQuote`). See [references/margin.md](references/margin.md).
+**Compatibility notes:** Use `@mysten/deepbook-v3` (V3 — current). The legacy `@mysten/deepbook` / `clob_v2` packages are deprecated and **not** what you want. **`@mysten/deepbook-v3` 2.0 is a breaking major for margin only** — spot CLOB, `BalanceManager`, flash loans and governance are unchanged. Margin now targets Pyth's upgraded Core (new `deepbook_margin` modules `margin_manager_upgraded` / `pool_proxy_upgraded`, `margin_liquidation` `liquidate_*_upgraded`; no legacy switch), whose Hermes endpoint (`PYTH_UPGRADED_HERMES = https://pyth.dourolabs.app/hermes`, Hermes v2 `/v2/updates/price/latest`) answers 401 without a bearer token. Pass `pythAccessToken` to `DeepBookClient` (or `pyth: { ...mainnetPythConfigs, accessToken }` / a self-credentialed `pyth.hermesEndpoint`) — any margin call that pushes a price update otherwise throws `ConfigurationError`. TS method signatures are unchanged; mainnet `MARGIN_PACKAGE_ID` / `LIQUIDATION_PACKAGE_ID` changed (2.0.0 has no mainnet target for `liquidateBase`/`liquidateQuote`, so **2.0.1 is the floor**; this skill pins 2.1.4). See [references/margin.md](references/margin.md).
 
 ## V3 vs V2 — what changed
 
@@ -231,6 +231,50 @@ public fun place_bid<Base, Quote>(
 }
 ```
 
+## SDK subpaths — `/account`, `/sessions`, `/predict` (deepbook-v3 2.1.x)
+
+The 2.1.x line consolidated the separate DeepBook SDKs into subpaths of `@mysten/deepbook-v3`. (The changesets are labelled 2.1.0–2.1.2, but npm went straight from 2.0.1 to **2.1.3** — `npm i @mysten/deepbook-v3@2.1.0` fails with `ETARGET` / "No matching version found". Pin 2.1.3 or later.) **The package root is unchanged** between 2.0.1 and 2.1.4 — the **root export set** is unchanged and every hardcoded package id on that surface is byte-identical. `dist/utils/constants.mjs` is byte-identical, and so is `dist/index.d.mts` — though that alone proves nothing, since it is only a re-export barrel. Diffing what it pulls in: the sole **non-additive** delta on the public type surface is a semantically-irrelevant union reorder on `DeepBookClient.getAccountOrderDetails` (`dist/client.d.mts`); `contracts/utils/index.d.mts` is on that surface too but purely additive (`MoveTuple`, `ConfigValue`, `RawTransactionArgument`). The rest is inert: alias renumbering, plus a dropped `import "./types/bcs.mjs"` in four emitted modules (`dist/index.mjs` and the three `dist/queries/*Queries.mjs`) whose target is `import …; export {}` — no side effect, and not importable by consumers anyway, since 2.0.1's `exports` map has only `.` — and subpaths are separate module graphs, so importing one loads no spot or margin code (the package is also `sideEffects: false` now).
+
+| Subpath | What it is | Status |
+|---|---|---|
+| `@mysten/deepbook-v3/account` | The shared on-chain **account primitive** (`AccountContract`, generated `account` bindings, `Account` / `AccountWrapper` BCS structs). DeepBook's core account wrapper and DeepBook Predict both build on it. | testnet-only ids |
+| `@mysten/deepbook-v3/sessions` | Time-limited trading **sessions** over a canonical Account (`SessionsContract`). | testnet-only ids |
+| `@mysten/deepbook-v3/predict` | **DeepBook Predict** (`PredictClient`, quotes, mint/redeem/claim, PLP, typed receipts, client-side board pricer). ⚠️ targets a **newer Move design** than [references/predict.md](references/predict.md) documents — see below. | testnet-only ids |
+
+Two standalone packages are **superseded** and formally `npm deprecate`d, so installing either now emits a warning: `@mysten/deepbook-account` (final release 0.1.0, *"Deprecated: use @mysten/deepbook-v3/account instead."*) and `@mysten/deepbook-predict` (0.3.0, *"…use @mysten/deepbook-v3/predict instead."*). Both keep working but will not be updated.
+
+**Name collision worth knowing:** `Account` exported from the package root is `@deepbook/core::account::Account`. The account primitive's `Account` is a *different type*, reachable only from `/account`.
+
+Deployed ids come from a generated deploy manifest shared by all three subpaths, so they cannot drift apart across a redeploy: `getAccountConfig(network)` / `getSessionsConfig(network)` / `getConfig(network)`, with `getDeployment(network)` reporting which deployment and source commit the ids came from. **They throw on an unrecorded network rather than returning placeholder ids** — testnet is the only one recorded today (`dist/account.mjs:22`). For your own deployment, pass ids to the contract class directly.
+
+### Sessions — the authorization surface
+
+An Account owner authorizes an **ephemeral address** to act for the Account until a fixed expiry. The session key **never holds a reusable `Auth`** (each wrapper mints app authorization internally and consumes it in the same call), it cannot withdraw to an address, cannot grant or revoke sessions, and cannot outlive its expiry.
+
+**But treat a session key as authority over everything the Account holds.** The SDK's own class doc is blunt about it: the spot wrappers take a **caller-chosen `Pool`** and pull the account's **entire** Base, Quote and DEEP balance — stored *plus* unsettled — into the embedded manager for the duration of the call, with `price_limit` also supplied by the caller. Nothing caps notional, restricts which pools are reachable, or bounds loss to adverse pricing. Fund an ephemeral-session Account accordingly; do not hand a session key to something you would not hand the whole Account to.
+
+Operationally: an admin must have authorized `SessionsApp` on the account registry, or the **trading** wrappers abort with `EAppNotAuthorized` (`authorizeSession` / `revokeSession` / `sessionExpirationMs` use owner or no auth and keep working). And `deauthorize_app` **does not clear `SessionsData`** — re-authorizing revives every still-unexpired grant at once. It is a pause, not a kill switch; revoke the grants themselves.
+
+Hard limits, straight from the declarations (`dist/sessions.d.mts:54-56`; the `720 * 60 * 60 * 1000` literal is in `dist/sessions.mjs:25`):
+
+- `MAX_SESSION_DURATION_MS` = 30 days (`720 * 60 * 60 * 1000`); `durationMs` must be `> 0` and `<=` this.
+- `MAX_SESSIONS_PER_ACCOUNT` = **20** distinct addresses. **Expired grants keep occupying slots** — revoke or overwrite, or you hit the cap with dead sessions.
+- A grant is dead **at** its `expiresAtMs` (strict `<`).
+- There is **no bulk on-chain read** of an Account's grants: derive the field id (`deriveSessionsFieldId`), fetch the object, then decode client-side with the *static* methods `SessionsContract.decodeSessions(contents)`, `.activeSessions(grants, nowMs)` and `.expiredSessions(grants, nowMs)` (`dist/sessions.d.mts:231-240`) — statics on the class, not free functions.
+- To reclaim slots, use **`expiredSessions`**, not a hand-rolled filter. `nowMs > expiresAtMs` looks equivalent but leaves the grant expiring exactly *at* `nowMs` occupying a slot forever (the SDK's own warning); `expiredSessions` uses `>=` to match the strict-`<` liveness rule.
+
+`SessionsContract` covers `authorizeSession` / `revokeSession` / `sessionExpirationMs` plus the Predict wrappers (`mintExactQuantity`, `mintExactAmount`, `redeemLive`, `redeemSettled`). The **spot** session wrappers are generated and reachable through `sessionsMoveCalls`, but are **not** wrapped on `SessionsContract` — the spot-over-Account workflow is not modelled yet.
+
+### ⚠️ Predict: the shipped client is ahead of this skill's Move reference
+
+`@mysten/deepbook-v3/predict` addresses deployment **`predict-testnet-8-21`** (`dist/deployments/testnet.mjs`), while [references/predict.md](references/predict.md) documents the earlier **`predict-testnet-4-16`** branch. That is not a version bump, it is a restructure: the generated bindings that ship with the SDK are `expiry_market`, `expiry_cash`, `predict_account`, `order`, `pricing`, `plp` / `lp_book` / `pool_accounting`, `registry` / `market_manager`, `strike_exposure*` — there is **no `predict.move`, no `predict_manager` and no `oracle` module**. `PredictManager` and `OracleSVI`-as-a-`deepbook_predict`-type do not exist in the deployment `PredictClient` talks to; positions live in the shared `Account` primitive as `predict_account::{Position, PredictData}`, markets are `ExpiryMarket`, and pricing goes through `expiry_market::load_live_pricer`. **The SVI oracle did not disappear — it moved into the separate `propbook` package**, and you still have to wire it: `PredictPackages.propbook`, `PredictConfig.objects.oracleRegistry`, and, per underlying (`PredictConfig.underlyings` is a `Record` keyed by symbol, not an array), `blockScholesSviStore` / `blockScholesValueStore` / `pythFeed` (`dist/predict/config/types.d.mts`); `load_live_pricer` takes `propbookRegistry` / `pyth` / `bsValues` / `bsSvi` and defaults `propbookRegistry` from `config.oracleRegistry`.
+
+**So:** use `PredictClient` and the config/deployment helpers from the SDK, and treat predict.md's object model, entry points and pitfalls as documentation of the **superseded 4-16 design** — do not hand-build PTBs from it against the shipped client. Re-verifying predict.md against `predict-testnet-8-21` is tracked as follow-up work.
+
+### Predict config change (2.1.x)
+
+`PredictConfig` gains two **required** fields — `coinTypes` (`plp`, `deep`) and `units` (`positionLotSize`, `fixedPointScale`, `quoteCoinDecimals`, `positionQuantityDecimals`). Consumers using the shipped `getConfig(network)` / `TESTNET_CONFIG` are unaffected; anyone hand-building a config for their own deployment must add both.
+
 ## Margin trading
 
 DeepBook Margin adds leverage on top of any CLOB pool via separate objects
@@ -248,10 +292,13 @@ For endpoints and the full indexer-vs-SDK guidance, see
 
 ## DeepBook Predict
 
-Expiry-based prediction markets — a **separate** `deepbook_predict` Move package,
-NOT the CLOB (no Pool / BalanceManager / order book; trades price against an LP
-vault via OracleSVI). Testnet-only/experimental as of 2026-05. For the object
-model, on-chain entry points, oracle lifecycle, data-read paths, and pitfalls,
+Expiry-based prediction markets — a **separate** Move package, NOT the CLOB (no Pool /
+BalanceManager / order book; trades price against an LP vault). Testnet-only/experimental.
+Since deepbook-v3 **2.1.3** the TypeScript client ships in-tree at
+`@mysten/deepbook-v3/predict` (superseding the standalone `@mysten/deepbook-predict`) —
+see the subpath section above, **including the warning that the shipped client targets
+`predict-testnet-8-21` while the reference below documents the earlier `predict-testnet-4-16`
+design**. For that (superseded) object model, entry points, oracle lifecycle and pitfalls,
 see **[references/predict.md](references/predict.md)**.
 
 ## Best practices

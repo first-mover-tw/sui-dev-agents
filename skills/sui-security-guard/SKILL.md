@@ -91,6 +91,7 @@ Before deployment, verify:
 - [ ] No API keys in frontend code (browser-accessible)
 - [ ] AdminCap / UpgradeCap properly guarded (not public transfer)
 - [ ] Pre-commit hook installed and active
+- [ ] If the package calls `seal::bf_hmac_encryption::decrypt` / `verify_derived_keys`: the key-server `PublicKey` values come from the **package's own** stored config or the on-chain key-server objects — **never** from a caller-supplied argument. Seal validates neither (`new_public_key` validates only the G2 encoding of the bytes, never their provenance; both functions document *"It is up to the caller to ensure that the given public keys are from the correct key servers"*), so an attacker who supplies both the public keys and the `EncryptedObject` gets back **a plaintext of their own choosing** that the package treats as key-server-authorized. This is a forgery break, not a confidentiality break — a genuine ciphertext still makes `decrypt` return `none()` (at the degree / randomness-scalar / `verify_nonce` gates, never reaching the MAC). See `sui-red-team` for the full vector.
 
 ## Move Contract Audit (deep review)
 

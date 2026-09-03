@@ -2,7 +2,7 @@
 
 > **Status:** GA (Generally Available) as of SUI v1.67+, current v1.78+ (Protocol 135, mainnet v1.78.1); filtered `List*` / subscription APIs stable since Protocol 130
 > **JSON-RPC:** Shut off on public fullnodes (permanent deactivation landed 2026-07-31), Quorum Driver disabled
-> **Service/method names verified against `@mysten/sui@2.28.0` shipped protos (`sui.rpc.v2`) on 2026-09-02** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types; 2.25.0 lifts `getCurrentSystemState` / `getProtocolConfig` / `getChainIdentifier` / `getDynamicObjectField` from `client.core.*` to top-level `SuiGrpcClient` methods (`client.core.*` still works)
+> **Service/method names verified against `@mysten/sui@2.29.0` shipped protos (`sui.rpc.v2`) on 2026-09-03** — all 24 listed methods re-resolved; 2.23.x adds `SubscribeTransactions` / `SubscribeEvents` to SubscriptionService and new `filter` / `query_options` proto types; 2.25.0 lifts `getCurrentSystemState` / `getProtocolConfig` / `getChainIdentifier` / `getDynamicObjectField` from `client.core.*` to top-level `SuiGrpcClient` methods (`client.core.*` still works); 2.29.0 changes no proto, but `@mysten/sui/grpc` now ships a `GrpcWebFetchTransport` **subclass** that decodes status messages (previously percent-encoded) and codes an aborted call from its reason (`DEADLINE_EXCEEDED` / `CANCELLED` instead of `INTERNAL`), re-exports `RpcError` + `GrpcStatusCode`, and finally forwards the rest of `GrpcWebOptions` (`timeout`, `meta`, `interceptors`, …) that ≤2.28.0 accepted and ignored
 > **Default port:** 8443 (TLS) or 8080 (plaintext)
 
 ## Overview

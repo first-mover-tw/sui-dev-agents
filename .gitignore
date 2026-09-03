@@ -11,6 +11,7 @@ docs/superpowers/
 deepbook-code-tab.png
 tasks/
 mcp-server/package-lock.json
+mcp-server/pnpm-lock.yaml
 landing/ws-resources.json
 description-optimization-workspace/
 sui-deepbook-workspace/

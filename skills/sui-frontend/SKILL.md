@@ -7,7 +7,7 @@ description: Sui frontend dApp development with @mysten/dapp-kit-react (React) a
 
 ## SDK Versions
 
-Targets: `@mysten/sui` 2.28.0 (^2.28.0), `@mysten/dapp-kit-react` 2.1.24 (^2.0), `@mysten/dapp-kit-core` 1.6.22 (^1.3). Tested: 2026-09-02.
+Targets: `@mysten/sui` 2.29.0 (^2.29.0), `@mysten/dapp-kit-react` 2.1.25 (^2.0), `@mysten/dapp-kit-core` 1.6.23 (^1.3). Tested: 2026-09-03.
 
 **Compatibility notes:** Before installing, run `npm ls @mysten/sui` — if you already have `@mysten/sui@1.x` from `seal`, `walrus`, or legacy `@mysten/dapp-kit`, do not add a 2.x package on top. Remediation: either upgrade those peers to versions compatible with sui 2.x, or stay fully on the 1.x line — don't mix. UI components moved to `@mysten/dapp-kit-react/ui` in 2.x — importing `ConnectButton` from the package root will fail with "is not exported".
 
