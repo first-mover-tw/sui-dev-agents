@@ -8,7 +8,7 @@ Off-chain REST service for historical and aggregate data (trades, volume, OHLCV,
 
 ```typescript
 // Mainnet base: https://deepbook-indexer.mainnet.mystenlabs.com
-// Predict (testnet): https://predict-server.testnet.mystenlabs.com
+// Predict (testnet): https://predict-server-v4.testnet.mystenlabs.com  (the predict-testnet-8-21 host; supersedes the older predict-server.testnet…, which no longer resolves)
 
 // Common endpoints (canonical names — verify exact query-param spelling against current docs):
 //   GET /pools                              — all pools + metadata (tick_size, lot_size)

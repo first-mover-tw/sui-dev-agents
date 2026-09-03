@@ -239,7 +239,7 @@ The 2.1.x line consolidated the separate DeepBook SDKs into subpaths of `@mysten
 |---|---|---|
 | `@mysten/deepbook-v3/account` | The shared on-chain **account primitive** (`AccountContract`, generated `account` bindings, `Account` / `AccountWrapper` BCS structs). DeepBook's core account wrapper and DeepBook Predict both build on it. | testnet-only ids |
 | `@mysten/deepbook-v3/sessions` | Time-limited trading **sessions** over a canonical Account (`SessionsContract`). | testnet-only ids |
-| `@mysten/deepbook-v3/predict` | **DeepBook Predict** (`PredictClient`, quotes, mint/redeem/claim, PLP, typed receipts, client-side board pricer). ⚠️ targets a **newer Move design** than [references/predict.md](references/predict.md) documents — see below. | testnet-only ids |
+| `@mysten/deepbook-v3/predict` | **DeepBook Predict** — a `PredictClient`, normally installed as a client extension (`$extend(predict({network}))`, then `client.predict.{tx,read,decode}`), covering quotes, mint/redeem/claim, PLP requests and a client-side board pricer. | testnet-only ids |
 
 Two standalone packages are **superseded** and formally `npm deprecate`d, so installing either now emits a warning: `@mysten/deepbook-account` (final release 0.1.0, *"Deprecated: use @mysten/deepbook-v3/account instead."*) and `@mysten/deepbook-predict` (0.3.0, *"…use @mysten/deepbook-v3/predict instead."*). Both keep working but will not be updated.
 
@@ -265,11 +265,18 @@ Hard limits, straight from the declarations (`dist/sessions.d.mts:54-56`; the `7
 
 `SessionsContract` covers `authorizeSession` / `revokeSession` / `sessionExpirationMs` plus the Predict wrappers (`mintExactQuantity`, `mintExactAmount`, `redeemLive`, `redeemSettled`). The **spot** session wrappers are generated and reachable through `sessionsMoveCalls`, but are **not** wrapped on `SessionsContract` — the spot-over-Account workflow is not modelled yet.
 
-### ⚠️ Predict: the shipped client is ahead of this skill's Move reference
+### Predict targets `predict-testnet-8-21` — assert it
 
-`@mysten/deepbook-v3/predict` addresses deployment **`predict-testnet-8-21`** (`dist/deployments/testnet.mjs`), while [references/predict.md](references/predict.md) documents the earlier **`predict-testnet-4-16`** branch. That is not a version bump, it is a restructure: the generated bindings that ship with the SDK are `expiry_market`, `expiry_cash`, `predict_account`, `order`, `pricing`, `plp` / `lp_book` / `pool_accounting`, `registry` / `market_manager`, `strike_exposure*` — there is **no `predict.move`, no `predict_manager` and no `oracle` module**. `PredictManager` and `OracleSVI`-as-a-`deepbook_predict`-type do not exist in the deployment `PredictClient` talks to; positions live in the shared `Account` primitive as `predict_account::{Position, PredictData}`, markets are `ExpiryMarket`, and pricing goes through `expiry_market::load_live_pricer`. **The SVI oracle did not disappear — it moved into the separate `propbook` package**, and you still have to wire it: `PredictPackages.propbook`, `PredictConfig.objects.oracleRegistry`, and, per underlying (`PredictConfig.underlyings` is a `Record` keyed by symbol, not an array), `blockScholesSviStore` / `blockScholesValueStore` / `pythFeed` (`dist/predict/config/types.d.mts`); `load_live_pricer` takes `propbookRegistry` / `pyth` / `bsValues` / `bsSvi` and defaults `propbookRegistry` from `config.oracleRegistry`.
+`@mysten/deepbook-v3/predict` addresses deployment **`predict-testnet-8-21`** (`dist/deployments/testnet.mjs`, source commit `1f79fe87`). Upstream's own integration guide tells you to check that at startup, because a later SDK release can intentionally move testnet to a newer deployment:
 
-**So:** use `PredictClient` and the config/deployment helpers from the SDK, and treat predict.md's object model, entry points and pitfalls as documentation of the **superseded 4-16 design** — do not hand-build PTBs from it against the shipped client. Re-verifying predict.md against `predict-testnet-8-21` is tracked as follow-up work.
+```typescript
+import { getDeployment } from '@mysten/deepbook-v3/predict';
+
+const deployment = getDeployment('testnet');
+if (deployment.deployment !== 'predict-testnet-8-21') throw new Error(deployment.deployment);
+```
+
+That deployment is a **restructure** of the older `predict-testnet-4-16` design, not a version bump: the market root is a per-expiry shared `ExpiryMarket`, user positions live in the shared `account` package's `Account` (as a `predict_account::PredictData` slot), and the SVI oracle moved out into the separate **`propbook`** package — so `PredictManager` and `OracleSVI` no longer exist as `deepbook_predict` types. You still wire the oracle in: `PredictPackages.propbook`, `PredictConfig.objects.oracleRegistry`, and per underlying (`PredictConfig.underlyings` is a `Record` keyed by symbol, not an array) `blockScholesSviStore` / `blockScholesValueStore` / `pythFeed`. Everything priced goes through `expiry_market::load_live_pricer`, which must run in the **same PTB** as the mint or redeem it feeds. Full model, entry points and pitfalls: **[references/predict.md](references/predict.md)**.
 
 ### Predict config change (2.1.x)
 
@@ -295,11 +302,10 @@ For endpoints and the full indexer-vs-SDK guidance, see
 Expiry-based prediction markets — a **separate** Move package, NOT the CLOB (no Pool /
 BalanceManager / order book; trades price against an LP vault). Testnet-only/experimental.
 Since deepbook-v3 **2.1.3** the TypeScript client ships in-tree at
-`@mysten/deepbook-v3/predict` (superseding the standalone `@mysten/deepbook-predict`) —
-see the subpath section above, **including the warning that the shipped client targets
-`predict-testnet-8-21` while the reference below documents the earlier `predict-testnet-4-16`
-design**. For that (superseded) object model, entry points, oracle lifecycle and pitfalls,
-see **[references/predict.md](references/predict.md)**.
+`@mysten/deepbook-v3/predict` (superseding the standalone `@mysten/deepbook-predict`).
+For the object model, PTB shapes, oracle wiring, the asynchronous PLP queue and pitfalls,
+see **[references/predict.md](references/predict.md)** — verified against the
+`predict-testnet-8-21` Move source at the commit the SDK records.
 
 ## Best practices
 

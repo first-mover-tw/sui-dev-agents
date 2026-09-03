@@ -20,7 +20,7 @@ export function isCacheFresh(lastFullCheck, now, ttlMs) {
 export function renderStatus(state) {
   if (state.drift) {
     const ids = state.changed.map(c => c.id).join(', ')
-    return `🔔 SUI drift: ${ids} changed → deep check queued (run will investigate via gemini→codex)`
+    return `🔔 SUI drift: ${ids} changed → deep check queued (parallel subagent investigation)`
   }
   const sui = state.markers?.sui ? `, sui ${state.markers.sui}` : ''
   return `✅ SUI all-green (last deep check ${state.lastFullCheckISO}${sui})`

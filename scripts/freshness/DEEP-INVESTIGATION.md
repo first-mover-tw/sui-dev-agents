@@ -1,22 +1,24 @@
 # SUI Freshness — Deep Investigation Runbook (Layer 2)
 
-Triggered when `tasks/.sui-freshness-pending` exists. Run this in-session (proactively, first turn). Web flow per `~/.claude/rules/general/workflow.md`: gemini → codex → integrate (built-in WebSearch/WebFetch stay disabled).
+Triggered when `tasks/.sui-freshness-pending` exists. Run this in-session (proactively, first turn). Investigation is fanned out to parallel fresh-context subagents, one per changed source (see step 2).
 
 ## Steps
 
 1. Read `tasks/.sui-freshness-pending` for the `changed[]` list (id, old→new).
-2. For EACH changed source, run:
-   - `gemini --skip-trust -p "What changed in <source/repo> between <old> and <new>? Focus on developer-facing API/SDK/CLI/protocol changes."`
-   - `codex exec "Verify and condense the following gemini output about <source>. Flag anything unverifiable. <paste gemini text>"`
-   - If codex quota is blown → Agent tool `general-purpose` subagent (fresh context), gemini text + verify instruction attached.
+2. For EACH changed source, dispatch a parallel `general-purpose` subagent (fresh context, one per source, all in one message so they run concurrently): "What changed in <source/repo> between <old> and <new>? Developer-facing API/SDK/CLI/protocol changes only. Verify every claim against the actual artifact (`npm pack` the published tarball, upstream source at the tagged commit) — release notes and changelogs are evidence of intent, not of behaviour. Report path:line for each claim; flag anything you could not verify." Give each worker a `$(mktemp -d)` write whitelist and a fixed report format; land reports in `tasks/freshness-worker-<topic>.md`.
+   - The external CLIs (gemini / codex / grok) are **not** the path any more — do not attempt to call them (see memory `external-cli-status.md`). The parallel-worker flow replaced them and has been the shipping path since 2026-08-29.
 3. **Toolchain check:** run `suiup show` (do NOT assume column format — read actual output). Compare installed sui/walrus/etc vs the new markers. List lagging tools + exact `suiup update` / `suiup install <tool>@<network>` commands. If `suiup` not installed, note it.
 4. **Impact mapping:** for each verified change, grep **repo-wide** — not just the skills tree: `SKILL.md` / `references/*` / `skills/sui-compat-matrix/references/sdk-compat-matrix.md` rows / `scripts/ci/snippets/package.json` pins, **plus `README.md`, `agents/` (supreme + subagent prompts), `docs/`, `rules/`, `landing/index.html`, `CHANGELOG.md`** (baseline strings hide in all of them — landing/agents have been missed twice: 2026-08-06, 2026-08-16). List candidate edit points. DO NOT edit.
-5. **Write report** `tasks/sui-freshness-YYYY-MM-DD.md`: per-source verified change, toolchain actions, candidate skill edits, and a "needs source-verbatim re-verification before integration" caveat (per lessons: docs lie, verify vs .d.mts/source).
-6. **Summarize** to the user: N updates, affected skills, toolchain action. Then STOP — ask which items to integrate.
-7. Integration is human-gated: Plan-track items → brainstorm→plan; trivial → fast-track. Always dual-review. ONLY after integration lands: advance cache markers (copy `new` values into `tasks/.sui-freshness-cache.json` `markers`) and `rm tasks/.sui-freshness-pending`.
+5. **Deployment-pointer check (new 2026-09-03 — this gap shipped a reference several deployments out of date).** Modern `@mysten/*` packages can carry the on-chain deployment they address *inside* `dist`: a `dist/deployments/` directory, a `getDeployment(network)` export, a `deployment` / `sourceCommit` field in a generated config. Whenever a bumped SDK has one, **read it** and compare the deployment it names against the branch/tag this repo's prose was verified against. "The API exists in the SDK" is layer one; "the SDK points at the same on-chain package our docs describe" is layer two, and only layer two catches a Move-side restructure that the SDK changelog never mentions. Concretely: `grep -rl "deployment\|sourceCommit" node_modules/@mysten/<pkg>/dist` and diff the generated module list against the modules the reference documents. Miss that gave us `@mysten/deepbook-v3/predict` (targets `predict-testnet-8-21`) wired to `references/predict.md` (documents `predict-testnet-4-16`, whose `PredictManager` / `OracleSVI` no longer exist).
+
+6. **Write report** `tasks/sui-freshness-YYYY-MM-DD.md`: per-source verified change, toolchain actions, candidate skill edits, and a "needs source-verbatim re-verification before integration" caveat (per lessons: docs lie, verify vs .d.mts/source).
+7. **Summarize** to the user: N updates, affected skills, toolchain action. Then STOP — ask which items to integrate.
+8. Integration is human-gated: Plan-track items → brainstorm→plan; trivial → fast-track. Always dual-review. ONLY after integration lands: advance cache markers (copy `new` values into `tasks/.sui-freshness-cache.json` `markers`) and `rm tasks/.sui-freshness-pending`.
 
 ## Safety (per tasks/lessons.md)
 - README/docs lie → verify every symbol/signature vs installed `.d.mts`/source before it enters a skill.
 - Reviewer/subagent claims are trust-but-verify; same wrong claim 2× → stop trusting it.
 - Adding a skill with an `@mysten/*` pin → sync 4 registration points (banner / compat-scope.txt / matrix row / snippets package.json).
 - A drift marker is NOT "handled" until the change is integrated (or explicitly dismissed). Don't advance markers just because you looked.
+- Byte-identity of a package's barrel entry (`dist/index.d.mts`) proves nothing about the public surface — it only re-exports. Diff what the barrel imports.
+- "Why does it fail?" claims must be read off the actual control flow, not inferred from whichever check sounds most likely to stop it.

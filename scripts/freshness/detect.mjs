@@ -53,7 +53,7 @@ async function main() {
     // refresh lastFullCheck so we don't re-hammer the network every session, but keep old markers.
     await writeFile(CACHE, JSON.stringify({ ...cache, lastFullCheck: now, lastFullCheckISO: nowISO }, null, 2))
     process.stdout.write(renderStatus({ drift: true, changed }) + '\n')
-    process.stdout.write('ACTION: a drift report has NOT been generated yet. Read scripts/freshness/DEEP-INVESTIGATION.md and run the gemini→codex investigation for the changed sources, then summarize.\n')
+    process.stdout.write('ACTION: a drift report has NOT been generated yet. Read scripts/freshness/DEEP-INVESTIGATION.md and fan out one parallel subagent per changed source (step 2), then summarize.\n')
   } else {
     // all-green: safe to advance markers (drops ERROR_MARKER values — keep last good)
     const merged = { ...cache.markers }
