@@ -511,7 +511,7 @@ Before deployment, verify:
 
 ### Mermaid Dependency Diagram
 
-```markdown
+````markdown
 ## Module Dependencies
 
 ```mermaid
@@ -521,7 +521,7 @@ graph TD
     B --> D[shared]
     C --> D
 ```
-```
+````
 
 ---
 

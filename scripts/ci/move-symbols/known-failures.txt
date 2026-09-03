@@ -1,0 +1,2 @@
+# <md path> <symbol> — pairs already failing when the gate landed. Empty: the corpus
+# was clean at mainnet-v1.78.1. Do NOT add entries to silence a fabrication.

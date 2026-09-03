@@ -266,7 +266,7 @@ Now I'll generate the comprehensive specification document.
 
 ## Example 2: DeFi AMM - Generated Specification (Abbreviated)
 
-```markdown
+````markdown
 # DeFi AMM - Project Specification
 
 **Generated:** 2024-01-28
@@ -507,7 +507,7 @@ dy = (dx * 997 * y) / (x * 1000 + dx * 997)
 - AMM Best Practices: [Community examples]
 
 **Last Updated:** 2024-01-28 from sui-docs-query
-```
+````
 
 ---
 
@@ -546,7 +546,7 @@ Tech Stack:
 
 ### Data Structures Section
 
-```markdown
+````markdown
 ## Core Data Structures
 
 ### Character NFT
@@ -632,11 +632,11 @@ public struct Quest has key, store {
     completions: u64
 }
 ```
-```
+````
 
 ### Battle System Section
 
-```markdown
+````markdown
 ## Battle Mechanics
 
 ### Combat Formula
@@ -684,7 +684,7 @@ public fun calculate_damage(
    - Update character state
 6. If player loses:
    - Respawn with penalty
-```
+````
 
 ---
 

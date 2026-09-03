@@ -423,7 +423,9 @@ sui-dev-agents/
 │   │   ├── validate-plugin.sh
 │   │   ├── check-skill-consistency.sh
 │   │   ├── check-compat-matrix.sh
-│   │   └── snippets/                  # code-block type-check + @check:skip import gate
+│   │   ├── check-move-symbols.sh
+│   │   ├── snippets/                  # code-block type-check + @check:skip import gate
+│   │   └── move-symbols/              # ```move framework symbol index + gate
 │   └── hooks/                         # 7 hook scripts
 │
 ├── docs/

@@ -45,3 +45,15 @@ jobs:
         run: node --test scripts/ci/tests/check-compat-matrix.test.mjs
       - name: Run freshness self-tests
         run: node --test scripts/freshness/tests/*.test.mjs
+
+  check-move-symbols:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check Move framework symbols in fenced blocks
+        run: bash scripts/ci/check-move-symbols.sh
+      - name: Run Move symbol gate self-tests
+        run: node --test scripts/ci/tests/check-move-symbols.test.mjs
