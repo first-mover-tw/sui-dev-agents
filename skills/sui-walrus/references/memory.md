@@ -115,6 +115,21 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   `restore(namespace, limit?=10)` (rebuild the local vector index from Walrus),
   `embed(text)`, `health()` (`HealthResult.write_ready?: boolean` since 0.1.5 — `false` = relayer not
   accepting writes, absent = not reported), `compatibility()`.
+- **`namespace` is relayer-validated on the write and admin paths, not on recall.** `remember`,
+  `analyze`, `forget`, `stats` and `restore` reject an empty namespace (`400 namespace cannot be
+  empty`) or one over `MAX_NAMESPACE_BYTES = 255` **bytes** (not chars — a multi-byte namespace hits
+  the wall sooner than its `.length` suggests). `recall` / `ask` are *not* validated on the deployed
+  relayer: an empty namespace there is a normal `200` with an empty result set, so a namespace bug
+  surfaces as "no memories found" on read and as a `400` on the next write. Verified against the
+  relayer commit `/health` reports (`build.commit`), not against the repo's default branch — see the
+  unreleased note below.
+- **Unreleased on `MystenLabs/MemWal` `dev` (do not code against these yet).** As of 2026-09-04 the
+  production relayer (`https://relayer.memory.walrus.xyz`, `/health` → `build.commit`
+  `559531fe`, `mode: "production"`) is *diverged* from `dev` HEAD `59d6f0ec` — 75 commits behind —
+  so two wire-level changes merged on `dev` are **not live**: (1) `validate_namespace` extended to
+  `recall` / `ask` plus a NUL (`\0`) rejection (deliberately NUL-only; `\t` / `\n` / `\r` stay legal
+  so namespaces already written with them remain readable and deletable), and (2) the `restore()`
+  `truncated` rewrite described in the next bullet. Re-check `build.commit` before trusting either.
 - **`restore()` truncation is reported, not silent (≥0.1.x).** `RestoreResult` now carries
   `truncated: boolean` — `true` when the restore is known-incomplete, either because more missing
   blobs existed than `limit` allowed, or because the server's per-owner candidate-fetch cap (shared
@@ -122,7 +137,12 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   with `total === 0`). Raising `limit` only helps the first case; there is no pagination cursor, so a
   cap hit cannot be worked around by retrying. Decrypt/embed failures are still dropped silently
   (counted as neither `restored` nor `skipped`). Older relayers omit the field; the SDK defaults it
-  to `false`.
+  to `false`. This is the contract the **deployed** relayer implements (`truncated = limit_truncated
+  || source_capped`). `dev` has already replaced it (unreleased, see above): a cap hit alone stops
+  meaning `truncated` once `limit >= 20`, so raising `limit` past that no longer widens discovery and
+  `truncated: false` stops implying completeness. The `sourceCapped` field that would let a client
+  tell the two apart is not implemented on either side, so when this ships, treat a large-`limit`
+  restore as possibly-partial regardless of the flag.
 - **New in 0.1.x (verified vs `0.1.5` `.d.ts`):** `MemWalMock` (deterministic, dependency-free
   in-memory stand-in for the core API — never opens a socket or touches keys; token-overlap distance;
   plus test-only `forget(blobId)` / `clear(namespace?)`); `withMemWal(model, options)` AI SDK
