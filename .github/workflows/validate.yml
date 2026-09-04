@@ -10,7 +10,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Validate plugin structure
         run: ./scripts/ci/validate-plugin.sh
@@ -21,10 +21,10 @@ jobs:
   type-check-snippets:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: scripts/ci/snippets/package.json
       - name: Type-check skill code blocks
@@ -35,10 +35,10 @@ jobs:
   check-compat-matrix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Run compat matrix check
         run: bash scripts/ci/check-compat-matrix.sh
       - name: Run check script self-tests
@@ -49,10 +49,10 @@ jobs:
   check-move-symbols:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Check Move framework symbols in fenced blocks
         run: bash scripts/ci/check-move-symbols.sh
       - name: Run Move symbol gate self-tests
@@ -63,10 +63,10 @@ jobs:
     # A cache miss pulls a ~1 GB tarball; the runner's default cap is six hours.
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
       # The compiler version is not a workflow constant: it is read from the vendored symbol
       # index, so this job and the symbol gate can never drift onto different framework
       # revisions without one of them failing loudly.
@@ -75,7 +75,7 @@ jobs:
         run: echo "tag=$(node -p "require('./scripts/ci/move-symbols/index.json').tag")" >> "$GITHUB_OUTPUT"
       - name: Cache the sui CLI
         id: sui-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.local/share/sui-bin
           key: sui-cli-${{ steps.pin.outputs.tag }}-ubuntu-x86_64
@@ -94,7 +94,7 @@ jobs:
       - name: Put the pinned sui on PATH
         run: echo "$HOME/.local/share/sui-bin" >> "$GITHUB_PATH"
       - name: Cache the Move framework sources
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/sui-dev-agents
           key: move-framework-${{ steps.pin.outputs.tag }}

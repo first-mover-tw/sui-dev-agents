@@ -24,7 +24,7 @@
 // extract.mjs hoists imports and drops surrounding body comments — a preceding-line
 // comment would not survive.
 //
-// Run AFTER extract.mjs (check-snippets.sh does this). Node 20 stdlib only, no deps.
+// Run AFTER extract.mjs (check-snippets.sh does this). Node 20+ stdlib only, no deps.
 
 import { readdir, readFile, writeFile, rm, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";

@@ -206,4 +206,4 @@ value and never consumed — plus one block that had been passing without being 
 
 See `skills/sui-compat-matrix/` for the SOP. `check-compat-matrix.sh` enforces that the per-skill `Targets: @mysten/X x.y.z` banner, the matrix rows in `references/sdk-compat-matrix.md`, and the installed versions in `snippets/package.json` agree. `compat-scope.txt` is the skill allowlist.
 
-All scripts are pure Node 20 stdlib / bash — no `npm install` for the checks themselves (only `snippets/` installs the SDKs being type-checked against).
+All scripts are pure Node stdlib / bash — no `npm install` for the checks themselves (only `snippets/` installs the SDKs being type-checked against). They are written against the **Node 20** stdlib as a floor; CI runs them on **Node 24**, which is also what the GitHub Actions runtimes require.
