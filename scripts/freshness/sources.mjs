@@ -1,8 +1,14 @@
 // scripts/freshness/sources.mjs
 // Each source: id, label, kind, and the args needed to fetch its marker.
-// kind 'release' -> latest release tag; 'commit' -> default-branch HEAD sha; 'page' -> Last-Modified/hash.
+// kind 'release' -> latest release tag; 'commit' -> default-branch HEAD sha;
+// 'page' -> Last-Modified/hash, or a named content fingerprint when the headers lie;
+// 'endpoint' -> one scalar from a live service's JSON (the deployment, not the repo).
 export const SOURCES = [
-  { id: 'docs-release-notes', label: 'docs.sui.io/release-notes', kind: 'page', url: 'https://docs.sui.io/references/release-notes' },
+  // Header-based markers are useless here: docs.sui.io rotates Last-Modified AND
+  // ETag on every CDN rebuild, so this source produced two consecutive false drifts
+  // (2026-09-03, 2026-09-04) with byte-identical release content. Fingerprint the
+  // release list instead — see PAGE_FINGERPRINTS['sui-release-notes'].
+  { id: 'docs-release-notes', label: 'docs.sui.io/release-notes', kind: 'page', fingerprint: 'sui-release-notes', url: 'https://docs.sui.io/references/release-notes' },
   { id: 'docs-sui-stack',     label: 'docs.sui.io/sui-stack',     kind: 'page', url: 'https://docs.sui.io/sui-stack' },
   { id: 'sui',                label: 'MystenLabs/sui',                repo: 'MystenLabs/sui',                kind: 'release' },
   // ts-sdks monorepo stopped cutting GitHub releases (frozen at Apr 2026) — watch npm directly.
@@ -23,5 +29,10 @@ export const SOURCES = [
   { id: 'sagat',              label: 'MystenLabs/sagat',              repo: 'MystenLabs/sagat',              kind: 'commit', branch: 'main' },
   { id: 'sui-stack-messaging',label: 'MystenLabs/sui-stack-messaging',repo: 'MystenLabs/sui-stack-messaging',kind: 'commit', branch: 'main' },
   { id: 'memwal',             label: 'MystenLabs/MemWal',             repo: 'MystenLabs/MemWal',             kind: 'commit', branch: 'dev' },
+  // The deployment behind the `memwal` source above. Both are watched on purpose:
+  // `dev` moving means new upstream work exists, this moving means readers can
+  // actually hit it. On 2026-09-04 they were 75 commits apart, and only this one
+  // says which of the two a skill is allowed to describe as current behaviour.
+  { id: 'memwal-relayer',     label: 'MemWal relayer (deployed)',     kind: 'endpoint', url: 'https://relayer.memory.walrus.xyz/health', jsonPath: 'build.commit' },
   { id: 'sui-pilot',          label: 'contract-hero/sui-pilot',       repo: 'contract-hero/sui-pilot',       kind: 'commit', branch: 'main' },
 ]

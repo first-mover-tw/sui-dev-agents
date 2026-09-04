@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { SOURCES } from './sources.mjs'
 import { realRunner, fetchMarker } from './fetch.mjs'
-import { compareMarkers, isCacheFresh, renderStatus, ERROR_MARKER } from './core.mjs'
+import { compareMarkers, isCacheFresh, renderStatus, mergeMarkers, isExtractFailure, ERROR_MARKER } from './core.mjs'
 
 const TTL = 24 * 3600 * 1000
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
@@ -54,10 +54,17 @@ async function main() {
     await writeFile(CACHE, JSON.stringify({ ...cache, lastFullCheck: now, lastFullCheckISO: nowISO }, null, 2))
     process.stdout.write(renderStatus({ drift: true, changed }) + '\n')
     process.stdout.write('ACTION: a drift report has NOT been generated yet. Read scripts/freshness/DEEP-INVESTIGATION.md and fan out one parallel subagent per changed source (step 2), then summarize.\n')
+    // Without this line the runbook would dispatch a worker to find out "what
+    // changed upstream" for a source where nothing upstream changed and our own
+    // extractor stopped matching.
+    const broken = changed.filter(c => isExtractFailure(c.new)).map(c => c.id)
+    if (broken.length) {
+      process.stdout.write(`NOTE: ${broken.join(', ')} did not drift — their extractor matched nothing. Fix the extractor in scripts/freshness/fetch.mjs before investigating upstream.\n`)
+    }
   } else {
-    // all-green: safe to advance markers (drops ERROR_MARKER values — keep last good)
-    const merged = { ...cache.markers }
-    for (const [id, v] of Object.entries(fresh)) if (v !== ERROR_MARKER) merged[id] = v
+    // all-green: safe to advance markers (mergeMarkers drops fetch errors and
+    // extract failures — see core.mjs for why the second one matters).
+    const merged = mergeMarkers(cache.markers, fresh)
     await writeFile(CACHE, JSON.stringify({ markers: merged, lastFullCheck: now, lastFullCheckISO: nowISO }, null, 2))
     const note = errored > 0 ? ` (${errored} source(s) errored, will recheck)` : ''
     process.stdout.write(renderStatus({ drift: false, lastFullCheckISO: nowISO, markers: merged }) + note + '\n')
