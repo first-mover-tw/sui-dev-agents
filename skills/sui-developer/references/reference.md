@@ -90,6 +90,8 @@ public fun transfer_admin(
 ```move
 module example::marketplace;
 
+use sui::package;
+
 /// OTW struct — must match module name in UPPERCASE, have only `drop`
 public struct MARKETPLACE has drop {}
 

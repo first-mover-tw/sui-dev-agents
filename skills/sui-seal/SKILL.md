@@ -232,6 +232,9 @@ module example::token_gate {
 module example::time_lock {
     use sui::clock::Clock;
 
+    #[error]
+    const ENotUnlockedYet: vector<u8> = "Time lock has not expired yet";
+
     public struct TimeLockPolicy has key { id: UID, unlock_ms: u64 }
 
     public fun seal_approve_after(
@@ -239,7 +242,7 @@ module example::time_lock {
         policy: &TimeLockPolicy,
         clock: &Clock,
     ) {
-        assert!(clock::timestamp_ms(clock) >= policy.unlock_ms, 0);
+        assert!(clock.timestamp_ms() >= policy.unlock_ms, ENotUnlockedYet);
     }
 }
 ```
@@ -248,15 +251,39 @@ module example::time_lock {
 
 ```move
 module example::paywall {
-    use sui::coin::{Self, Coin};
+    use sui::coin::Coin;
     use sui::sui::SUI;
+
+    #[error]
+    const EInsufficientPayment: vector<u8> = "Payment is below the asking price";
+    #[error]
+    const ENotReceiptOwner: vector<u8> = "Receipt belongs to another address";
+    #[error]
+    const EWrongReceipt: vector<u8> = "Receipt does not cover this identity";
+
+    /// Shared object created at publish time; holds where the money goes. A hardcoded address
+    /// constant would be copied into production as-is.
+    public struct Paywall has key { id: UID, treasury: address }
 
     public struct Receipt has key, store { id: UID, owner: address, paid_for: vector<u8> }
 
     /// Real transaction: user pays, gets a Receipt object.
-    entry fun pay(price: u64, mut payment: Coin<SUI>, paid_for: vector<u8>, ctx: &mut TxContext) {
-        assert!(coin::value(&payment) >= price, 0);
-        // ...transfer payment, mint receipt...
+    entry fun pay(
+        paywall: &Paywall,
+        price: u64,
+        mut payment: Coin<SUI>,
+        paid_for: vector<u8>,
+        ctx: &mut TxContext,
+    ) {
+        assert!(payment.value() >= price, EInsufficientPayment);
+        transfer::public_transfer(payment.split(price, ctx), paywall.treasury);
+        // The change is a `Coin<SUI>` by value: hand it back, or the transaction aborts on an
+        // unused value without `drop`.
+        transfer::public_transfer(payment, ctx.sender());
+        transfer::transfer(
+            Receipt { id: object::new(ctx), owner: ctx.sender(), paid_for },
+            ctx.sender(),
+        );
     }
 
     /// seal_approve runs against the user's owned Receipt.
@@ -265,8 +292,8 @@ module example::paywall {
         receipt: &Receipt,
         ctx: &TxContext,
     ) {
-        assert!(receipt.owner == tx_context::sender(ctx), 0);
-        assert!(receipt.paid_for == id, 0);
+        assert!(receipt.owner == ctx.sender(), ENotReceiptOwner);
+        assert!(receipt.paid_for == id, EWrongReceipt);
     }
 }
 ```

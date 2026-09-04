@@ -1,0 +1,32 @@
+# Blocks that declare a `module` but cannot compile standalone, with the reason each one is
+# structural rather than a defect. Format: `<md path> <addr>::<module>` (`#2` for a second block
+# declaring the same module in the same file). NOT path:line — see check-move-build.mjs.
+#
+# Adding a line here is a claim that the block CANNOT be made to compile without damaging what it
+# teaches. Every entry below was checked once: the five that turned out to be ordinary defects
+# (missing `use` Self, a `String::append` used as an expression, a `Coin` left unconsumed) were
+# fixed in the .md instead, not listed here.
+
+# Continuation of the `example::admin` block above it: the AdminCap it takes is deliberately
+# defined in the earlier block, so the reader sees the capability defined once and used twice.
+skills/sui-developer/references/reference.md example::marketplace#2
+
+# Hot-potato / registry example calling into a `registry` module that belongs to the *other*
+# package in the story. Inlining a stub registry would make the example about the stub.
+skills/sui-developer/references/reference.md example::lending
+
+# Witness + capability excerpt: Vault, VaultOperatorCap and the error constants are elided on
+# purpose — the block exists to show the dual-authorization signature shape.
+skills/sui-developer/references/reference.md example::vault
+
+# `SomeNFT` / `some_nft::collection` are placeholders for the reader's own NFT type.
+skills/sui-seal/SKILL.md example::token_gate
+
+# Depends on the external `enclave` package (Nautilus), which is not a framework package and is
+# not vendored here.
+skills/sui-nautilus/SKILL.md app::weather
+
+# A `#[test_only]` test-suite example importing `project::nft` — the reader's own package under
+# test. Compiled with `--test` (without it the whole module is excluded from the build and this
+# block would pass while checking nothing).
+rules/sui-move/testing.md project::nft_tests

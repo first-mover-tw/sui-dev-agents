@@ -57,3 +57,48 @@ jobs:
         run: bash scripts/ci/check-move-symbols.sh
       - name: Run Move symbol gate self-tests
         run: node --test scripts/ci/tests/check-move-symbols.test.mjs
+
+  check-move-build:
+    runs-on: ubuntu-latest
+    # A cache miss pulls a ~1 GB tarball; the runner's default cap is six hours.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # The compiler version is not a workflow constant: it is read from the vendored symbol
+      # index, so this job and the symbol gate can never drift onto different framework
+      # revisions without one of them failing loudly.
+      - name: Read the pinned sui version
+        id: pin
+        run: echo "tag=$(node -p "require('./scripts/ci/move-symbols/index.json').tag")" >> "$GITHUB_OUTPUT"
+      - name: Cache the sui CLI
+        id: sui-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/sui-bin
+          key: sui-cli-${{ steps.pin.outputs.tag }}-ubuntu-x86_64
+      # The release tarball carries every binary in the repo (~1 GB) and we need exactly one,
+      # so only `./sui` is extracted and only that is cached.
+      - name: Install the sui CLI
+        if: steps.sui-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          TAG='${{ steps.pin.outputs.tag }}'
+          mkdir -p ~/.local/share/sui-bin
+          curl -fsSL -o /tmp/sui.tgz \
+            "https://github.com/MystenLabs/sui/releases/download/$TAG/sui-$TAG-ubuntu-x86_64.tgz"
+          tar -xzf /tmp/sui.tgz -C ~/.local/share/sui-bin ./sui
+          chmod +x ~/.local/share/sui-bin/sui
+      - name: Put the pinned sui on PATH
+        run: echo "$HOME/.local/share/sui-bin" >> "$GITHUB_PATH"
+      - name: Cache the Move framework sources
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/sui-dev-agents
+          key: move-framework-${{ steps.pin.outputs.tag }}
+      - name: Compile fenced ```move module blocks
+        run: bash scripts/ci/check-move-build.sh
+      - name: Run Move build gate self-tests
+        run: node --test scripts/ci/tests/check-move-build.test.mjs

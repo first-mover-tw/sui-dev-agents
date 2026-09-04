@@ -424,8 +424,10 @@ sui-dev-agents/
 │   │   ├── check-skill-consistency.sh
 │   │   ├── check-compat-matrix.sh
 │   │   ├── check-move-symbols.sh
+│   │   ├── check-move-build.sh
 │   │   ├── snippets/                  # code-block type-check + @check:skip import gate
-│   │   └── move-symbols/              # ```move framework symbol index + gate
+│   │   ├── move-symbols/              # ```move framework symbol index + gate (lib/ shared parser)
+│   │   └── move-build/                # ```move real-compile gate + known-failures baseline
 │   └── hooks/                         # 7 hook scripts
 │
 ├── docs/

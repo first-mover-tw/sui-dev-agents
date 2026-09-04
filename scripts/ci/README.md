@@ -1,6 +1,6 @@
 # CI checks
 
-Every push / PR to `main` runs `.github/workflows/validate.yml`, which has four jobs. All must pass before merge.
+Every push / PR to `main` runs `.github/workflows/validate.yml`, which has five jobs. All must pass before merge.
 
 | Job | Script | What it enforces |
 |-----|--------|------------------|
@@ -8,6 +8,7 @@ Every push / PR to `main` runs `.github/workflows/validate.yml`, which has four 
 | `type-check-snippets` | `check-snippets.sh` + `snippets/check-skip-imports.mjs` | Every fenced ` ```ts ` block in a skill type-checks against the pinned SDKs; `@check:skip` blocks can't hide hallucinated `@mysten/*` imports |
 | `check-compat-matrix` | `check-compat-matrix.sh` | The SDK version banner ↔ compat matrix ↔ `snippets/package.json` stay in sync (3-way drift detection) |
 | `check-move-symbols` | `check-move-symbols.sh` | Every fenced ` ```move ` block only names Move framework modules/members that exist in the pinned `sui`/`std`/`sui_system` release |
+| `check-move-build` | `check-move-build.sh` | Every ` ```move ` block that declares a `module` compiles with the real Move compiler at the pinned `sui` version |
 
 Run any of them locally before pushing:
 
@@ -17,6 +18,8 @@ node --test scripts/ci/tests/check-skip-imports.test.mjs
 bash scripts/ci/check-compat-matrix.sh
 bash scripts/ci/check-move-symbols.sh
 node --test scripts/ci/tests/check-move-symbols.test.mjs
+bash scripts/ci/check-move-build.sh          # needs the pinned `sui` on PATH
+node --test scripts/ci/tests/check-move-build.test.mjs
 ```
 
 ## Snippet type-check
@@ -139,6 +142,65 @@ node scripts/ci/move-symbols/build-index.mjs --src /tmp/sui-fw
 `known-failures.txt` holds `<md path> <symbol>` pairs that already fail; only new pairs break
 the build. It is empty — the corpus was clean at `mainnet-v1.78.1` — and padding it to silence
 a real fabrication defeats the gate.
+
+## Move build check
+
+The symbol gate answers "does `sui::coin::split` exist?". It cannot answer "does this block
+compile?" — arities, types, ability constraints and unconsumed values all need a compiler.
+`check-move-build.sh` runs one: every ` ```move ` block under `skills/` and `rules/` that
+declares a `module` is written into a throwaway package and built with `sui move build`.
+
+**Selection.** A block is compiled iff, after comments and string literals are blanked out, it
+declares `module <addr>::<name>` (`;` or `{ … }` form). The other ~126 blocks in the corpus are
+fragments — a PTB call, a struct definition, a function body — and a compiler failure on those
+says nothing about the docs. Named addresses come from the block itself (`module example::admin`
+→ `example = "0x0"`), so a block may use any address name it likes.
+
+**One package per block, never per file.** `skills/sui-developer/references/reference.md`
+declares `example::marketplace` twice, documenting two stages of the same example; grouping them
+produces EC02001 (duplicate module), an artefact of the harness rather than a defect.
+
+**Toolchain.** The compiler version is not configured here: it is read from
+`move-symbols/index.json`, so this gate and the symbol gate cannot drift onto different framework
+revisions. A `sui` on `PATH` at any other version is refused rather than silently trusted (pass
+`--allow-version-drift` for a local run where you accept the mismatch), and the framework checkout
+must be at the same tag — the compiler and the sources it compiles against are both pinned, or
+neither is. The sources are a sparse checkout cached under `~/.cache/sui-dev-agents` (~9 MB);
+without it the Move CLI's implicit dependency clones all of MystenLabs/sui into `~/.move`,
+~284 MB per revision. Build mode is per block: one carrying `#[test]` / `#[test_only]` builds with `--test` (without
+it the compiler excludes the module wholesale and the block passes while checking nothing), and
+every other block builds without it (with `--test` the test-only framework surface —
+`sui::test_scenario`, `sui::test_utils`, `std::unit_test` — resolves in a production example that
+would not compile for the reader).
+
+**Baseline.** `move-build/known-failures.txt` holds `<md path> <addr>::<module>` ids for blocks
+that cannot compile standalone, each with the reason it is structural: a continuation of an
+earlier block, a placeholder type the reader supplies, or a dependency on a package that is not
+the framework (Nautilus's `enclave`, the reader's own package under test). The id is deliberately
+not `path:line` — any edit above a baselined block would shift the line and make the entry read as
+a new failure *and* a stale line at once. Only new failures break the build; a stale entry (its
+block now compiles, or moved, or was deleted) **fails the run on this repo**, because a stale line
+printed under a ✅ is a note nobody acts on, and the id it abandons is free for a later block to
+inherit.
+
+Two floors keep the gate from being green for the wrong reason: all 16 compile units must be
+found (a selection regex that stops matching would otherwise check nothing), and at most 6 may be
+baselined. Neither has headroom: slack is exactly what lets a block or two disappear unnoticed. The cap is on exemptions rather than an absolute count of passes on purpose — an
+absolute floor holds only while the corpus size is frozen, so adding new passing blocks would buy
+room to baseline existing ones. On this repo the floors, the baseline path and the index path are
+constants — `--no-floors` and friends work only against a foreign `--root`, and the run says so
+when it ignores them.
+
+Unlike the TS and symbol gates, this one has no `// @check:skip`: a Move block either declares a
+module (and must compile) or it does not (and is never compiled), so the marker would only be a
+way to keep a broken module example. A deliberately-wrong *module* example — if one is ever
+needed — goes in the baseline with its reason, and the exemption cap is deliberately tight.
+
+When this gate goes red the fix is in the `.md`, not the baseline. It has already found five real
+defects in shipped examples: `use std::string::String` followed by a `string::utf8(...)` call
+(the `Self` import missing), the same shape for `sui::clock`, a `package::claim` with no
+`use sui::package`, a `String::append` used as if it returned a value, and a `Coin<SUI>` taken by
+value and never consumed — plus one block that had been passing without being compiled at all.
 
 ## compat-matrix
 

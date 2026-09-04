@@ -102,7 +102,7 @@ walrus upload myimage.png
 ```move
 module nft::metadata {
     use sui::object::{Self, UID};
-    use std::string::String;
+    use std::string::{Self, String};
 
     public struct NFT has key, store {
         id: UID,
@@ -123,9 +123,11 @@ module nft::metadata {
     }
 
     public fun metadata_url(nft: &NFT): String {
-        // Construct Walrus URL
-        string::utf8(b"walrus://")
-            .append(string::utf8(nft.walrus_blob_id))
+        // Construct Walrus URL. `append` mutates in place and returns (), so build
+        // the string in a local and return that.
+        let mut url = string::utf8(b"walrus://");
+        url.append(string::utf8(nft.walrus_blob_id));
+        url
     }
 }
 ```

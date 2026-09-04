@@ -207,7 +207,7 @@ This is an open-source project for the SUI developer community. Contributions ar
 - **New platform guides** — Add to `docs/platforms/` and update the platform README
 - **Skill improvements** — Edit `skills/*/SKILL.md` with better prompts or patterns
 
-PRs run CI (`.github/workflows/validate.yml`): plugin-structure validation, skill code-block type-checking + a `@check:skip` import gate against hallucinated `@mysten/*` APIs, SDK compat-matrix drift detection, and a Move framework symbol check that resolves every ` ```move ` block against the pinned `sui` release. Before editing skill code, see [`scripts/ci/README.md`](scripts/ci/README.md) — it covers the `@check:skip` syntax and marker rules. Run the checks locally with `bash scripts/ci/check-snippets.sh`, `bash scripts/ci/check-compat-matrix.sh` and `bash scripts/ci/check-move-symbols.sh`.
+PRs run CI (`.github/workflows/validate.yml`): plugin-structure validation, skill code-block type-checking + a `@check:skip` import gate against hallucinated `@mysten/*` APIs, SDK compat-matrix drift detection, a Move framework symbol check that resolves every ` ```move ` block against the pinned `sui` release, and a Move build check that compiles every ` ```move ` block declaring a `module` with the real Move compiler. Before editing skill code, see [`scripts/ci/README.md`](scripts/ci/README.md) — it covers the `@check:skip` syntax and marker rules. Run the checks locally with `bash scripts/ci/check-snippets.sh`, `bash scripts/ci/check-compat-matrix.sh`, `bash scripts/ci/check-move-symbols.sh` and `bash scripts/ci/check-move-build.sh` (the last one needs the pinned `sui` CLI on `PATH`).
 
 ---
 
