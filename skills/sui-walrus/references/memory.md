@@ -1,9 +1,41 @@
 # Walrus Memory (MemWal) — portable agent memory
 
-**Beta.** `@mysten-incubation/memwal@0.1.5` (peer deps are ranges, not pins). The relayer ships a
-runtime compatibility contract (`MEMWAL_TYPESCRIPT_COMPATIBILITY_VERSION`) — expect the API to churn
-while it is incubation-scoped. Deep/authoritative API: <https://memory.walrus.xyz>,
-<https://docs.wal.app/llms.txt>, and `MystenLabs/MemWal` `SKILL.md`.
+**Beta.** `@mysten-incubation/memwal@0.1.5` (npm `latest`; the `dev` dist-tag is `0.1.6-dev.0`). Peer
+deps are ranges, not pins. The relayer ships a runtime compatibility contract
+(`MEMWAL_TYPESCRIPT_COMPATIBILITY_VERSION`).
+
+**This file does not replace upstream's own docs.** MemWal ships canonical, agent-facing material of its
+own, and it is more complete than anything this repo can keep current by hand. Read *this* file for the
+three things upstream does not give you: (1) **errata**, where upstream's own docs contradict upstream's
+source; (2) the **deployed-vs-`dev` contract gap**, which no upstream doc states; and (3) **TypeScript
+detail verified against the published `.d.ts`** that the upstream `SKILL.md` omits.
+
+| Canonical upstream source | Read it for |
+| --- | --- |
+| `MystenLabs/MemWal` → `SKILL.md` (repo root) | The agent-facing API reference: entry points, response shapes, namespace + restore semantics, config, troubleshooting |
+| `MystenLabs/MemWal` → `.claude-plugin/marketplace.json` | The **official Claude Code plugin** (`memwal` — MemWal MCP + lifecycle hooks). Prefer installing it over hand-wiring proactive recall/save. `.agents/plugins/` is the Codex equivalent |
+| <https://docs.wal.app/walrus-memory/llms.txt> | Machine-readable docs index (`llms-full.txt` for the expanded corpus) |
+| <https://memory.walrus.xyz> | Docs site and account dashboard |
+
+**Maturity (checked 2026-09-04).** The relayer reports `apiVersion 1.0.0`, a `minSupportedSdk` floor
+(ts `0.0.4` / py `0.1.0` / mcp `0.0.1`), runtime `featureFlags`, and a `deprecations[]` list carrying
+`removalApiVersion` plus migration guidance — the **HTTP surface has a stated compatibility contract**,
+even while the TypeScript SDK stays `0.1.x` and incubation-scoped. Sibling packages: `memwal-mcp` 0.0.11,
+`memwal` 0.1.8 on PyPI (upstream's source dir is `packages/python-sdk-memwal`; there is no `memwal-python` package to install), `oc-memwal` (OpenClaw) 0.0.6.
+
+## Errata — where upstream's own docs disagree with upstream's source
+
+Upstream `SKILL.md` was last touched 2026-08-22 and predates the validation work below. Verified
+2026-09-04 by reading the Rust relayer source on both branches.
+
+- **Namespaces *do* have a length cap.** Upstream `SKILL.md` ("Namespace Semantics → Validation") states
+  there is "no length cap, no character whitelist". The source disagrees on both `main` and `dev`:
+  `services/server/src/types.rs` defines `MAX_NAMESPACE_BYTES = 255` and `validate_namespace()` rejects
+  an empty namespace and anything over that cap with HTTP **400**. Treat 255 **bytes** (not chars) as
+  real. The "no character whitelist" half is accurate for `main`; `dev` adds a NUL-only rejection.
+- **`restore()` returns a `truncated` flag** that upstream's response-field table omits entirely. Both
+  `main` and `dev` return it; only the *meaning* differs between them (see the deployed-vs-`dev` bullets
+  below).
 
 > **Note:** these examples are NOT type-checked by this repo's snippet gate (the package is not installed
 > in the CI snippet env, so the fences are `// @check:skip`). Symbols below were verified by hand against
@@ -123,13 +155,35 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   surfaces as "no memories found" on read and as a `400` on the next write. Verified against the
   relayer commit `/health` reports (`build.commit`), not against the repo's default branch — see the
   unreleased note below.
-- **Unreleased on `MystenLabs/MemWal` `dev` (do not code against these yet).** As of 2026-09-04 the
-  production relayer (`https://relayer.memory.walrus.xyz`, `/health` → `build.commit`
-  `559531fe`, `mode: "production"`) is *diverged* from `dev` HEAD `59d6f0ec` — 75 commits behind —
-  so two wire-level changes merged on `dev` are **not live**: (1) `validate_namespace` extended to
-  `recall` / `ask` plus a NUL (`\0`) rejection (deliberately NUL-only; `\t` / `\n` / `\r` stay legal
-  so namespaces already written with them remain readable and deletable), and (2) the `restore()`
-  `truncated` rewrite described in the next bullet. Re-check `build.commit` before trusting either.
+- **Namespaces are flat and opaque — there is no hierarchy.** Slashes and dots carry no meaning:
+  `"chat/user-42"` is one label, not a path. Every read is exact-equality (`WHERE namespace = $1`) —
+  no prefix match, no wildcard, no parent/child traversal. Build hierarchy in your own layer by
+  recalling across known namespaces and merging client-side. There is also **no normalisation**:
+  `"my-app"`, `" my-app"`, `"My-App"` and `"my-app/"` are four different namespaces. Omitting the
+  namespace falls back to the literal string `"default"`.
+- **`remember()` is always append, never upsert.** Every accepted call creates a new entry with a fresh
+  UUID, so sending identical text to the same `(owner, namespace)` twice yields **two** entries and both
+  surface in later recalls. The namespace is a filter, not a dedup key — dedupe before writing, or
+  delete the prior entry.
+- **Isolation is enforced in SQL, not by filtering.** Cross-namespace and cross-owner rows are excluded
+  by the `WHERE` clause, so they are never decrypted or transferred — same owner + same namespace is the
+  only combination a recall can see.
+- **`restore()` latency scales linearly with `limit`.** The relayer caps itself at 10 concurrent Walrus
+  aggregator downloads and 3 concurrent SEAL decrypts (CPU-bound, intentional), with embedding requests
+  bounded by its own pool. Budget **seconds per blob** on a cold cache: keep `limit` small (≤50) for
+  interactive flows and run bigger restores out-of-band. `limit` caps the *inspected* blob set
+  (newest-first), not `restored` — if all inspected blobs are already indexed you get `restored: 0`,
+  `skipped: limit`.
+- **Unreleased on `MystenLabs/MemWal` `dev` (do not code against these yet).** Upstream runs a
+  three-stage release train — `dev` → `staging` → `main` — and **`main`'s HEAD is what is deployed**:
+  as of 2026-09-04 the production relayer (`https://relayer.memory.walrus.xyz`, `/health` →
+  `build.commit` `559531fe`, `mode: "production"`) is exactly `main` HEAD, trailing `dev` by ~75
+  commits. It is a release lag, not a fork. Two wire-level changes sitting on `dev` are therefore
+  **not live**: (1) `validate_namespace` extended to `recall` / `ask` plus a NUL (`\0`) rejection
+  (deliberately NUL-only; `\t` / `\n` / `\r` stay legal so namespaces already written with them
+  remain readable and deletable — upstream cites WALM-439 / GH #787), and (2) the `restore()`
+  `truncated` rewrite described in the next bullet. **`build.commit` is the only thing that settles
+  which contract you are on** — check it before trusting either.
 - **`restore()` truncation is reported, not silent (≥0.1.x).** `RestoreResult` now carries
   `truncated: boolean` — `true` when the restore is known-incomplete, either because more missing
   blobs existed than `limit` allowed, or because the server's per-owner candidate-fetch cap (shared

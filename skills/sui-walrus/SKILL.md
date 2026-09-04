@@ -213,7 +213,7 @@ Query latest Walrus docs via the in-repo `sui-docs-query` skill (not an SDK func
 ## See Also
 
 - [advanced-apis.md](references/advanced-apis.md) — Read when working with WalrusFile/WalrusBlob, batching small files via quilts (`encodeQuilt`), converting blob IDs (int ↔ string), or needing network package-config constants (walrus ≥1.1.7)
-- [memory.md](references/memory.md) — Read when the user wants Walrus Memory / portable agent memory / AI agent memory (the `@mysten-incubation/memwal` beta SDK): an agent memory layer (store + SEAL-encrypt + onchain ownership + semantic recall) built on top of raw Walrus blob storage
+- [memory.md](references/memory.md) — Read when the user wants Walrus Memory / portable agent memory / AI agent memory (the `@mysten-incubation/memwal` beta SDK): an agent memory layer (store + SEAL-encrypt + onchain ownership + semantic recall) built on top of raw Walrus blob storage. Points at upstream's canonical `SKILL.md` and official Claude Code plugin, and carries what those omit — errata against upstream's own docs, the deployed-vs-`dev` contract gap, and `.d.ts`-verified TypeScript detail
 - On-chain **encrypted messaging** (the `@mysten/messaging` SDK) uses Walrus for attachment storage — documented under [sui-seal/references/messaging.md](../sui-seal/references/messaging.md)
 
 ---
