@@ -161,3 +161,103 @@ test('page WITHOUT a fingerprint still uses Last-Modified', async () => {
   const m = await fetchMarker({ id: 'other', kind: 'page', url: 'https://x' }, run)
   assert.equal(m, 'Wed, 08 Jun 2026 10:00:00 GMT')
 })
+
+// ---- kind: 'files' (2026-09-04: replaced a `dev` HEAD marker whose S/N was bad) ----
+
+const SHA_A = 'a'.repeat(40), SHA_B = 'b'.repeat(40), SHA_C = 'c'.repeat(40)
+const FILES = {
+  id: 'mw', kind: 'files', repo: 'O/R', ref: 'dev',
+  paths: ['SKILL.md', 'docs/llms.txt'],
+}
+// Keyed on the path so each file can answer differently — the whole point of the
+// kind is telling WHICH tracked file moved.
+function filesRunner(byPath) {
+  return async (cmd, args) => {
+    const key = args.join(' ')
+    for (const [path, res] of Object.entries(byPath)) {
+      if (key.includes(`contents/${path}`)) return { code: 0, stdout: '', stderr: '', ...res }
+    }
+    return { code: 1, stdout: '', stderr: 'unexpected: ' + key }
+  }
+}
+
+test('files source -> marker names each path with its blob sha', async () => {
+  const m = await fetchMarker(FILES, filesRunner({
+    'SKILL.md': { stdout: SHA_A + '\n' }, 'docs/llms.txt': { stdout: SHA_B + '\n' },
+  }))
+  assert.equal(m, `SKILL.md@${'a'.repeat(8)} docs/llms.txt@${'b'.repeat(8)}`)
+})
+
+test('files source -> requests the configured ref, not the default branch', async () => {
+  const seen = []
+  await fetchMarker(FILES, async (cmd, args) => {
+    seen.push(args[1])
+    return { code: 0, stdout: SHA_A, stderr: '' }
+  })
+  assert.deepEqual(seen, ['repos/O/R/contents/SKILL.md?ref=dev', 'repos/O/R/contents/docs/llms.txt?ref=dev'])
+})
+
+test('files source -> ONE tracked file changing drifts the marker', async () => {
+  // The reason this source exists: a branch-HEAD marker drifts on every push,
+  // this one only when the quoted material actually moves.
+  const a = await fetchMarker(FILES, filesRunner({ 'SKILL.md': { stdout: SHA_A }, 'docs/llms.txt': { stdout: SHA_B } }))
+  const b = await fetchMarker(FILES, filesRunner({ 'SKILL.md': { stdout: SHA_A }, 'docs/llms.txt': { stdout: SHA_C } }))
+  assert.notEqual(a, b)
+  assert.equal(a.split(' ')[0], b.split(' ')[0], 'the untouched file must keep its marker segment')
+})
+
+test('files source -> unchanged blobs yield a byte-identical marker', async () => {
+  const run = filesRunner({ 'SKILL.md': { stdout: SHA_A }, 'docs/llms.txt': { stdout: SHA_B } })
+  assert.equal(await fetchMarker(FILES, run), await fetchMarker(FILES, run))
+})
+
+test('files source -> a 404 on a tracked path is EXTRACT_FAILED, not ERROR', async () => {
+  // Renamed/deleted upstream: retrying quietly would leave the source green
+  // forever while it watches nothing.
+  const m = await fetchMarker(FILES, filesRunner({
+    'SKILL.md': { stdout: SHA_A },
+    'docs/llms.txt': { code: 1, stdout: '{"message":"Not Found","status":"404"}', stderr: 'gh: Not Found (HTTP 404)' },
+  }))
+  assert.equal(m, `${EXTRACT_FAILED}:mw`)
+})
+
+test('files source -> a 404 reported only on stdout is still EXTRACT_FAILED', async () => {
+  const m = await fetchMarker(FILES, filesRunner({
+    'SKILL.md': { stdout: SHA_A },
+    'docs/llms.txt': { code: 1, stdout: '{"message":"Not Found","status":"404"}', stderr: '' },
+  }))
+  assert.equal(m, `${EXTRACT_FAILED}:mw`)
+})
+
+test('files source -> a network failure on ANY path is ERROR_MARKER, never a partial marker', async () => {
+  // A partial marker would drift once now and once more when the flaky path
+  // comes back, for zero upstream change.
+  const m = await fetchMarker(FILES, filesRunner({
+    'SKILL.md': { stdout: SHA_A },
+    'docs/llms.txt': { code: 1, stderr: 'error connecting to api.github.com' },
+  }))
+  assert.equal(m, ERROR_MARKER)
+})
+
+test('files source -> a path pointing at a directory is EXTRACT_FAILED', async () => {
+  // The contents API answers with an array; the jq guard yields "" at exit 0, so
+  // this must land as a config bug and not as a retryable network error.
+  const m = await fetchMarker(FILES, filesRunner({
+    'SKILL.md': { stdout: SHA_A }, 'docs/llms.txt': { code: 0, stdout: '\n' },
+  }))
+  assert.equal(m, `${EXTRACT_FAILED}:mw`)
+})
+
+test('files source -> a non-sha answer is EXTRACT_FAILED, not a marker', async () => {
+  const m = await fetchMarker(FILES, filesRunner({
+    'SKILL.md': { stdout: SHA_A }, 'docs/llms.txt': { stdout: 'Not Found' },
+  }))
+  assert.equal(m, `${EXTRACT_FAILED}:mw`)
+})
+
+test('files source -> an empty or missing paths list is EXTRACT_FAILED, not a constant marker', async () => {
+  // An empty join is '' — stable forever, i.e. a watcher that can never fire.
+  const run = filesRunner({ 'SKILL.md': { stdout: SHA_A } })
+  assert.equal(await fetchMarker({ ...FILES, paths: [] }, run), `${EXTRACT_FAILED}:mw`)
+  assert.equal(await fetchMarker({ ...FILES, paths: undefined }, run), `${EXTRACT_FAILED}:mw`)
+})

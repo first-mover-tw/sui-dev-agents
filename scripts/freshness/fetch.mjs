@@ -72,6 +72,13 @@ function readJsonPath(root, path) {
   return cur == null || typeof cur === 'object' ? undefined : cur
 }
 
+// A `gh api` 404 means the resource is gone, not that the network is down. gh
+// prints the message on stderr and the API's own JSON body on stdout; match both
+// so a change to either channel cannot turn a missing file into a quiet retry.
+function isNotFound(r) {
+  return /HTTP 404/.test(r.stderr || '') || /"status"\s*:\s*"404"/.test(r.stdout || '')
+}
+
 // Resolve default-branch HEAD sha. If branch is null, look up the repo's default_branch first.
 async function commitMarker(repo, branch, run) {
   let b = branch
@@ -119,6 +126,38 @@ export async function fetchMarker(source, run) {
         parts.push(`${source.pkgs[i]}@${r.stdout.trim()}`)
       }
       return parts.join(' ')
+    }
+    if (source.kind === 'files') {
+      // Blob-level watch on a few named files. `kind: 'commit'` on a busy branch
+      // is mostly noise for a repo we only quote: MemWal's `dev` ran dozens of
+      // commits between any change to the material this repo actually cites, so
+      // it drifted on work no reader of ours could act on. Blob shas are content
+      // identity, so a revert lands back on the previous marker instead of
+      // firing a second time, and the marker names WHICH file moved.
+      if (!Array.isArray(source.paths) || source.paths.length === 0) return `${EXTRACT_FAILED}:${source.id}`
+      const ref = source.ref ? `?ref=${encodeURIComponent(source.ref)}` : ''
+      const results = await Promise.all(source.paths.map(path => run('gh', [
+        'api', `repos/${source.repo}/contents/${path}${ref}`,
+        // Tolerate a non-object answer (a directory replies with an array) instead
+        // of letting jq exit non-zero, which would be indistinguishable from a
+        // network failure and get retried in silence forever.
+        '--jq', 'if type == "object" then (.sha // "") else "" end',
+      ])))
+      const parts = []
+      for (let i = 0; i < results.length; i++) {
+        const r = results[i]
+        // A tracked file that 404s is not a flaky network: it was renamed or
+        // deleted upstream and this source is now watching nothing. That has to
+        // nag (EXTRACT_FAILED is never written back as a baseline), not retry.
+        if (isNotFound(r)) return `${EXTRACT_FAILED}:${source.id}`
+        if (r.code !== 0) return ERROR_MARKER   // network / auth -> retry quietly, keep last good marker
+        const sha = r.stdout.trim()
+        // Anything that is not a blob sha (directory, empty, error body) means we
+        // are not watching content — a config bug, and a human has to see it.
+        if (!/^[0-9a-f]{40}$/.test(sha)) return `${EXTRACT_FAILED}:${source.id}`
+        parts.push(`${source.paths[i]}@${sha.slice(0, 8)}`)
+      }
+      return sanitizeMarker(parts.join(' '))
     }
     if (source.kind === 'endpoint') {
       // A live service's own version pointer. Watching a repository is not
