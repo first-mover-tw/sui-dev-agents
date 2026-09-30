@@ -35,7 +35,7 @@ sui client publish --dump-bytecode-as-base64 --no-tree-shaking
 | Devnet  | `grpc.devnet.sui.io:443` |
 
 **Protocol 127 Notes (shipped testnet v1.74.0):**
-- **Timestamp-based epoch close (P127 mainnet behavior):** Mainnet switches to timestamp-based epoch close at P127 — no operator action required. (Live on both networks since P127/P128; mainnet now v1.78.1 / P135. First shipped testnet v1.74.0.)
+- **Timestamp-based epoch close (P127 mainnet behavior):** Mainnet switches to timestamp-based epoch close at P127 — no operator action required. (Live on both networks since P127/P128; mainnet now v1.80.1 / P137. First shipped testnet v1.74.0.)
 - **New Move VM (Testnet):** Active on testnet. Account for gas metering differences in cross-network testing.
 - **Offline Bytecode Dump:** `sui move build --dump --no-tree-shaking` works offline — enables air-gapped deployment pipelines.
 - **Compatibility verification** enabled by default (was opt-in).
