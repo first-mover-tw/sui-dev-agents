@@ -8,7 +8,7 @@ Off-chain REST service for historical and aggregate data (trades, volume, OHLCV,
 
 ```typescript
 // Mainnet base: https://deepbook-indexer.mainnet.mystenlabs.com
-// Predict (testnet): https://predict-server-v4.testnet.mystenlabs.com  (the predict-testnet-8-21 host; supersedes the older predict-server.testnet…, which no longer resolves)
+// Predict: UNVERIFIED — predict-server-v4.testnet.mystenlabs.com (the old predict-testnet-8-21 host) did not resolve on 2026-09-30, and neither @mysten/deepbook-v3@2.6.4 nor deepbookv3@4d752fb8 names a host for deepbook-predict-testnet / -mainnet. Find the current one upstream.
 
 // Common endpoints (canonical names — verify exact query-param spelling against current docs):
 //   GET /pools                              — all pools + metadata (tick_size, lot_size)

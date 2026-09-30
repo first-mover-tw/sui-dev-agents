@@ -231,21 +231,21 @@ public fun place_bid<Base, Quote>(
 }
 ```
 
-## SDK subpaths — `/account`, `/sessions`, `/predict` (deepbook-v3 2.1.x)
+## SDK subpaths — `/account`, `/sessions`, `/predict` (deepbook-v3 2.1.3+)
 
 The 2.1.x line consolidated the separate DeepBook SDKs into subpaths of `@mysten/deepbook-v3`. (The changesets are labelled 2.1.0–2.1.2, but npm went straight from 2.0.1 to **2.1.3** — `npm i @mysten/deepbook-v3@2.1.0` fails with `ETARGET` / "No matching version found". Pin 2.1.3 or later.) **The package root is unchanged** between 2.0.1 and 2.6.4. Verified 2026-09-30 by packing 2.0.1 and 2.6.4 and diffing `dist/`: `dist/utils/constants.mjs` (every hardcoded package id, coin/pool map) is byte-identical, and so are the root barrel `dist/index.d.mts` (same export list) and `dist/client.d.mts` (`DeepBookClient`, incl. `getAccountOrderDetails`) — but a barrel proves nothing alone, so the files it re-exports were diffed too: every root-reachable `.d.mts` is identical except alias renumbering (`_mysten_sui_bcs47` → `_mysten_sui_bcs477`, …), plus `contracts/utils/index.d.mts`, which is purely additive (`MoveTuple`, `ConfigValue`, `RawTransactionArgument`). The only runtime (`.mjs`) diff is a dropped side-effect-free `import "./types/bcs.mjs"` in `dist/index.mjs` and the three `dist/queries/*Queries.mjs` (its target is `export {}`; 2.0.1's `exports` map has only `.`, so consumers cannot import it). No non-additive type change on the root surface was found between 2.0.1 and 2.6.4. New in 2.6.4: `@mysten/sui` peer range `^2.33.1` (2.0.1: `^2.26.2`). Subpaths are separate module graphs, so importing one loads no spot or margin code (the package is also `sideEffects: false` now).
 
 | Subpath | What it is | Status |
 |---|---|---|
-| `@mysten/deepbook-v3/account` | The shared on-chain **account primitive** (`AccountContract`, generated `account` bindings, `Account` / `AccountWrapper` BCS structs). DeepBook's core account wrapper and DeepBook Predict both build on it. | testnet-only ids |
-| `@mysten/deepbook-v3/sessions` | Time-limited trading **sessions** over a canonical Account (`SessionsContract`). | testnet-only ids |
-| `@mysten/deepbook-v3/predict` | **DeepBook Predict** — a `PredictClient`, normally installed as a client extension (`$extend(predict({network}))`, then `client.predict.{tx,read,decode}`), covering quotes, mint/redeem/claim, PLP requests and a client-side board pricer. | testnet-only ids |
+| `@mysten/deepbook-v3/account` | The shared on-chain **account primitive** (`AccountContract`, generated `account` bindings, `Account` / `AccountWrapper` BCS structs). DeepBook's core account wrapper and DeepBook Predict both build on it. | testnet + mainnet ids (2.3.0+) |
+| `@mysten/deepbook-v3/sessions` | Time-limited trading **sessions** over a canonical Account (`SessionsContract`). | testnet + mainnet ids (2.3.0+) |
+| `@mysten/deepbook-v3/predict` | **DeepBook Predict** — a `PredictClient`, normally installed as a client extension (`$extend(predict({network}))`, then `client.predict.{tx,read,decode}`), covering quotes, mint/redeem/claim, PLP requests and a client-side board pricer. | testnet + mainnet ids (2.3.0+) |
 
 Two standalone packages are **superseded** and formally `npm deprecate`d, so installing either now emits a warning: `@mysten/deepbook-account` (final release 0.1.0, *"Deprecated: use @mysten/deepbook-v3/account instead."*) and `@mysten/deepbook-predict` (0.3.0, *"…use @mysten/deepbook-v3/predict instead."*). Both keep working but will not be updated.
 
 **Name collision worth knowing:** `Account` exported from the package root is `@deepbook/core::account::Account`. The account primitive's `Account` is a *different type*, reachable only from `/account`.
 
-Deployed ids come from a generated deploy manifest shared by all three subpaths, so they cannot drift apart across a redeploy: `getAccountConfig(network)` / `getSessionsConfig(network)` / `getConfig(network)`, with `getDeployment(network)` reporting which deployment and source commit the ids came from. **They throw on an unrecorded network rather than returning placeholder ids** — testnet is the only one recorded today (`dist/account.mjs:22`). For your own deployment, pass ids to the contract class directly.
+Deployed ids come from a generated deploy manifest shared by all three subpaths, so they cannot drift apart across a redeploy: `getAccountConfig(network)` / `getSessionsConfig(network)` / `getConfig(network)`, with `getDeployment(network)` reporting which deployment and source commit the ids came from. **They throw on an unrecorded network rather than returning placeholder ids** — testnet and mainnet are recorded as of 2.3.0 (`dist/account.mjs:22-24`, `dist/deployments/index.mjs:14-18`, 2.6.4); anything else throws. For your own deployment, pass ids to the contract class directly.
 
 ### Sessions — the authorization surface
 
@@ -263,24 +263,24 @@ Hard limits, straight from the declarations (`dist/sessions.d.mts:54-56`; the `7
 - There is **no bulk on-chain read** of an Account's grants: derive the field id (`deriveSessionsFieldId`), fetch the object, then decode client-side with the *static* methods `SessionsContract.decodeSessions(contents)`, `.activeSessions(grants, nowMs)` and `.expiredSessions(grants, nowMs)` (`dist/sessions.d.mts:231-240`) — statics on the class, not free functions.
 - To reclaim slots, use **`expiredSessions`**, not a hand-rolled filter. `nowMs > expiresAtMs` looks equivalent but leaves the grant expiring exactly *at* `nowMs` occupying a slot forever (the SDK's own warning); `expiredSessions` uses `>=` to match the strict-`<` liveness rule.
 
-`SessionsContract` covers `authorizeSession` / `revokeSession` / `sessionExpirationMs` plus the Predict wrappers (`mintExactQuantity`, `mintExactAmount`, `redeemLive`, `redeemSettled`). The **spot** session wrappers are generated and reachable through `sessionsMoveCalls`, but are **not** wrapped on `SessionsContract` — the spot-over-Account workflow is not modelled yet.
+`SessionsContract` covers `authorizeSession` / `revokeSession` / `sessionExpirationMs` plus the Predict wrappers (`mintExactQuantity`, `mintExactAmount`, `mintExactCost`, `redeemLive`, `redeemSettled`; `dist/sessions.d.mts:162-227`). `mintExactCost` needs the v2 Sessions/Predict packages — the SDK docstring says "currently Testnet; Mainnet is still v1" (`dist/sessions.d.mts:191`); mainnet support is unverified here. The **spot** session wrappers are generated and reachable through `sessionsMoveCalls`, but are **not** wrapped on `SessionsContract` — the spot-over-Account workflow is not modelled yet.
 
-### Predict targets `predict-testnet-8-21` — assert it
+### Predict targets `deepbook-predict-testnet` — assert it
 
-`@mysten/deepbook-v3/predict` addresses deployment **`predict-testnet-8-21`** (`dist/deployments/testnet.mjs`, source commit `1f79fe87`). Upstream's own integration guide tells you to check that at startup, because a later SDK release can intentionally move testnet to a newer deployment:
+`@mysten/deepbook-v3/predict` 2.6.4 addresses deployment **`deepbook-predict-testnet`** (`dist/deployments/testnet.mjs:3-8`, source commit `4d752fb8`) and, since 2.3.0, **`deepbook-predict-mainnet`** (`dist/deployments/mainnet.mjs:3-8`). SDK 2.2.0 already moved testnet once — off `predict-testnet-8-21`, to a *separate* deployment with no carried-over accounts, positions or markets (CHANGELOG 2.2.0) — so check the name at startup; a later release can do it again:
 
 ```typescript
 import { getDeployment } from '@mysten/deepbook-v3/predict';
 
 const deployment = getDeployment('testnet');
-if (deployment.deployment !== 'predict-testnet-8-21') throw new Error(deployment.deployment);
+if (deployment.deployment !== 'deepbook-predict-testnet') throw new Error(deployment.deployment);
 ```
 
-That deployment is a **restructure** of the older `predict-testnet-4-16` design, not a version bump: the market root is a per-expiry shared `ExpiryMarket`, user positions live in the shared `account` package's `Account` (as a `predict_account::PredictData` slot), and the SVI oracle moved out into the separate **`propbook`** package — so `PredictManager` and `OracleSVI` no longer exist as `deepbook_predict` types. You still wire the oracle in: `PredictPackages.propbook`, `PredictConfig.objects.oracleRegistry`, and per underlying (`PredictConfig.underlyings` is a `Record` keyed by symbol, not an array) `blockScholesSviStore` / `blockScholesValueStore` / `pythFeed`. Everything priced goes through `expiry_market::load_live_pricer`, which must run in the **same PTB** as the mint or redeem it feeds. Full model, entry points and pitfalls: **[references/predict.md](references/predict.md)**.
+This design is a **restructure** of the older `predict-testnet-4-16` design, not a version bump: the market root is a per-expiry shared `ExpiryMarket`, user positions live in the shared `account` package's `Account` (as a `predict_account::PredictData` slot), and the SVI oracle moved out into the separate **`propbook`** package — so `PredictManager` and `OracleSVI` no longer exist as `deepbook_predict` types. You still wire the oracle in: `PredictPackages.propbook`, `PredictConfig.objects.oracleRegistry`, and per underlying (`PredictConfig.underlyings` is a `Record` keyed by symbol, not an array) `blockScholesSviStore` / `blockScholesValueStore` / `pythFeed`. Everything priced goes through `expiry_market::load_live_pricer`, which must run in the **same PTB** as the mint or redeem it feeds. Collateral is `quoteCoinType` — `…::usdc::USDC` on both networks (Circle native USDC on mainnet; a mintable test coin that *displays* as DUSDC on testnet) — so read the type from the config, never assume a symbol. Full model, entry points and pitfalls: **[references/predict.md](references/predict.md)**.
 
-### Predict config change (2.1.x)
+### Predict config change (2.1.x → 2.6)
 
-`PredictConfig` gains two **required** fields — `coinTypes` (`plp`, `deep`) and `units` (`positionLotSize`, `fixedPointScale`, `quoteCoinDecimals`, `positionQuantityDecimals`). Consumers using the shipped `getConfig(network)` / `TESTNET_CONFIG` are unaffected; anyone hand-building a config for their own deployment must add both.
+`PredictConfig` gains two **required** fields — `coinTypes` (`plp`, `deep`) and `units` (`positionLotSize`, `fixedPointScale`, `quoteCoinDecimals`, `positionQuantityDecimals`). Consumers using the shipped `getConfig(network)` / `TESTNET_CONFIG` are unaffected; anyone hand-building a config for their own deployment must add both. Since 2.6.0 there is also an optional `packages.predictV1` (`dist/predict/config/types.d.mts:7`) and `SessionsConfig.sessionsPackageIdV1` (`dist/sessions.d.mts:20`): the original package ids that struct/event types and dynamic-field keys keep after an upgrade, while `packages.predict` / `sessionsPackageId` are the latest call targets. Supply them for any upgraded deployment — omitted, they fall back to the latest id, which is only correct for a never-upgraded package.
 
 ## Margin trading
 
@@ -300,12 +300,12 @@ For endpoints and the full indexer-vs-SDK guidance, see
 ## DeepBook Predict
 
 Expiry-based prediction markets — a **separate** Move package, NOT the CLOB (no Pool /
-BalanceManager / order book; trades price against an LP vault). Testnet-only/experimental.
+BalanceManager / order book; trades price against an LP vault). Testnet and mainnet deployments are recorded (2.3.0+); mainnet parity with what this skill verified on testnet is unverified.
 Since deepbook-v3 **2.1.3** the TypeScript client ships in-tree at
 `@mysten/deepbook-v3/predict` (superseding the standalone `@mysten/deepbook-predict`).
 For the object model, PTB shapes, oracle wiring, the asynchronous PLP queue and pitfalls,
 see **[references/predict.md](references/predict.md)** — verified against the
-`predict-testnet-8-21` Move source at the commit the SDK records.
+`deepbook-predict-testnet` Move source at the commit the SDK records (`4d752fb8`).
 
 ## Best practices
 
