@@ -1,14 +1,15 @@
 # Walrus Memory (MemWal) — portable agent memory
 
-**Beta.** `@mysten-incubation/memwal@0.1.5` (npm `latest`; the `dev` dist-tag is `0.1.6-dev.0`). Peer
+**Beta.** `@mysten-incubation/memwal@0.1.8` (npm `latest`; the `dev` dist-tag is `0.1.8-dev.7`). Peer
 deps are ranges, not pins. The relayer ships a runtime compatibility contract
 (`MEMWAL_TYPESCRIPT_COMPATIBILITY_VERSION`).
 
 **This file does not replace upstream's own docs.** MemWal ships canonical, agent-facing material of its
 own, and it is more complete than anything this repo can keep current by hand. Read *this* file for the
 three things upstream does not give you: (1) **errata**, where upstream's own docs contradict upstream's
-source; (2) the **deployed-vs-`dev` contract gap**, which no upstream doc states; and (3) **TypeScript
-detail verified against the published `.d.ts`** that the upstream `SKILL.md` omits.
+source or the live relayer; (2) **which contract the deployed relayer actually runs**, which no upstream
+doc states; and (3) **TypeScript detail verified against the published `.d.ts`** that the upstream
+`SKILL.md` omits.
 
 | Canonical upstream source | Read it for |
 | --- | --- |
@@ -17,29 +18,28 @@ detail verified against the published `.d.ts`** that the upstream `SKILL.md` omi
 | <https://docs.wal.app/walrus-memory/llms.txt> | Machine-readable docs index (`llms-full.txt` for the expanded corpus) |
 | <https://memory.walrus.xyz> | Docs site and account dashboard |
 
-**Maturity (checked 2026-09-04).** The relayer reports `apiVersion 1.0.0`, a `minSupportedSdk` floor
+**Maturity (checked 2026-09-30).** The relayer reports `apiVersion 1.0.0`, a `minSupportedSdk` floor
 (ts `0.0.4` / py `0.1.0` / mcp `0.0.1`), runtime `featureFlags`, and a `deprecations[]` list carrying
 `removalApiVersion` plus migration guidance — the **HTTP surface has a stated compatibility contract**,
-even while the TypeScript SDK stays `0.1.x` and incubation-scoped. Sibling packages: `memwal-mcp` 0.0.11,
-`memwal` 0.1.8 on PyPI (upstream's source dir is `packages/python-sdk-memwal`; there is no `memwal-python` package to install), `oc-memwal` (OpenClaw) 0.0.6.
+even while the TypeScript SDK stays `0.1.x` and incubation-scoped. Sibling packages:
+`@mysten-incubation/memwal-mcp` 0.0.14, `memwal` 0.1.11 on PyPI (upstream's source dir is
+`packages/python-sdk-memwal`; there is no `memwal-python` package to install),
+`@mysten-incubation/oc-memwal` (OpenClaw) 0.0.6. The npm names are scoped — unscoped `memwal-mcp` /
+`oc-memwal` do not exist on npm.
 
-## Errata — where upstream's own docs disagree with upstream's source
+## Errata — where upstream's own docs disagree with source or the live relayer
 
-Upstream `SKILL.md` was last touched 2026-08-22 and predates the validation work below. Verified
-2026-09-04 by reading the Rust relayer source on both branches.
-
-- **Namespaces *do* have a length cap.** Upstream `SKILL.md` ("Namespace Semantics → Validation") states
-  there is "no length cap, no character whitelist". The source disagrees on both `main` and `dev`:
-  `services/server/src/types.rs` defines `MAX_NAMESPACE_BYTES = 255` and `validate_namespace()` rejects
-  an empty namespace and anything over that cap with HTTP **400**. Treat 255 **bytes** (not chars) as
-  real. The "no character whitelist" half is accurate for `main`; `dev` adds a NUL-only rejection.
-- **`restore()` returns a `truncated` flag** that upstream's response-field table omits entirely. Both
-  `main` and `dev` return it; only the *meaning* differs between them (see the deployed-vs-`dev` bullets
-  below).
+The two errata this section used to carry — upstream `SKILL.md` claiming namespaces have "no length cap",
+and its restore field table omitting `truncated` — are **fixed upstream** (`SKILL.md` blob `5d628ed8` on
+`dev`: "Namespace Semantics → Validation" and "Restore Semantics" now match the source, including
+`failed` and the 1–100 `limit` clamp). Read upstream for both. One open erratum remains, against the live
+relayer rather than the source: upstream `dev`'s `docs/relayer/api-reference.md` still describes a
+mainnet `AccountRegistry` scan for requests without `x-account-id`; the live relayer does not scan (see
+the auth bullet under Gotchas).
 
 > **Note:** these examples are NOT type-checked by this repo's snippet gate (the package is not installed
 > in the CI snippet env, so the fences are `// @check:skip`). Symbols below were verified by hand against
-> the published `0.1.5` `.d.ts`. Re-verify against the then-current `.d.ts` before relying on them.
+> the published `0.1.8` `.d.ts`. Re-verify against the then-current `.d.ts` before relying on them.
 
 ## What it is — and when to reach for it
 
@@ -108,13 +108,13 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
 - **`remember` returns a job, not a memory.** It resolves with `{ job_id }` (202 Accepted). Await
   `waitForRememberJob(job_id)` for the terminal state, or use `rememberAndWait(text)`. Drive your own
   polling/UI with `getRememberStatus(jobId)` (`pending|running|uploaded|done|failed|not_found`).
-- **Use the object form of `recall`.** `recall({ query, limit?, namespace?, maxDistance?, topK?, maxTokens?, truncationStrategy?, countTokens? })`.
+- **Use the object form of `recall`.** `recall({ query, limit?, namespace?, maxDistance?, topK?, maxTokens?, truncationStrategy?, countTokens?, scoringWeights?, sort? })`.
   The positional `recall(query, limit, namespace)` is `@deprecated` (easy to misread as
   `recall(query, namespace)`). `topK` and `limit` are aliases; `topK` wins if both are set.
 - **`recall` query is capped at 16,384 bytes (relayer-side).** The relayer's embedder rejects any
   query whose UTF-8 length exceeds `MAX_EMBED_INPUT_BYTES = 16384` with HTTP **400**
   `input is over the embedding input limit of 16384 bytes`. This is relayer behavior, not an SDK
-  check — it applies on **0.1.5** too, and no client-side option (`maxTokens`, `truncationStrategy`)
+  check — it applies whatever the SDK version, and no client-side option (`maxTokens`, `truncationStrategy`)
   affects it, since those trim *results*, not the query. Truncate long queries yourself.
 - **Token budget on `recall` (≥0.1.3).** Pass `maxTokens` and the SDK trims hits client-side per
   `truncationStrategy` (`"high-relevance-only"` default — drop lowest-relevance hits whole;
@@ -144,17 +144,17 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   conversation — also takes an options form `analyze({ namespace, occurredAt })` where
   `occurredAt?: string | Date` is sent as `occurred_at` via `Date.toISOString()`, omitted when
   absent, and throws on an invalid Date; the server resolves relative dates like "yesterday"),
-  `restore(namespace, limit?=10)` (rebuild the local vector index from Walrus),
+  `restore(namespace, limit?=10)` (rebuild the local vector index from Walrus; the relayer clamps `limit`
+  to 1–100),
   `embed(text)`, `health()` (`HealthResult.write_ready?: boolean` since 0.1.5 — `false` = relayer not
   accepting writes, absent = not reported), `compatibility()`.
-- **`namespace` is relayer-validated on the write and admin paths, not on recall.** `remember`,
-  `analyze`, `forget`, `stats` and `restore` reject an empty namespace (`400 namespace cannot be
-  empty`) or one over `MAX_NAMESPACE_BYTES = 255` **bytes** (not chars — a multi-byte namespace hits
-  the wall sooner than its `.length` suggests). `recall` / `ask` are *not* validated on the deployed
-  relayer: an empty namespace there is a normal `200` with an empty result set, so a namespace bug
-  surfaces as "no memories found" on read and as a `400` on the next write. Verified against the
-  relayer commit `/health` reports (`build.commit`), not against the repo's default branch — see the
-  unreleased note below.
+- **`namespace` is relayer-validated on every path, reads included** (live relayer build 79f241ec,
+  2026-09-30). The rules — empty, over 255 **bytes**, or containing NUL (`\0`) → HTTP 400; `\t` / `\n` /
+  `\r` stay legal — are in upstream `SKILL.md` ("Namespace Semantics → Validation"). What upstream does
+  not flag is that the **read side changed**: `recall`, `recallManual` and `ask` now call the same
+  `validate_namespace()` (`services/server/src/types.rs`), so an explicit `namespace: ""` that used to
+  return `200` with an empty result set now returns `400`. A client that sends `""` to mean "unset" must
+  omit the field instead and let the server default to `"default"`.
 - **Namespaces are flat and opaque — there is no hierarchy.** Slashes and dots carry no meaning:
   `"chat/user-42"` is one label, not a path. Every read is exact-equality (`WHERE namespace = $1`) —
   no prefix match, no wildcard, no parent/child traversal. Build hierarchy in your own layer by
@@ -174,30 +174,34 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   interactive flows and run bigger restores out-of-band. `limit` caps the *inspected* blob set
   (newest-first), not `restored` — if all inspected blobs are already indexed you get `restored: 0`,
   `skipped: limit`.
-- **Unreleased on `MystenLabs/MemWal` `dev` (do not code against these yet).** Upstream runs a
-  three-stage release train — `dev` → `staging` → `main` — and **`main`'s HEAD is what is deployed**:
-  as of 2026-09-04 the production relayer (`https://relayer.memory.walrus.xyz`, `/health` →
-  `build.commit` `559531fe`, `mode: "production"`) is exactly `main` HEAD, trailing `dev` by ~75
-  commits. It is a release lag, not a fork. Two wire-level changes sitting on `dev` are therefore
-  **not live**: (1) `validate_namespace` extended to `recall` / `ask` plus a NUL (`\0`) rejection
-  (deliberately NUL-only; `\t` / `\n` / `\r` stay legal so namespaces already written with them
-  remain readable and deletable — upstream cites WALM-439 / GH #787), and (2) the `restore()`
-  `truncated` rewrite described in the next bullet. **`build.commit` is the only thing that settles
-  which contract you are on** — check it before trusting either.
-- **`restore()` truncation is reported, not silent (≥0.1.x).** `RestoreResult` now carries
-  `truncated: boolean` — `true` when the restore is known-incomplete, either because more missing
-  blobs existed than `limit` allowed, or because the server's per-owner candidate-fetch cap (shared
-  across namespaces) was hit before this namespace was even scanned (so `truncated` can be `true`
-  with `total === 0`). Raising `limit` only helps the first case; there is no pagination cursor, so a
-  cap hit cannot be worked around by retrying. Decrypt/embed failures are still dropped silently
-  (counted as neither `restored` nor `skipped`). Older relayers omit the field; the SDK defaults it
-  to `false`. This is the contract the **deployed** relayer implements (`truncated = limit_truncated
-  || source_capped`). `dev` has already replaced it (unreleased, see above): a cap hit alone stops
-  meaning `truncated` once `limit >= 20`, so raising `limit` past that no longer widens discovery and
-  `truncated: false` stops implying completeness. The `sourceCapped` field that would let a client
-  tell the two apart is not implemented on either side, so when this ships, treat a large-`limit`
-  restore as possibly-partial regardless of the flag.
-- **New in 0.1.x (verified vs `0.1.5` `.d.ts`):** `MemWalMock` (deterministic, dependency-free
+- **Which contract is live: read `/health`, never infer it from a branch.** The deployed build is
+  whatever `https://relayer.memory.walrus.xyz/health` reports as `build.commit`; it has been `main` HEAD
+  and, on 2026-09-30, an unmerged PR branch. On 2026-09-30 it reported `79f241ec` (`mode: "production"`),
+  the head of `fix/enoki-not-found-rebuild-register` (PR #997, open, base `dev`); GitHub's compare API
+  shows it contained in none of `main`, `staging` or `dev`. So upstream docs on any branch can be
+  *behind* production as well as ahead of it. Resolve a new `build.commit` with
+  `gh api repos/MystenLabs/MemWal/commits/<sha>/branches-where-head` and
+  `gh api repos/MystenLabs/MemWal/compare/<branch>...<sha>`. (On 2026-09-04 the build was `559531fe`,
+  then `main` HEAD; the two `dev` changes this file then called unreleased — read-path namespace
+  validation and the `restore()` `truncated` rewrite — are both live now.)
+- **A cold delegate key without `x-account-id` gets `401`** (live relayer build 79f241ec, 2026-09-30).
+  The relayer no longer scans `AccountRegistry` to find the account for a delegate key: it resolves
+  from its delegate-key cache, the signed `x-account-id` header, or a server-side `MEMWAL_ACCOUNT_ID`,
+  and rejects otherwise (`services/server/src/auth.rs` at that commit). Official SDKs always send
+  `x-account-id` (`MemWalConfig.accountId` is required), so SDK users are unaffected; raw-HTTP clients
+  and any "recover a lost account id" flow are not. **Caveat:** this change exists only on that
+  unmerged PR branch — upstream `dev`'s `docs/relayer/api-reference.md` (`GET /api/whoami`) still
+  describes the mainnet registry scan. If a later deploy is cut from a branch without it, the scan may
+  return; check `build.commit`.
+- **`restore()` reports `failed` and `truncated`** (live relayer build 79f241ec, 2026-09-30). Semantics
+  are in upstream `SKILL.md` ("Restore Semantics"). The practical consequence: permanent decrypt /
+  UTF-8 failures now land in `failed` (SDK `RestoreResult.failed: number`, defaulted to `0` on older
+  relayers) instead of vanishing; only transient errors stay uncounted. Once `limit >= 20`, raising
+  `limit` no longer widens discovery and `truncated: false` does not imply completeness — the
+  `sourceCapped` field that would tell the cases apart is not implemented (upstream tracks it as
+  WALM-451), and there is no pagination cursor, so treat a large-`limit` restore as possibly partial
+  regardless of the flag.
+- **New in 0.1.x (verified vs `0.1.5` `.d.ts`, still present in `0.1.8`):** `MemWalMock` (deterministic, dependency-free
   in-memory stand-in for the core API — never opens a socket or touches keys; token-overlap distance;
   plus test-only `forget(blobId)` / `clear(namespace?)`); `withMemWal(model, options)` AI SDK
   middleware via `@mysten-incubation/memwal/ai` (auto-recalls memories into the prompt before each
@@ -210,3 +214,12 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   `getPublicKeyHex()`; and `MemWalConfig.key` now also accepts `Uint8Array` and a `suiprivkey1...`
   bech32 string (0.1.4; decoding is internal — `decodeSuiPrivateKey` / `normalizePrivateKey` are not part of the package `exports`). Relayer
   clock-drift 401s surface as a readable `ERR_TIMESTAMP_OUT_OF_BOUNDS` error (mapped internally; no public helper).
+- **New in 0.1.6–0.1.8 (verified vs `0.1.8` `.d.ts`; absent from upstream `SKILL.md`):**
+  `RecallOptions.sort?: "relevance" | "recent"` — `"recent"` over-fetches semantic candidates
+  server-side (5× `limit`, capped at 50, never below `limit`) and orders them newest-first; setting
+  `sort` at all, `"relevance"` included, makes the relayer ignore `scoringWeights`, which object-form
+  `recall` now also accepts. Each hit carries `created_at?: string` (write time, not any event time in
+  the text; omitted by older relayers). `listNamespaces({ cursor?, limit? })` →
+  `{ namespaces, next_cursor, has_more, snapshot_version }` (page size defaults to 100, clamped to 500
+  server-side). `MemWalConfig.requestTimeoutMs?` (default 30000) is a per-request deadline;
+  `restore` / `analyze` carry their own larger one. Plus `RestoreResult.failed` (see the restore bullet).
