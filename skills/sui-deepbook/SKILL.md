@@ -263,17 +263,22 @@ Hard limits, straight from the declarations (`dist/sessions.d.mts:54-56`; the `7
 - There is **no bulk on-chain read** of an Account's grants: derive the field id (`deriveSessionsFieldId`), fetch the object, then decode client-side with the *static* methods `SessionsContract.decodeSessions(contents)`, `.activeSessions(grants, nowMs)` and `.expiredSessions(grants, nowMs)` (`dist/sessions.d.mts:231-240`) — statics on the class, not free functions.
 - To reclaim slots, use **`expiredSessions`**, not a hand-rolled filter. `nowMs > expiresAtMs` looks equivalent but leaves the grant expiring exactly *at* `nowMs` occupying a slot forever (the SDK's own warning); `expiredSessions` uses `>=` to match the strict-`<` liveness rule.
 
-`SessionsContract` covers `authorizeSession` / `revokeSession` / `sessionExpirationMs` plus the Predict wrappers (`mintExactQuantity`, `mintExactAmount`, `mintExactCost`, `redeemLive`, `redeemSettled`; `dist/sessions.d.mts:162-227`). `mintExactCost` needs the v2 Sessions/Predict packages — the SDK docstring says "currently Testnet; Mainnet is still v1" (`dist/sessions.d.mts:191`); mainnet support is unverified here. The **spot** session wrappers are generated and reachable through `sessionsMoveCalls`, but are **not** wrapped on `SessionsContract` — the spot-over-Account workflow is not modelled yet.
+`SessionsContract` covers `authorizeSession` / `revokeSession` / `sessionExpirationMs` plus the Predict wrappers (`mintExactQuantity`, `mintExactAmount`, `mintExactCost`, `redeemLive`, `redeemSettled`; `dist/sessions.d.mts:162-227`). `mintExactCost` needs the v2 Sessions/Predict packages. The SDK targets v2 on testnet since 2.6.0 and on mainnet since **2.6.1**, which moved mainnet `packages.predict` → `0x1cacb9bf…` and `sessionsPackageId` → `0xec678aee…` (CHANGELOG 2.6.1, b042290); the docstring's "currently Testnet; Mainnet is still v1" (`dist/sessions.d.mts:191`) predates that and is stale. End-to-end mainnet use is unverified (mainnet trading was paused on 2026-09-30). The **spot** session wrappers are generated and reachable through `sessionsMoveCalls`, but are **not** wrapped on `SessionsContract` — the spot-over-Account workflow is not modelled yet.
 
 ### Predict targets `deepbook-predict-testnet` — assert it
 
-`@mysten/deepbook-v3/predict` 2.6.4 addresses deployment **`deepbook-predict-testnet`** (`dist/deployments/testnet.mjs:3-8`, source commit `4d752fb8`) and, since 2.3.0, **`deepbook-predict-mainnet`** (`dist/deployments/mainnet.mjs:3-8`). SDK 2.2.0 already moved testnet once — off `predict-testnet-8-21`, to a *separate* deployment with no carried-over accounts, positions or markets (CHANGELOG 2.2.0) — so check the name at startup; a later release can do it again:
+`@mysten/deepbook-v3/predict` 2.6.4 addresses deployment **`deepbook-predict-testnet`** (`dist/deployments/testnet.mjs:3-8`, source commit `4d752fb8`) and, since 2.3.0, **`deepbook-predict-mainnet`** (`dist/deployments/mainnet.mjs:3-8`). SDK 2.2.0 moved testnet off `predict-testnet-8-21` to a *separate* deployment with no carried-over accounts, positions or markets (CHANGELOG 2.2.0); **2.5.0 then redeployed it again under the same name** — 2.4.2 records `deepbook-predict-testnet` @ `a928bd2d` (`predict 0x25d075d2…`), 2.5.0 the same name @ `4d752fb8` (`0x59d71119…`), and CHANGELOG 2.5.0 says every Predict package and object id moved. So ids from SDK 2.2–2.4 are dead, and a name-only check would not have caught it — assert the name **and** `sourceCommit` at startup:
 
 ```typescript
 import { getDeployment } from '@mysten/deepbook-v3/predict';
 
 const deployment = getDeployment('testnet');
-if (deployment.deployment !== 'deepbook-predict-testnet') throw new Error(deployment.deployment);
+if (
+  deployment.deployment !== 'deepbook-predict-testnet' ||
+  deployment.sourceCommit !== '4d752fb82d909a821c85bcc5d3963725efb546f4'
+) {
+  throw new Error(`${deployment.deployment}@${deployment.sourceCommit}`);
+}
 ```
 
 This design is a **restructure** of the older `predict-testnet-4-16` design, not a version bump: the market root is a per-expiry shared `ExpiryMarket`, user positions live in the shared `account` package's `Account` (as a `predict_account::PredictData` slot), and the SVI oracle moved out into the separate **`propbook`** package — so `PredictManager` and `OracleSVI` no longer exist as `deepbook_predict` types. You still wire the oracle in: `PredictPackages.propbook`, `PredictConfig.objects.oracleRegistry`, and per underlying (`PredictConfig.underlyings` is a `Record` keyed by symbol, not an array) `blockScholesSviStore` / `blockScholesValueStore` / `pythFeed`. Everything priced goes through `expiry_market::load_live_pricer`, which must run in the **same PTB** as the mint or redeem it feeds. Collateral is `quoteCoinType` — `…::usdc::USDC` on both networks (Circle native USDC on mainnet; a mintable test coin that *displays* as DUSDC on testnet) — so read the type from the config, never assume a symbol. Full model, entry points and pitfalls: **[references/predict.md](references/predict.md)**.

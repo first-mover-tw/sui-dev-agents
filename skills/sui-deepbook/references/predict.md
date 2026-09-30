@@ -33,8 +33,12 @@ not re-read here, and its live `ProtocolConfig` read `trading_paused: true` on 2
 mainnet feature parity as **unverified**.
 
 **The previous testnet deployment (`predict-testnet-8-21`, SDK ≤ 2.1.4) is gone from the SDK.**
-2.2.0 moved testnet to a *separate* deployment, not an upgrade — old accounts, positions and
-markets are not visible to it (CHANGELOG 2.2.0). Every id changed; do not carry any over.
+2.2.0 moved testnet to a *separate* deployment named `deepbook-predict-testnet`, not an upgrade —
+old accounts, positions and markets are not visible to it (CHANGELOG 2.2.0). **Then 2.5.0 redeployed
+again under the same name**: 2.4.2 records `deepbook-predict-testnet` @ sourceCommit `a928bd2d`,
+`packages.predict 0x25d075d2…`; 2.5.0 records the same name @ `4d752fb8`, `0x59d71119…`
+(CHANGELOG 2.5.0: "Both networks were redeployed, so every Predict package and object id moved").
+If you pinned SDK 2.2–2.4, your `deepbook-predict-testnet` ids are dead. Do not carry any id over.
 
 ## Use the SDK, and assert the deployment
 
@@ -45,8 +49,12 @@ import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { getDeployment, predict } from '@mysten/deepbook-v3/predict';
 
 const deployment = getDeployment('testnet');
-if (deployment.deployment !== 'deepbook-predict-testnet') {
-  throw new Error(`Expected deepbook-predict-testnet, got ${deployment.deployment}`);
+// The name alone is not enough: 2.5.0 redeployed under the same name. Pin the commit too.
+if (
+  deployment.deployment !== 'deepbook-predict-testnet' ||
+  deployment.sourceCommit !== '4d752fb82d909a821c85bcc5d3963725efb546f4'
+) {
+  throw new Error(`Unexpected Predict deployment ${deployment.deployment}@${deployment.sourceCommit}`);
 }
 
 const client = new SuiGrpcClient({
@@ -58,9 +66,12 @@ const markets = await client.predict.read.markets();
 ```
 
 Three namespaces: `client.predict.tx` (transaction builders), `.read` (state + pricing + quotes),
-`.decode` (execution-result parsers). **Assert the deployment name at startup** — a later SDK
-release can intentionally move testnet to a newer deployment (2.2.0 did exactly that, re-pointing
-every id with no API change), and that is exactly how a reference like this one goes stale.
+`.decode` (execution-result parsers). **Assert the deployment name *and* `sourceCommit` at
+startup** — a later SDK release can intentionally move testnet to a newer deployment with no API
+change: 2.2.0 did it with a new name, and 2.5.0 did it again *keeping the name*, so a name-only check
+would have passed across a full redeploy. That is exactly how a reference like this one goes stale.
+(A package *upgrade* — 2.6.0's v2 — keeps `sourceCommit`, since it records the initial deployment;
+see below.)
 
 ### Package versions: `predict` vs `predictV1`
 
@@ -77,13 +88,16 @@ the same split (`predict 0x1cacb9bf…` v2 / `predictV1 0x89aea622…` v1,
 `PredictConfig` and falls back to `packages.predict`, which is only correct for a custom deployment
 that has never been upgraded.
 
-v2 adds `expiry_market::mint_exact_cost` (all-in budget mint; SDK `tx.mintCost` /
+The SDK's v2 targets: testnet since 2.6.0; mainnet since **2.6.1** (CHANGELOG 2.6.1, b042290,
+bumped mainnet `packages.predict` → `0x1cacb9bf…` and `sessionsPackageId` → `0xec678aee…`, keeping
+the originals as `predictV1` / `sessionsPackageIdV1`). v2 adds `expiry_market::mint_exact_cost` (all-in budget mint; SDK `tx.mintCost` /
 `read.quoteMintCost`, `dist/predict/client.d.mts:239,262`). It is **not** in the `4d752fb8` source.
 Confirmed live on 2026-09-30: `mint_exact_cost` is a `PUBLIC` function in `expiry_market` of testnet
 `0x30a03c33…` and mainnet `0x1cacb9bf…`, and absent from both v1 ids. The SDK's own docstrings
 (`MintCostOptions`, `dist/predict/client.d.mts:56`; `dist/sessions.d.mts:191`) and `PREDICT.md`
-still say "Testnet only / Mainnet remains v1" — the chain says otherwise, but whether calling it on
-mainnet works end-to-end (trading was paused there when checked) is **unverified**.
+still say "Testnet only / Mainnet remains v1" — that text predates 2.6.1 and is stale; the SDK's
+own mainnet record and the chain both say v2. Whether calling it on mainnet works end-to-end
+(trading was paused there when checked) is **unverified**.
 
 **Upstream has already moved past the SDK.** At `deepbookv3` `main` (checked 2026-09-30),
 `packages/predict/Published.toml` records testnet `published-at 0x6c2c2d3c…` (version 4) and mainnet
@@ -408,7 +422,8 @@ tick alignment).
 | — | `ExpiryMarket` per expiry, cadence-scheduled deployment, `BuilderCode`, fee-incentive sponsorship, EWMA congestion surcharge |
 
 `predict-testnet-8-21` → `deepbook-predict-testnet` kept that object model but is a separate
-deployment (fresh ids, no carried-over state). Differences that matter to a caller: the collateral
+deployment (fresh ids, no carried-over state) — and `deepbook-predict-testnet` itself was redeployed
+in 2.5.0 (`a928bd2d` → `4d752fb8`, every id moved, same name). Differences that matter to a caller: the collateral
 module is `usdc::usdc::USDC` (was `dusdc::dusdc::DUSDC`; the testnet coin still *displays* as
 DUSDC) and the PLP floor argument is `min_usdc_out` (was `min_dusdc_out`) — CHANGELOG 2.2.0; the
 flush no longer locks trading and is gated by a `PoolValuationCap`; a pre-expiry no-trade window
