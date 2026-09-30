@@ -188,7 +188,7 @@ memwal.destroy(); // zeroes the SDK's key buffers + drops cached session materia
   The relayer no longer scans `AccountRegistry` to find the account for a delegate key: it resolves
   from its delegate-key cache, the signed `x-account-id` header, or a server-side `MEMWAL_ACCOUNT_ID`,
   and rejects otherwise (`services/server/src/auth.rs` at that commit). Official SDKs always send
-  `x-account-id` (`MemWalConfig.accountId` is required), so SDK users are unaffected; raw-HTTP clients
+  `x-account-id` (TS `MemWalConfig.accountId` is non-optional in 0.1.8 `types.d.ts`; Python `memwal` 0.1.11 `account_id: str` is required and signed requests send `x-account-id`), so SDK users are unaffected; raw-HTTP clients
   and any "recover a lost account id" flow are not. **Caveat:** this change exists only on that
   unmerged PR branch — upstream `dev`'s `docs/relayer/api-reference.md` (`GET /api/whoami`) still
   describes the mainnet registry scan. If a later deploy is cut from a branch without it, the scan may
