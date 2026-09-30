@@ -7,7 +7,7 @@ description: Use when writing TypeScript code interacting with SUI blockchain vi
 
 ## SDK Versions
 
-Targets: `@mysten/sui` 2.29.0 (^2.0). Tested: 2026-09-03.
+Targets: `@mysten/sui` 2.33.2 (^2.0). Tested: 2026-09-30.
 
 **Compatibility notes:** Sui 2.x removed `SuiClient` from `@mysten/sui/client`, `@mysten/sui/cryptography/hash`, and event pub/sub (WebSocket `subscribeEvent` is gone — use the gRPC streams `client.subscriptionService.subscribeEvents`/`subscribeCheckpoints` (≥2.23) or an indexer). If your install is on 1.x, stop and either upgrade or follow the 1.x patterns in your installed package's README — do not mix.
 
@@ -390,7 +390,7 @@ tx.setGasPayment([{
 tx.setSender('0xSenderAddress');
 ```
 
-> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. This behavior is active on this skill's tested pin (2.29.0); only ≤2.22.0 synthesizes no expiration.
+> **Address-balance gas + expiration (`@mysten/sui` ≥2.22.1):** when a transaction uses address-balance gas (explicit empty gas payment) **and** a preset gas budget — i.e. backend gas selection is skipped — with no expiration set, gRPC/GraphQL resolution now auto-sets a `ValidDuring` expiration from the simulation's effects epoch. Explicitly set expirations — including `{ None: true }` — are preserved, and kind-only resolution / backend gas selection paths (budget or payment unset) are unaffected. This behavior is active on this skill's tested pin (2.33.2); only ≤2.22.0 synthesizes no expiration.
 
 > **`Validity` expiration (new in `@mysten/sui` 2.28.0):** `TransactionExpiration` gains a fourth member next to `None` / `Epoch` / `ValidDuring` — the union is now `"Epoch" | "None" | "ValidDuring" | "Validity"` (`dist/transactions/Transaction.d.mts:117`). Shape (`dist/transactions/data/v2.d.mts:20-31`):
 >
