@@ -142,7 +142,7 @@ if (IS_SELF && process.argv.includes('--index')) {
 }
 
 function pinnedTag() {
-  return JSON.parse(readFileSync(INDEX_PATH, 'utf8')).tag // e.g. mainnet-v1.78.1
+  return JSON.parse(readFileSync(INDEX_PATH, 'utf8')).tag // e.g. mainnet-v1.80.1
 }
 
 function suiVersion() {

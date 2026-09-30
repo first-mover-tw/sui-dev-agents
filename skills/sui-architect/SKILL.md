@@ -26,11 +26,11 @@ sui-architect
 sui-full-stack  # → Phase 1: Architecture
 ```
 
-## SUI Protocol 127 Architecture Considerations (shipped testnet v1.74.0; now mainnet v1.78.1 / P135)
+## SUI Protocol 127 Architecture Considerations (shipped testnet v1.74.0; now mainnet v1.80.1 / P137)
 
 When designing architectures, account for these recent platform changes:
 
-- **Protocol Version 127** (shipped testnet v1.74.0; mainnet now v1.78.1 / P135) — enables `always_advance_dkg_to_resolution` (fixes P126), Ristretto255 group ops + Bulletproofs on testnet, timestamp-based epoch close on mainnet, gRPC `SimulateTransaction` accepts `gas_price=0` (gasless tier).
+- **Protocol Version 127** (shipped testnet v1.74.0; mainnet now v1.80.1 / P137) — enables `always_advance_dkg_to_resolution` (fixes P126), Ristretto255 group ops + Bulletproofs on testnet, timestamp-based epoch close on mainnet, gRPC `SimulateTransaction` accepts `gas_price=0` (gasless tier).
 - **Protocol Versions 131-133** (mainnet v1.77.2, live since 2026-08-13) — P131 `framework_tx_context_mut_restrictions` restricts system-package functions only (user packages unaffected); new `ForwardingAddressRegistry` system object (`0x2::forwarding_address`, ID `0xfa`) is **devnet-gated**, not yet on mainnet. Move-authoring depth → see sui-developer's Protocol Updates section.
 - **Protocol Versions 134-135** (mainnet v1.78.1 / P135, live since 2026-08-29) — `defer_unpaid_amplification` disabled on all chains; consensus block limits raised (`consensus_max_transactions_in_block_bytes` = 288 KiB, `consensus_max_num_transactions_in_block` = 128); new framework function `sui::package::original_package_id(&UpgradeCap): ID` (native-backed) — see sui-deployer. `ForwardingAddressRegistry` remains devnet-only.
 - **Data Access:** gRPC (GA, backend/low-latency/streaming default), GraphQL RPC (GA, frontend/indexer/complex queries), JSON-RPC (**shut off on public fullnodes** since 2026-07-31, Quorum Driver disabled)

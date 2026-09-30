@@ -134,13 +134,13 @@ regen.
 
 ```bash
 git clone --filter=blob:none --no-checkout --depth 1 \
-  --branch mainnet-v1.78.1 https://github.com/MystenLabs/sui.git /tmp/sui-fw
+  --branch mainnet-v1.80.1 https://github.com/MystenLabs/sui.git /tmp/sui-fw
 cd /tmp/sui-fw && git sparse-checkout set --cone crates/sui-framework/packages && git checkout
 node scripts/ci/move-symbols/build-index.mjs --src /tmp/sui-fw
 ```
 
 `known-failures.txt` holds `<md path> <symbol>` pairs that already fail; only new pairs break
-the build. It is empty — the corpus was clean at `mainnet-v1.78.1` — and padding it to silence
+the build. It is empty — the corpus was clean at `mainnet-v1.80.1` — and padding it to silence
 a real fabrication defeats the gate.
 
 ## Move build check
