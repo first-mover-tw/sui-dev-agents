@@ -130,6 +130,9 @@ async function resolveNameViaCore(name: string): Promise<string | null> {
 }
 
 // Reverse lookup: address to default name (provided by SuiGrpcClient core)
+// sui ≥2.33.2: gRPC + GraphQL return { data: { name: null } } when the address has no
+// default name (gRPC also for NOT_FOUND / "name has expired"); ≤2.33.1 threw instead
+// (gRPC status error / GraphQL "Missing response data"). Handle null, don't rely on catch.
 async function getName(address: string): Promise<string | null> {
   const res = await client.core.defaultNameServiceName({ address });
   return res.data.name;

@@ -457,6 +457,42 @@ For SUI, `tx.splitCoins(tx.gas, [...])` works fine. But for other coin types, yo
 
 **Important**: `setSender()` is required when using `coinWithBalance` with non-SUI types so the SDK can query the sender's coins during the build phase. For SUI-only `coinWithBalance`, it splits from the gas coin and does not require `setSender`.
 
+### Address-balance withdrawals and allowances (verified on sui 2.33.2)
+
+`tx.coin(options)` / `tx.balance(options)` take `BalanceOptions` (`dist/transactions/Transaction.d.mts:402,409`; type in `dist/transactions/intents/BalanceOptions.d.mts:5-24`): `balance: bigint | number | string`, `type?` (the coin type `T`, not `Balance<T>`; defaults to SUI), and **either** `useGasCoin?` **or** `allowance: string | AllowanceReference` (`{ objectId; funder?; app?: { type; permit } }`) — the two are mutually exclusive at the type level. With `allowance`, the spend comes only from the funder's address balance under that allowance and never falls back to sender funds.
+
+`tx.withdrawal(options: WithdrawalOptions)` (`Transaction.d.mts:16-31,504`) adds a raw `FundsWithdrawal` input; `from` is `'sender'` (default), `'sponsor'`, or `'allowance'` (then `allowance` and `funder` are required). `BuildTransactionOptions.assumeSufficientAddressBalances?: boolean` (`dist/transactions/resolve.d.mts:16`, also accepted by `tx.getDigest`, `Transaction.d.mts:544`) resolves `tx.coin`/`tx.balance` from address balance without looking up balances or coins; if nothing else needs resolution, no `GasCoin` is used, and a `ValidDuring`/`Validity` expiration is already set, it also sets an unset gas payment to `[]` — execution fails if the balances aren't there.
+
+> **Allowances are not live on mainnet.** The SDK types exist, but `sui::allowance` needs the `enable_allowances` protocol flag: devnet/testnet from P137, mainnet only from P138 (not reached as of 2026-09-30) — see the sui-developer skill. The new `withdrawFrom` variant `SenderAllowance` widens the `$kind` union to `"Sender" | "Sponsor" | "SenderAllowance"` (`Transaction.d.mts:190-194`), so exhaustive `switch`/`never` checks over it stop compiling.
+
+```typescript
+import { Transaction } from '@mysten/sui/transactions';
+
+const USDC = '0xUsdcPackage::usdc::USDC';
+const ALLOWANCE_ID = '0xAllowanceId';
+const FUNDER = '0xFunderAddress';
+
+const tx = new Transaction();
+
+// High level: SDK adds the allowance, withdrawal and clock inputs plus the spend call.
+// Passing `funder` skips the allowance lookup (wrong values then fail on-chain).
+const coin = tx.coin({
+  balance: 10_000_000n,
+  type: USDC,
+  allowance: { objectId: ALLOWANCE_ID, funder: FUNDER },
+});
+tx.transferObjects([coin], '0xRecipientAddress');
+
+// Low level: the same spend by hand (what the intent expands to).
+const w = tx.withdrawal({ amount: 5_000_000n, type: USDC, from: 'allowance', allowance: ALLOWANCE_ID, funder: FUNDER });
+const bal = tx.moveCall({
+  target: '0x2::allowance::balance_spend',
+  typeArguments: [USDC],
+  arguments: [tx.object(ALLOWANCE_ID), w, tx.object.clock()],
+});
+tx.moveCall({ target: '0x2::balance::send_funds', typeArguments: [USDC], arguments: [bal, tx.pure.address('0xRecipientAddress')] }); // to recipient's address balance
+```
+
 ---
 
 ## 10. Execution & Status Checking
